@@ -1,0 +1,86 @@
+{
+  "model": "activities",
+  "title": "Activity Log",
+  "singular_title": "Activity",
+  "description": "View user activity logs",
+  "table": "activities",
+  "primary_key": "id",
+  "permissions": {
+    "read": "uri_activities",
+    "create": "create_activity",
+    "update": "update_activity",
+    "delete": "delete_activity"
+  },
+  "default_sort": {
+    "occurred_at": "desc"
+  },
+  "fields": {
+    "id": {
+      "type": "integer",
+      "label": "ID",
+      "auto_increment": true,
+      "readonly": true,
+      "sortable": true,
+      "filterable": false,
+      "searchable": false,
+      "listable": true
+    },
+    "ip_address": {
+      "type": "string",
+      "label": "IP Address",
+      "required": false,
+      "sortable": true,
+      "filterable": true,
+      "searchable": true,
+      "listable": true,
+      "validation": {
+        "length": {
+          "max": 45
+        }
+      }
+    },
+    "user_id": {
+      "type": "integer",
+      "label": "User ID",
+      "required": true,
+      "sortable": true,
+      "filterable": true,
+      "searchable": false,
+      "listable": true
+    },
+    "type": {
+      "type": "string",
+      "label": "Type",
+      "required": true,
+      "sortable": true,
+      "filterable": true,
+      "searchable": true,
+      "listable": true,
+      "validation": {
+        "required": true,
+        "length": {
+          "max": 255
+        }
+      }
+    },
+    "occurred_at": {
+      "type": "datetime",
+      "label": "Occurred At",
+      "required": true,
+      "sortable": true,
+      "filterable": true,
+      "searchable": false,
+      "listable": true,
+      "date_format": "Y-m-d H:i:s"
+    },
+    "description": {
+      "type": "text",
+      "label": "Description",
+      "required": false,
+      "sortable": false,
+      "filterable": false,
+      "searchable": true,
+      "listable": true
+    }
+  }
+}
