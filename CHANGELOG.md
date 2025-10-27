@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Sidebar menu component
   - i18n support (English and French)
   - Email templates
+- **Admin-Specific Features**:
+  - Password reset functionality (custom controller at `/api/users/{id}/password-reset`)
+  - User activation/deactivation (via CRUD6 UpdateFieldAction)
+  - Relationship management (via CRUD6 RelationshipAction)
 - JSON schemas for core models (users, roles, groups, permissions, activities)
 - Dashboard controller for admin statistics
 - Config controllers for system info and cache management
@@ -23,12 +27,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MIT License
 
 ### Changed
-- **BREAKING**: API endpoints now at `/api/crud6/{model}` instead of `/api/{model}`
+- **BREAKING**: API endpoints now at `/api/crud6/{model}` for CRUD operations
+- **BREAKING**: Admin-specific operations at `/api/{model}` (e.g., password reset)
 - **BREAKING**: All lookups use `id` instead of slug/user_name
 - **Frontend Routes**: Updated to use `:id` param instead of `:slug` or `:user_name`
 - **API Composables**: All refactored to use ID-based lookups
+  - Fixed `useUserUpdateApi.submitUserUpdate(id, ...)` - parameter changed from user_name to id
+  - Fixed `useRoleUpdateApi.submitRoleUpdate(id, ...)` - parameter changed from slug to id
 - Schemas location: `app/schema/c6admin/` → `app/schema/crud6/`
 - Simplified architecture - leverages CRUD6 for all CRUD operations
+
+### Fixed
+- Update API composables now use correct ID parameter instead of slug/user_name
 
 ### Removed
 - Custom middleware injectors (not needed - CRUD6 provides)
