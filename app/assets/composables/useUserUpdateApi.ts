@@ -9,13 +9,16 @@ import { useAlertsStore } from '@userfrosting/sprinkle-core/stores'
 // 'schema://requests/user/edit-field.yaml'
 
 /**
- * API Composable
+ * API Composable for updating user fields.
+ * 
+ * Uses CRUD6's UpdateFieldAction to update a single field of a user record.
+ * For relationship updates (roles, permissions), use the relationship endpoints.
  */
 export function useUserUpdateApi() {
     const apiLoading = ref<boolean>(false)
     const apiError = ref<ApiErrorResponse | null>(null)
 
-    async function submitUserUpdate(user_name: string, fieldName: string, formData: any) {
+    async function submitUserUpdate(id: number, fieldName: string, formData: any) {
         apiLoading.value = true
         apiError.value = null
 

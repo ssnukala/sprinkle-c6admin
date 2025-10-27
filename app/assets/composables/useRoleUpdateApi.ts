@@ -10,10 +10,10 @@ import { useAlertsStore } from '@userfrosting/sprinkle-core/stores'
 // 'schema://requests/role/edit-field.yaml'
 
 /**
- * API used to update role.
+ * API used to update role fields.
  *
- * This API is tied to the `RoleUpdateFieldAction` API, accessed at the
- * GET `/api/roles/r/{slug}/{field}` endpoint.
+ * This API uses CRUD6's UpdateFieldAction, accessed at the
+ * PUT `/api/crud6/roles/{id}/{field}` endpoint.
  *
  * This composable can be used to update {field} for a specific role.
  */
@@ -21,7 +21,7 @@ export function useRoleUpdateApi() {
     const apiLoading = ref<boolean>(false)
     const apiError = ref<ApiErrorResponse | null>(null)
 
-    async function submitRoleUpdate(slug: string, fieldName: string, formData: any) {
+    async function submitRoleUpdate(id: number, fieldName: string, formData: any) {
         apiLoading.value = true
         apiError.value = null
 
