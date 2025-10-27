@@ -9,22 +9,22 @@ export default [
         children: [
             {
                 path: '',
-                name: 'admin.roles',
+                name: 'c6admin.roles',
                 meta: {
                     permission: {
-                        slug: 'uri_roles'
+                        slug: 'c6_uri_roles'
                     }
                 },
                 component: () => import('../views/PageRoles.vue')
             },
             {
                 path: ':id',
-                name: 'admin.role',
+                name: 'c6admin.role',
                 meta: {
                     title: 'ROLE.PAGE',
                     description: 'ROLE.INFO_PAGE',
                     permission: {
-                        slug: 'uri_role'
+                        slug: 'c6_uri_role'
                     }
                 },
                 component: () => import('../views/PageRole.vue')

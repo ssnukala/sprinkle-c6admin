@@ -3,7 +3,7 @@ export default [
         path: 'permissions',
         meta: {
             permission: {
-                slug: 'uri_permissions'
+                slug: 'c6_uri_permissions'
             },
             auth: {},
             title: 'PERMISSION.PAGE',
@@ -12,12 +12,12 @@ export default [
         children: [
             {
                 path: '',
-                name: 'admin.permissions',
+                name: 'c6admin.permissions',
                 component: () => import('../views/PagePermissions.vue')
             },
             {
                 path: ':id',
-                name: 'admin.permission',
+                name: 'c6admin.permission',
                 component: () => import('../views/PagePermission.vue'),
                 meta: {
                     description: 'PERMISSION.INFO_PAGE'

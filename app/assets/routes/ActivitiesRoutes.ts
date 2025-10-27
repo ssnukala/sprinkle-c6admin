@@ -1,11 +1,11 @@
 export default [
     {
         path: 'activities',
-        name: 'admin.activities',
+        name: 'c6admin.activities',
         meta: {
             auth: {},
             permission: {
-                slug: 'uri_activities'
+                slug: 'c6_uri_activities'
             },
             title: 'ACTIVITY.PAGE',
             description: 'ACTIVITY.PAGE_DESCRIPTION'

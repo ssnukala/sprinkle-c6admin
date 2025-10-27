@@ -25,12 +25,12 @@ class ConfigRoutes implements RouteDefinitionInterface
 {
     public function register(App $app): void
     {
-        $app->get('/api/config/info', SystemInfoApiAction::class)
-            ->setName('config.info')
+        $app->get('/api/c6/config/info', SystemInfoApiAction::class)
+            ->setName('c6.config.info')
             ->add(NoCache::class);
 
-        $app->delete('/api/cache', CacheApiAction::class)
-            ->setName('cache.clear')
+        $app->delete('/api/c6/cache', CacheApiAction::class)
+            ->setName('c6.cache.clear')
             ->add(NoCache::class);
     }
 }

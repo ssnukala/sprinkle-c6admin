@@ -9,22 +9,22 @@ export default [
         children: [
             {
                 path: '',
-                name: 'admin.groups',
+                name: 'c6admin.groups',
                 meta: {
                     permission: {
-                        slug: 'uri_groups'
+                        slug: 'c6_uri_groups'
                     }
                 },
                 component: () => import('../views/PageGroups.vue')
             },
             {
                 path: ':id',
-                name: 'admin.group',
+                name: 'c6admin.group',
                 meta: {
                     title: 'GROUP.PAGE',
                     description: 'GROUP.INFO_PAGE',
                     permission: {
-                        slug: 'uri_group'
+                        slug: 'c6_uri_group'
                     }
                 },
                 component: () => import('../views/PageGroup.vue')

@@ -1,11 +1,11 @@
 export default [
     {
         path: 'dashboard',
-        name: 'admin.dashboard',
+        name: 'c6admin.dashboard',
         meta: {
             auth: {},
             permission: {
-                slug: 'uri_dashboard'
+                slug: 'c6_uri_dashboard'
             },
             title: 'DASHBOARD'
         },

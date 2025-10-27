@@ -24,7 +24,7 @@ export function useConfigSystemInfoApi() {
         loading.value = true
         error.value = null
         return axios
-            .get<ConfigSystemInfoResponse>('/api/config/info')
+            .get<ConfigSystemInfoResponse>('/api/c6/config/info')
             .then((response) => {
                 data.value = response.data
             })

@@ -1,8 +1,8 @@
 export default [
     {
         path: 'config',
-        name: 'admin.config',
-        redirect: { name: 'admin.config.info' },
+        name: 'c6admin.config',
+        redirect: { name: 'c6admin.config.info' },
         meta: {
             auth: {},
             title: 'SITE_CONFIG',
@@ -12,20 +12,20 @@ export default [
         children: [
             {
                 path: 'info',
-                name: 'admin.config.info',
+                name: 'c6admin.config.info',
                 meta: {
                     permission: {
-                        slug: 'view_system_info'
+                        slug: 'c6_view_system_info'
                     }
                 },
                 component: () => import('../views/PageConfigInfo.vue')
             },
             {
                 path: 'cache',
-                name: 'admin.config.cache',
+                name: 'c6admin.config.cache',
                 meta: {
                     permission: {
-                        slug: 'clear_cache'
+                        slug: 'c6_clear_cache'
                     }
                 },
                 component: () => import('../views/PageConfigCache.vue')

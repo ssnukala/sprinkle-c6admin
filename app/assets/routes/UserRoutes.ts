@@ -9,22 +9,22 @@ export default [
         children: [
             {
                 path: '',
-                name: 'admin.users',
+                name: 'c6admin.users',
                 meta: {
                     permission: {
-                        slug: 'uri_users'
+                        slug: 'c6_uri_users'
                     }
                 },
                 component: () => import('../views/PageUsers.vue')
             },
             {
                 path: ':id',
-                name: 'admin.user',
+                name: 'c6admin.user',
                 meta: {
                     title: 'USER.PAGE',
                     description: 'USER.INFO_PAGE',
                     permission: {
-                        slug: 'uri_user'
+                        slug: 'c6_uri_user'
                     }
                 },
                 component: () => import('../views/PageUser.vue')
