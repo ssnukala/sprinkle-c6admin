@@ -7,23 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **BREAKING**: Removed custom injectors - now uses CRUD6's built-in injector
+- **BREAKING**: Removed individual route files for CRUD operations
+- **BREAKING**: Changed from slug/user_name lookups to ID-based lookups for consistency
+- **BREAKING**: CRUD endpoints now at `/api/crud6/{model}` instead of `/api/{model}`
+- Moved schemas from `app/schema/c6admin/` to `app/schema/crud6/`
+- Simplified architecture - now just schemas + dashboard/config utilities
+
 ### Added
-- Initial sprinkle structure based on sprinkle-admin 6.0
 - JSON schemas for core models (users, roles, groups, permissions, activities)
 - Dashboard controller for admin statistics
 - Config controllers for system info and cache management
-- GroupInjector middleware for CRUD6 integration
-- Group management routes using CRUD6
-- Comprehensive README documentation
+- Comprehensive documentation
 - MIT License
 
-### In Progress
-- User management routes
-- Role management routes
-- Permission management routes
-- Activity log routes
-- Templates and frontend assets
-- Full test coverage
+### Removed
+- Custom middleware injectors (GroupInjector, UserInjector, etc.)
+- Custom route files (GroupsRoute, UsersRoutes, etc.)
+- Duplicate CRUD functionality (now handled by CRUD6)
 
 ## [0.1.0] - 2024-10-27
 

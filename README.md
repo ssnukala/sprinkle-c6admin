@@ -1,24 +1,26 @@
 # sprinkle-c6admin
 
-Drop-in replacement administrative module for UserFrosting 6, powered by [sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6).
+Admin schemas and utilities for UserFrosting 6, designed to work with [sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6).
 
 ## Overview
 
-`sprinkle-c6admin` provides the same administrative functionality as the official [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin) but leverages the generic CRUD capabilities of sprinkle-crud6. This approach provides:
+`sprinkle-c6admin` provides JSON schema definitions for administrative models (users, roles, groups, permissions, activities) that work seamlessly with sprinkle-crud6. Instead of duplicating CRUD functionality, this sprinkle leverages CRUD6's generic controllers and routes.
 
-- **JSON Schema-based Configuration**: All models (users, roles, groups, permissions) are defined using JSON schemas
-- **Generic CRUD Operations**: Reusable CRUD controllers for all admin entities
-- **RESTful API**: Clean, consistent API endpoints following UserFrosting patterns
-- **Drop-in Replacement**: Compatible with existing UserFrosting 6 applications
+**Key benefits:**
+- **No Custom Routes**: Uses CRUD6's existing `/api/crud6/{model}` endpoints
+- **No Custom Controllers**: All CRUD operations handled by CRUD6
+- **JSON Schema-based**: Define models once, CRUD6 handles the rest
+- **Consistent API**: All models use `id` for lookups (not slug/user_name)
 
 ## Features
 
-- **User Management**: Full CRUD operations for users using CRUD6
-- **Role Management**: Manage user roles with JSON schema definitions
-- **Group Management**: Organize users into groups
-- **Permission Management**: Handle permissions and authorization
-- **Activity Logging**: Track user activities
-- **Dashboard**: Administrative dashboard with statistics
+- **JSON Schemas** for core admin models:
+  - Users
+  - Roles
+  - Groups
+  - Permissions
+  - Activities
+- **Dashboard API**: Administrative dashboard with statistics
 - **System Configuration**: Cache management and system information
 
 ## Requirements
@@ -45,46 +47,66 @@ public function getSprinkles(): array
     return [
         Core::class,
         Account::class,
+        CRUD6::class,     // Required: CRUD6 must be registered
         C6Admin::class,
         // Your other sprinkles...
     ];
 }
 ```
 
+**Important**: `CRUD6` must be registered before `C6Admin`.
+
 ## Structure
 
 ```
 app/
-├── schema/c6admin/        # JSON schemas for admin models
+├── schema/crud6/          # JSON schemas for CRUD6 models
 │   ├── users.json
 │   ├── roles.json
 │   ├── groups.json
 │   ├── permissions.json
 │   └── activities.json
-├── src/
-│   ├── C6Admin.php        # Main sprinkle class
-│   ├── Controller/        # Controllers (Dashboard, Config)
-│   ├── Middlewares/       # Model-specific injectors
-│   └── Routes/            # Route definitions
+└── src/
+    ├── C6Admin.php        # Main sprinkle class
+    ├── Controller/        # Non-CRUD controllers only
+    │   ├── Dashboard/     # Dashboard API
+    │   └── Config/        # System config/cache
+    └── Routes/            # Non-CRUD routes only
+        ├── DashboardRoutes.php
+        └── ConfigRoutes.php
 ```
 
 ## Usage
 
-### API Endpoints
+### CRUD Operations
 
-The sprinkle provides RESTful API endpoints matching the original sprinkle-admin:
+All CRUD operations use CRUD6's standard endpoints with `id` for lookups:
 
 **Groups**:
-- `GET /api/groups` - List all groups
-- `GET /api/groups/g/{slug}` - Get group by slug
-- `POST /api/groups` - Create group
-- `PUT /api/groups/g/{slug}` - Update group
-- `DELETE /api/groups/g/{slug}` - Delete group
+- `GET /api/crud6/groups` - List all groups
+- `GET /api/crud6/groups/{id}` - Get group by ID
+- `POST /api/crud6/groups` - Create group
+- `PUT /api/crud6/groups/{id}` - Update group
+- `PUT /api/crud6/groups/{id}/{field}` - Update single field
+- `DELETE /api/crud6/groups/{id}` - Delete group
 
-**Users, Roles, Permissions**: Similar patterns (implementation in progress)
+**Users**:
+- `GET /api/crud6/users` - List all users
+- `GET /api/crud6/users/{id}` - Get user by ID
+- `POST /api/crud6/users` - Create user
+- `PUT /api/crud6/users/{id}` - Update user
+- `DELETE /api/crud6/users/{id}` - Delete user
+
+**Roles, Permissions**: Same pattern as groups
+
+**Activities** (read-only):
+- `GET /api/crud6/activities` - List activities
+- `GET /api/crud6/activities/{id}` - Get activity by ID
+
+### Admin-Specific Endpoints
 
 **Dashboard**:
-- `GET /api/dashboard` - Get dashboard data
+- `GET /api/dashboard` - Get dashboard data (user/role/group counts, recent users)
 
 **Configuration**:
 - `GET /api/config/info` - System information
@@ -92,18 +114,19 @@ The sprinkle provides RESTful API endpoints matching the original sprinkle-admin
 
 ### JSON Schemas
 
-All models are defined using JSON schemas in `app/schema/c6admin/`. These schemas define:
+All models are defined using JSON schemas in `app/schema/crud6/`. These schemas define:
 - Table structure and fields
 - Validation rules
 - Permissions
 - Display configuration
 
-Example `groups.json`:
+Example schema structure:
 ```json
 {
   "model": "groups",
   "title": "Group Management",
   "table": "groups",
+  "primary_key": "id",
   "permissions": {
     "read": "uri_groups",
     "create": "create_group",
@@ -113,38 +136,27 @@ Example `groups.json`:
   "fields": {
     "id": { "type": "integer", "auto_increment": true },
     "slug": { "type": "string", "required": true },
-    "name": { "type": "string", "required": true },
-    "description": { "type": "text" }
+    "name": { "type": "string", "required": true }
   }
 }
 ```
 
-## Development Status
+## Key Differences from sprinkle-admin
 
-This sprinkle is currently in development. Completed features:
-
-- [x] Core structure and sprinkle class
-- [x] JSON schemas for all models
-- [x] Dashboard controller
-- [x] Config/Cache controllers
-- [x] Group management routes (CRUD6-based)
-- [ ] User management routes
-- [ ] Role management routes
-- [ ] Permission management routes
-- [ ] Activity log routes
-- [ ] Templates and frontend assets
-- [ ] Full test coverage
+1. **ID-based lookups**: Uses `id` instead of `slug` or `user_name`
+2. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of `/api/{model}`
+3. **No custom controllers**: Leverages CRUD6's generic controllers
+4. **Simpler architecture**: Just schemas + dashboard/config
 
 ## Architecture
 
-`sprinkle-c6admin` uses a layered approach:
+This sprinkle follows a minimalist approach:
 
-1. **JSON Schemas** define the data structure for each model
-2. **CRUD6 Controllers** provide generic CRUD operations
-3. **Custom Injectors** adapt admin-style routes to work with CRUD6
-4. **Routes** maintain compatibility with original sprinkle-admin endpoints
+1. **JSON Schemas** - Define model structure for CRUD6
+2. **CRUD6 Integration** - All CRUD handled by sprinkle-crud6
+3. **Admin Utilities** - Dashboard and config endpoints only
 
-This architecture allows the sprinkle to provide the same functionality as sprinkle-admin while leveraging the power and flexibility of sprinkle-crud6.
+No custom injectors, no custom CRUD controllers, no route conflicts.
 
 ## Contributing
 
@@ -156,8 +168,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Credits
 
-- Based on [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin)
-- Powered by [ssnukala/sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6)
+- Designed to work with [ssnukala/sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6)
 - Part of the [UserFrosting](https://www.userfrosting.com) ecosystem
 
 ## Support

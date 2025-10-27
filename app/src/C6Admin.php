@@ -16,20 +16,15 @@ use UserFrosting\Sprinkle\Account\Account;
 use UserFrosting\Sprinkle\Core\Core;
 use UserFrosting\Sprinkle\CRUD6\CRUD6;
 use UserFrosting\Sprinkle\SprinkleRecipe;
-use UserFrosting\Sprinkle\C6Admin\Routes\ActivitiesRoutes;
 use UserFrosting\Sprinkle\C6Admin\Routes\ConfigRoutes;
 use UserFrosting\Sprinkle\C6Admin\Routes\DashboardRoutes;
-use UserFrosting\Sprinkle\C6Admin\Routes\GroupsRoute;
-use UserFrosting\Sprinkle\C6Admin\Routes\PermissionsRoutes;
-use UserFrosting\Sprinkle\C6Admin\Routes\RolesRoutes;
-use UserFrosting\Sprinkle\C6Admin\Routes\UsersRoutes;
 
 /**
- * C6Admin Sprinkle - Drop-in replacement for Admin Sprinkle using CRUD6
+ * C6Admin Sprinkle - Admin schemas for CRUD6
  *
- * Provides administrative functionality for UserFrosting 6 using the CRUD6 framework.
- * This sprinkle replicates all functionality of the official sprinkle-admin while
- * leveraging sprinkle-crud6 for CRUD operations.
+ * Provides JSON schemas for administrative models (users, roles, groups, permissions, activities)
+ * that work with sprinkle-crud6. All CRUD operations are handled by CRUD6 at /api/crud6/{model}.
+ * This sprinkle only provides non-CRUD admin functionality (Dashboard, Config).
  */
 class C6Admin implements SprinkleRecipe
 {
@@ -67,12 +62,7 @@ class C6Admin implements SprinkleRecipe
     public function getRoutes(): array
     {
         return [
-            ActivitiesRoutes::class,
             DashboardRoutes::class,
-            GroupsRoute::class,
-            PermissionsRoutes::class,
-            RolesRoutes::class,
-            UsersRoutes::class,
             ConfigRoutes::class,
         ];
     }
