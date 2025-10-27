@@ -18,6 +18,7 @@ use UserFrosting\Sprinkle\CRUD6\CRUD6;
 use UserFrosting\Sprinkle\SprinkleRecipe;
 use UserFrosting\Sprinkle\C6Admin\Routes\ConfigRoutes;
 use UserFrosting\Sprinkle\C6Admin\Routes\DashboardRoutes;
+use UserFrosting\Sprinkle\C6Admin\Routes\UsersRoutes;
 
 /**
  * C6Admin Sprinkle - Admin schemas for CRUD6
@@ -64,6 +65,7 @@ class C6Admin implements SprinkleRecipe
         return [
             DashboardRoutes::class,
             ConfigRoutes::class,
+            UsersRoutes::class,
         ];
     }
 
