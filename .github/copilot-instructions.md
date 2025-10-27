@@ -480,35 +480,38 @@ npm run dev
 
 ## Documentation Guidelines
 
-### Archive Folder (.archive/)
-All historical documentation, fix summaries, visual comparisons, and issue-specific guides should be created in the `.archive/` directory. This keeps the repository root clean and organized while preserving documentation for future reference.
+### Documentation Folder (docs/)
+All repository documentation, including fix summaries, implementation guides, analysis documents, and issue-specific guides should be created in the `docs/` directory. This keeps the repository root clean and organized while preserving documentation for future reference.
 
-**Important**: Files in `.archive/` ARE tracked by git and will be committed to the repository. The archive is not ignored - it's a permanent part of the repository structure.
+**Important**: Files in `docs/` ARE tracked by git and will be committed to the repository. The docs folder is not ignored - it's a permanent part of the repository structure.
 
 #### Documentation Location Rules
 - **Active Documentation** (keep in root):
   - `README.md` - Main project documentation
   - `CHANGELOG.md` - Version history
-  - `INTEGRATION_TESTING.md` - Integration testing guide
-  - `QUICK_TEST_GUIDE.md` - Quick reference for testing
-  - `MIGRATION_FROM_THEME_CRUD6.md` - Migration guide
+  - `LICENSE.md` - License file
 
-- **Historical Documentation** (place in `.archive/`):
+- **Repository Documentation** (place in `docs/`):
   - All fix summaries (e.g., `*_FIX_SUMMARY.md`, `*_FIX.md`)
   - Visual comparison documents (e.g., `VISUAL_*.md`, `*_COMPARISON*.md`)
   - Issue-specific documentation (e.g., `ISSUE_*.md`, `PR*.md`)
   - Testing approach documents (e.g., `TESTING_APPROACH.md`, `TESTING_GUIDE.md`)
   - Implementation summaries (e.g., `*_IMPLEMENTATION_SUMMARY.md`)
+  - Code review documents (e.g., `CODE_REVIEW.md`)
+  - Analysis documents (e.g., `SPRUNJE_ANALYSIS.md`, `*_ANALYSIS.md`)
   - Checklist documents (e.g., `*_CHECKLIST.md`)
   - Before/after comparison documents
-  - Any other temporary or issue-specific documentation
+  - Migration guides (e.g., `MIGRATION_*.md`)
+  - Integration testing guides (e.g., `INTEGRATION_TESTING.md`)
+  - Quick reference guides (e.g., `QUICK_TEST_GUIDE.md`)
+  - Any other development or repository-specific documentation
 
 #### Creating New Documentation
 When creating documentation for fixes, features, or issues:
-1. **Always create in `.archive/`**: All new documentation should go directly into `.archive/` unless it's a core documentation file
+1. **Always create in `docs/`**: All new documentation should go directly into `docs/` unless it's a core documentation file (README.md, CHANGELOG.md, LICENSE.md)
 2. **Use descriptive names**: Name files clearly to indicate their purpose (e.g., `ISSUE_123_FIX_SUMMARY.md`, `FEATURE_XYZ_IMPLEMENTATION.md`)
 3. **Include context**: Add issue/PR numbers and dates to help with future reference
 4. **Keep root clean**: Never create fix summaries or temporary documentation in the repository root
 
 #### Note
-The `.archive/` directory is tracked by git and all files in it are committed to the repository. This approach keeps the repository root clean while maintaining a complete history of fixes and changes in an organized subdirectory.
+The `docs/` directory is tracked by git and all files in it are committed to the repository. This approach keeps the repository root clean while maintaining a complete history of fixes and changes in an organized subdirectory.
