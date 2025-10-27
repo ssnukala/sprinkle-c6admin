@@ -1,2 +1,232 @@
 # sprinkle-c6admin
-Drop in replacement sprinkle for userfrosting/sprinkle-admin, using ssnukala/sprinkle-crud6
+
+Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6).
+
+## Overview
+
+`sprinkle-c6admin` replicates all functionality of the official [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin) while leveraging sprinkle-crud6 for CRUD operations. It provides:
+
+- **Complete Frontend**: All Vue.js components, views, and routes from sprinkle-admin
+- **JSON Schema-based Backend**: Model definitions that work with CRUD6
+- **ID-based Lookups**: Consistent use of `id` instead of slug/user_name
+- **RESTful API via CRUD6**: All CRUD at `/api/crud6/{model}` endpoints
+- **Drop-in Replacement**: Same features and UI as sprinkle-admin
+
+## Features
+
+### Backend
+- **JSON Schemas** for admin models (users, roles, groups, permissions, activities)
+- **Dashboard API** with statistics and recent users
+- **Config Utilities** for system info and cache management
+- **All CRUD** handled by CRUD6 generic controllers
+
+### Frontend
+- **14 Vue.js Pages**: Dashboard, Users, Groups, Roles, Permissions, Activities, Config
+- **14 API Composables**: Full CRUD operations for all models
+- **20+ TypeScript Interfaces**: Type-safe API communication
+- **Vue Router Integration**: Clean routing with permissions
+- **i18n Support**: English and French translations
+- **Email Templates**: User creation notifications
+
+## Requirements
+
+- PHP 8.1 or higher
+- UserFrosting 6.0 or higher
+- sprinkle-crud6 1.0 or higher
+- Node.js & npm (for frontend build)
+
+## Installation
+
+Add to your UserFrosting 6 project:
+
+```bash
+composer require ssnukala/sprinkle-c6admin
+```
+
+Then register the sprinkle in your main application sprinkle class:
+
+```php
+use UserFrosting\Sprinkle\C6Admin\C6Admin;
+
+public function getSprinkles(): array
+{
+    return [
+        Core::class,
+        Account::class,
+        CRUD6::class,     // Required: CRUD6 must come before C6Admin
+        C6Admin::class,
+        // Your other sprinkles...
+    ];
+}
+```
+
+**Important**: `CRUD6` must be registered before `C6Admin`.
+
+## Structure
+
+```
+app/
+├── assets/                # Frontend (Vue.js, TypeScript)
+│   ├── components/        # Vue components
+│   ├── composables/       # API composables (14 files)
+│   ├── views/             # Page components (14 pages)
+│   ├── routes/            # Vue Router definitions
+│   └── interfaces/        # TypeScript types
+├── locale/                # Translations
+│   ├── en_US/
+│   └── fr_FR/
+├── schema/crud6/          # JSON schemas for CRUD6
+│   ├── users.json
+│   ├── roles.json
+│   ├── groups.json
+│   ├── permissions.json
+│   └── activities.json
+├── src/                   # Backend (PHP)
+│   ├── C6Admin.php        # Main sprinkle class
+│   ├── Controller/        # Dashboard & Config controllers
+│   └── Routes/            # Route definitions
+└── templates/             # Email templates
+```
+
+## Usage
+
+### Frontend Pages
+
+Access admin pages at these routes:
+- `/admin/dashboard` - Dashboard with statistics
+- `/admin/users` - User list
+- `/admin/users/{id}` - User details
+- `/admin/groups` - Group list
+- `/admin/groups/{id}` - Group details
+- `/admin/roles` - Role list
+- `/admin/roles/{id}` - Role details
+- `/admin/permissions` - Permission list
+- `/admin/permissions/{id}` - Permission details
+- `/admin/activities` - Activity log
+- `/admin/config` - System configuration
+
+### API Endpoints
+
+**CRUD Operations (via CRUD6)**:
+All models accessible at `/api/crud6/{model}` with ID-based endpoints:
+- `GET /api/crud6/{model}` - List records (Sprunje)
+- `GET /api/crud6/{model}/{id}` - Get by ID
+- `POST /api/crud6/{model}` - Create
+- `PUT /api/crud6/{model}/{id}` - Update
+- `PUT /api/crud6/{model}/{id}/{field}` - Update single field
+- `DELETE /api/crud6/{model}/{id}` - Delete
+
+**Relationship Endpoints**:
+- `GET /api/crud6/users/{id}/roles` - Get user's roles
+- `GET /api/crud6/roles/{id}/permissions` - Get role's permissions
+
+**Admin Utilities**:
+- `GET /api/dashboard` - Dashboard data
+- `GET /api/config/info` - System information
+- `DELETE /api/cache` - Clear cache
+
+### Frontend Build
+
+Build the frontend assets:
+
+```bash
+npm install
+npm run build
+```
+
+For development:
+
+```bash
+npm run dev
+```
+
+## Key Differences from sprinkle-admin
+
+1. **ID-based lookups**: Uses `id` instead of `slug` or `user_name` for consistency
+2. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of custom `/api/{model}` routes
+3. **No custom controllers**: Leverages CRUD6's generic CRUD controllers
+4. **Simpler backend**: Just schemas + dashboard/config utilities
+5. **Same frontend**: Exact UI/UX replication with refactored API calls
+
+## Development
+
+### Building Frontend
+
+```bash
+# Install dependencies
+npm install
+
+# Development build with watch
+npm run dev
+
+# Production build
+npm run build
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+```
+
+### Testing
+
+This sprinkle includes comprehensive tests for both backend and frontend.
+
+**Backend Tests (PHPUnit)**:
+```bash
+# Run all backend tests
+composer test:php
+
+# Run with coverage
+vendor/bin/phpunit --coverage-html coverage/
+```
+
+Tests include:
+- `UserPasswordResetActionTest` - Password reset functionality
+- `DashboardApiTest` - Dashboard statistics API
+- `SystemInfoApiActionTest` - System information API
+- `CacheApiActionTest` - Cache management API
+
+**Frontend Tests (Vitest)**:
+```bash
+# Run all frontend tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run with coverage
+npm run test:coverage
+```
+
+Tests include:
+- Route validation (ID-based parameters, no slug/user_name)
+- Component testing
+- API composable validation
+
+**Run All Tests**:
+```bash
+# Both backend and frontend
+composer test
+```
+
+## Contributing
+
+Contributions are welcome! This project follows the same coding standards as UserFrosting.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Credits
+
+- Frontend components from [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin)
+- CRUD functionality by [ssnukala/sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6)
+- Part of the [UserFrosting](https://www.userfrosting.com) ecosystem
+
+## Support
+
+For issues and questions:
+- GitHub Issues: https://github.com/ssnukala/sprinkle-c6admin/issues
+- UserFrosting Chat: https://chat.userfrosting.com

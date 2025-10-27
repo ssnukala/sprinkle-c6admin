@@ -1,0 +1,58 @@
+{
+    "name": "@ssnukala/sprinkle-c6admin",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Drop-in replacement administrative module for UserFrosting 6, using sprinkle-crud6",
+    "license": "MIT",
+    "author": "Srinivas Nukala (https://srinivasnukala.com/)",
+    "keywords": [
+        "UserFrosting",
+        "Admin panel",
+        "Sprinkle",
+        "CRUD6"
+    ],
+    "homepage": "https://github.com/ssnukala/sprinkle-c6admin#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ssnukala/sprinkle-c6admin.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ssnukala/sprinkle-c6admin/issues"
+    },
+    "exports": {
+        ".": "./app/assets/index.ts",
+        "./components": "./app/assets/components/index.ts",
+        "./composables": "./app/assets/composables/index.ts",
+        "./interfaces": "./app/assets/interfaces/index.ts",
+        "./routes": "./app/assets/routes/index.ts",
+        "./views": "./app/assets/views/index.ts"
+    },
+    "files": [
+        "app/assets",
+        "app/schema/"
+    ],
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "peerDependencies": {
+        "@userfrosting/sprinkle-account": "^6.0.0-beta",
+        "@userfrosting/sprinkle-core": "^6.0.0-beta",
+        "axios": "^1.12.0",
+        "limax": "^4.2.1",
+        "pinia": "^2.1.6",
+        "pinia-plugin-persistedstate": "^3.2.0",
+        "vue": "^3.4.21",
+        "vue-router": "^4.2.4"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.0",
+        "@vitest/coverage-v8": "^1.2.0",
+        "happy-dom": "^13.3.5",
+        "vite": "^5.0.0",
+        "vitest": "^1.2.0"
+    }
+}
