@@ -50,6 +50,8 @@ jobs:
       - name: Configure Composer for beta packages and local sprinkles
         run: |
           cd userfrosting
+          # Add sprinkle-crud6 from GitHub (required dependency)
+          composer config repositories.sprinkle-crud6 vcs https://github.com/ssnukala/sprinkle-crud6
           # Add local paths to composer.json
           composer config repositories.local-c6admin path ../sprinkle-c6admin
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
