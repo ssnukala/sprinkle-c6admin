@@ -24,8 +24,8 @@ class DashboardRoutes implements RouteDefinitionInterface
 {
     public function register(App $app): void
     {
-        $app->get('/api/c6/dashboard', DashboardApi::class)
-            ->setName('c6.dashboard')
+        $app->get('/api/dashboard', DashboardApi::class)
+            ->setName('api.dashboard')
             ->add(NoCache::class);
     }
 }

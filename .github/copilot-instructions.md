@@ -385,6 +385,17 @@ app/
 - `tsconfig.json`: TypeScript configuration
 - `app/schema/crud6/*.json`: Schema definitions for different models
 
+### Directory Management Policy
+**IMPORTANT**: Only create directories when they contain actual files with content. Do NOT create empty directories with `.gitkeep` files.
+
+**Rationale**: While UserFrosting 6 framework may include certain directories (like `app/storage`, `app/logs`, `app/cache`, `app/sessions`, `app/database`), this sprinkle should only include directories that contain relevant content. Empty directories serve no purpose in a sprinkle and create unnecessary clutter.
+
+**Rules**:
+- ❌ DO NOT create empty folders with `.gitkeep` files
+- ❌ DO NOT create framework-standard directories (storage, logs, cache, sessions, database) unless they contain sprinkle-specific files
+- ✅ Only create directories when adding actual files with content
+- ✅ Remove any empty directories found in the repository
+
 ## Time Expectations
 
 ### Build and Test Times

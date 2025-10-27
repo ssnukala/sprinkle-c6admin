@@ -14,7 +14,7 @@ export function useConfigCacheApi() {
         loading.value = true
         error.value = null
         return axios
-            .delete<ApiResponse>('/api/c6/cache')
+            .delete<ApiResponse>('/api/cache')
             .then((response) => {
                 useAlertsStore().push({
                     title: response.data.title,
