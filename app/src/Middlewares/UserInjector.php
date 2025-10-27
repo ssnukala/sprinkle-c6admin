@@ -44,10 +44,6 @@ class UserInjector extends CRUD6Injector
             $route->setArgument('model', 'users');
         }
         
-        // Set the model name for getInstance method
-        $this->currentModelName = 'users';
-        $this->currentConnectionName = null;
-        
         // Get user_name from route if present
         $userName = $route?->getArgument('user_name');
         
@@ -64,18 +60,4 @@ class UserInjector extends CRUD6Injector
         
         return $handler->handle($request);
     }
-    
-    /**
-     * Store the current model name for use in getInstance.
-     * 
-     * @var string|null
-     */
-    private ?string $currentModelName = null;
-    
-    /**
-     * Store the current database connection name for use in getInstance.
-     * 
-     * @var string|null
-     */
-    private ?string $currentConnectionName = null;
 }

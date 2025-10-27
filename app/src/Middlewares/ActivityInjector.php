@@ -44,10 +44,6 @@ class ActivityInjector extends CRUD6Injector
             $route->setArgument('model', 'activities');
         }
         
-        // Set the model name for getInstance method
-        $this->currentModelName = 'activities';
-        $this->currentConnectionName = null;
-        
         // Get id from route if present
         $id = $route?->getArgument('id');
         
@@ -64,18 +60,4 @@ class ActivityInjector extends CRUD6Injector
         
         return $handler->handle($request);
     }
-    
-    /**
-     * Store the current model name for use in getInstance.
-     * 
-     * @var string|null
-     */
-    private ?string $currentModelName = null;
-    
-    /**
-     * Store the current database connection name for use in getInstance.
-     * 
-     * @var string|null
-     */
-    private ?string $currentConnectionName = null;
 }

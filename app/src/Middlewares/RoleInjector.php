@@ -44,10 +44,6 @@ class RoleInjector extends CRUD6Injector
             $route->setArgument('model', 'roles');
         }
         
-        // Set the model name for getInstance method
-        $this->currentModelName = 'roles';
-        $this->currentConnectionName = null;
-        
         // Get slug from route if present
         $slug = $route?->getArgument('slug');
         
@@ -64,18 +60,4 @@ class RoleInjector extends CRUD6Injector
         
         return $handler->handle($request);
     }
-    
-    /**
-     * Store the current model name for use in getInstance.
-     * 
-     * @var string|null
-     */
-    private ?string $currentModelName = null;
-    
-    /**
-     * Store the current database connection name for use in getInstance.
-     * 
-     * @var string|null
-     */
-    private ?string $currentConnectionName = null;
 }
