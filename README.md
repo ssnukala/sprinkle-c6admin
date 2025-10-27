@@ -171,12 +171,44 @@ npm run lint
 
 ### Testing
 
-```bash
-# Backend tests
-composer test
+This sprinkle includes comprehensive tests for both backend and frontend.
 
-# Frontend tests
+**Backend Tests (PHPUnit)**:
+```bash
+# Run all backend tests
+composer test:php
+
+# Run with coverage
+vendor/bin/phpunit --coverage-html coverage/
+```
+
+Tests include:
+- `UserPasswordResetActionTest` - Password reset functionality
+- `DashboardApiTest` - Dashboard statistics API
+- `SystemInfoApiActionTest` - System information API
+- `CacheApiActionTest` - Cache management API
+
+**Frontend Tests (Vitest)**:
+```bash
+# Run all frontend tests
 npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run with coverage
+npm run test:coverage
+```
+
+Tests include:
+- Route validation (ID-based parameters, no slug/user_name)
+- Component testing
+- API composable validation
+
+**Run All Tests**:
+```bash
+# Both backend and frontend
+composer test
 ```
 
 ## Contributing

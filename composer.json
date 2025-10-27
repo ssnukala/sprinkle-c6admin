@@ -52,5 +52,16 @@
         "psr-4": {
             "UserFrosting\\Sprinkle\\C6Admin\\Tests\\": "app/tests/"
         }
+    },
+    "scripts": {
+        "test": [
+            "@test:php",
+            "@test:frontend"
+        ],
+        "test:php": "phpunit",
+        "test:frontend": "npm run test",
+        "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
+        "phpcs:fix": "php-cs-fixer fix --diff --verbose",
+        "phpstan": "phpstan analyze app/src --level 8"
     }
 }
