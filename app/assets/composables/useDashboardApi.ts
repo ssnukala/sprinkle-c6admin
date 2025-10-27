@@ -20,7 +20,7 @@ export const useDashboardApi = defineStore('dashboardApi', {
     actions: {
         async load() {
             return axios
-                .get<DashboardResponse>('/api/c6/dashboard')
+                .get<DashboardResponse>('/api/dashboard')
                 .then((response) => {
                     this.data = response.data
 

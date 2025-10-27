@@ -29,11 +29,11 @@ class UsersRoutes implements RouteDefinitionInterface
 {
     public function register(App $app): void
     {
-        $app->group('/api/c6/users', function (RouteCollectorProxy $group) {
+        $app->group('/api/users', function (RouteCollectorProxy $group) {
             // Password reset - admin forces user to reset password on next login
             $group->post('/{id}/password-reset', UserPasswordResetAction::class)
                   ->add(CRUD6Injector::class)
-                  ->setName('c6.api.users.password-reset');
+                  ->setName('api.users.password-reset');
         })->add(AuthGuard::class)->add(NoCache::class);
     }
 }
