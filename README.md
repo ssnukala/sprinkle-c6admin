@@ -1,33 +1,39 @@
 # sprinkle-c6admin
 
-Admin schemas and utilities for UserFrosting 6, designed to work with [sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6).
+Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6).
 
 ## Overview
 
-`sprinkle-c6admin` provides JSON schema definitions for administrative models (users, roles, groups, permissions, activities) that work seamlessly with sprinkle-crud6. Instead of duplicating CRUD functionality, this sprinkle leverages CRUD6's generic controllers and routes.
+`sprinkle-c6admin` replicates all functionality of the official [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin) while leveraging sprinkle-crud6 for CRUD operations. It provides:
 
-**Key benefits:**
-- **No Custom Routes**: Uses CRUD6's existing `/api/crud6/{model}` endpoints
-- **No Custom Controllers**: All CRUD operations handled by CRUD6
-- **JSON Schema-based**: Define models once, CRUD6 handles the rest
-- **Consistent API**: All models use `id` for lookups (not slug/user_name)
+- **Complete Frontend**: All Vue.js components, views, and routes from sprinkle-admin
+- **JSON Schema-based Backend**: Model definitions that work with CRUD6
+- **ID-based Lookups**: Consistent use of `id` instead of slug/user_name
+- **RESTful API via CRUD6**: All CRUD at `/api/crud6/{model}` endpoints
+- **Drop-in Replacement**: Same features and UI as sprinkle-admin
 
 ## Features
 
-- **JSON Schemas** for core admin models:
-  - Users
-  - Roles
-  - Groups
-  - Permissions
-  - Activities
-- **Dashboard API**: Administrative dashboard with statistics
-- **System Configuration**: Cache management and system information
+### Backend
+- **JSON Schemas** for admin models (users, roles, groups, permissions, activities)
+- **Dashboard API** with statistics and recent users
+- **Config Utilities** for system info and cache management
+- **All CRUD** handled by CRUD6 generic controllers
+
+### Frontend
+- **14 Vue.js Pages**: Dashboard, Users, Groups, Roles, Permissions, Activities, Config
+- **14 API Composables**: Full CRUD operations for all models
+- **20+ TypeScript Interfaces**: Type-safe API communication
+- **Vue Router Integration**: Clean routing with permissions
+- **i18n Support**: English and French translations
+- **Email Templates**: User creation notifications
 
 ## Requirements
 
 - PHP 8.1 or higher
 - UserFrosting 6.0 or higher
 - sprinkle-crud6 1.0 or higher
+- Node.js & npm (for frontend build)
 
 ## Installation
 
@@ -47,7 +53,7 @@ public function getSprinkles(): array
     return [
         Core::class,
         Account::class,
-        CRUD6::class,     // Required: CRUD6 must be registered
+        CRUD6::class,     // Required: CRUD6 must come before C6Admin
         C6Admin::class,
         // Your other sprinkles...
     ];
@@ -60,103 +66,118 @@ public function getSprinkles(): array
 
 ```
 app/
-├── schema/crud6/          # JSON schemas for CRUD6 models
+├── assets/                # Frontend (Vue.js, TypeScript)
+│   ├── components/        # Vue components
+│   ├── composables/       # API composables (14 files)
+│   ├── views/             # Page components (14 pages)
+│   ├── routes/            # Vue Router definitions
+│   └── interfaces/        # TypeScript types
+├── locale/                # Translations
+│   ├── en_US/
+│   └── fr_FR/
+├── schema/crud6/          # JSON schemas for CRUD6
 │   ├── users.json
 │   ├── roles.json
 │   ├── groups.json
 │   ├── permissions.json
 │   └── activities.json
-└── src/
-    ├── C6Admin.php        # Main sprinkle class
-    ├── Controller/        # Non-CRUD controllers only
-    │   ├── Dashboard/     # Dashboard API
-    │   └── Config/        # System config/cache
-    └── Routes/            # Non-CRUD routes only
-        ├── DashboardRoutes.php
-        └── ConfigRoutes.php
+├── src/                   # Backend (PHP)
+│   ├── C6Admin.php        # Main sprinkle class
+│   ├── Controller/        # Dashboard & Config controllers
+│   └── Routes/            # Route definitions
+└── templates/             # Email templates
 ```
 
 ## Usage
 
-### CRUD Operations
+### Frontend Pages
 
-All CRUD operations use CRUD6's standard endpoints with `id` for lookups:
+Access admin pages at these routes:
+- `/admin/dashboard` - Dashboard with statistics
+- `/admin/users` - User list
+- `/admin/users/{id}` - User details
+- `/admin/groups` - Group list
+- `/admin/groups/{id}` - Group details
+- `/admin/roles` - Role list
+- `/admin/roles/{id}` - Role details
+- `/admin/permissions` - Permission list
+- `/admin/permissions/{id}` - Permission details
+- `/admin/activities` - Activity log
+- `/admin/config` - System configuration
 
-**Groups**:
-- `GET /api/crud6/groups` - List all groups
-- `GET /api/crud6/groups/{id}` - Get group by ID
-- `POST /api/crud6/groups` - Create group
-- `PUT /api/crud6/groups/{id}` - Update group
-- `PUT /api/crud6/groups/{id}/{field}` - Update single field
-- `DELETE /api/crud6/groups/{id}` - Delete group
+### API Endpoints
 
-**Users**:
-- `GET /api/crud6/users` - List all users
-- `GET /api/crud6/users/{id}` - Get user by ID
-- `POST /api/crud6/users` - Create user
-- `PUT /api/crud6/users/{id}` - Update user
-- `DELETE /api/crud6/users/{id}` - Delete user
+**CRUD Operations (via CRUD6)**:
+All models accessible at `/api/crud6/{model}` with ID-based endpoints:
+- `GET /api/crud6/{model}` - List records (Sprunje)
+- `GET /api/crud6/{model}/{id}` - Get by ID
+- `POST /api/crud6/{model}` - Create
+- `PUT /api/crud6/{model}/{id}` - Update
+- `PUT /api/crud6/{model}/{id}/{field}` - Update single field
+- `DELETE /api/crud6/{model}/{id}` - Delete
 
-**Roles, Permissions**: Same pattern as groups
+**Relationship Endpoints**:
+- `GET /api/crud6/users/{id}/roles` - Get user's roles
+- `GET /api/crud6/roles/{id}/permissions` - Get role's permissions
 
-**Activities** (read-only):
-- `GET /api/crud6/activities` - List activities
-- `GET /api/crud6/activities/{id}` - Get activity by ID
-
-### Admin-Specific Endpoints
-
-**Dashboard**:
-- `GET /api/dashboard` - Get dashboard data (user/role/group counts, recent users)
-
-**Configuration**:
+**Admin Utilities**:
+- `GET /api/dashboard` - Dashboard data
 - `GET /api/config/info` - System information
 - `DELETE /api/cache` - Clear cache
 
-### JSON Schemas
+### Frontend Build
 
-All models are defined using JSON schemas in `app/schema/crud6/`. These schemas define:
-- Table structure and fields
-- Validation rules
-- Permissions
-- Display configuration
+Build the frontend assets:
 
-Example schema structure:
-```json
-{
-  "model": "groups",
-  "title": "Group Management",
-  "table": "groups",
-  "primary_key": "id",
-  "permissions": {
-    "read": "uri_groups",
-    "create": "create_group",
-    "update": "update_group_field",
-    "delete": "delete_group"
-  },
-  "fields": {
-    "id": { "type": "integer", "auto_increment": true },
-    "slug": { "type": "string", "required": true },
-    "name": { "type": "string", "required": true }
-  }
-}
+```bash
+npm install
+npm run build
+```
+
+For development:
+
+```bash
+npm run dev
 ```
 
 ## Key Differences from sprinkle-admin
 
-1. **ID-based lookups**: Uses `id` instead of `slug` or `user_name`
-2. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of `/api/{model}`
-3. **No custom controllers**: Leverages CRUD6's generic controllers
-4. **Simpler architecture**: Just schemas + dashboard/config
+1. **ID-based lookups**: Uses `id` instead of `slug` or `user_name` for consistency
+2. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of custom `/api/{model}` routes
+3. **No custom controllers**: Leverages CRUD6's generic CRUD controllers
+4. **Simpler backend**: Just schemas + dashboard/config utilities
+5. **Same frontend**: Exact UI/UX replication with refactored API calls
 
-## Architecture
+## Development
 
-This sprinkle follows a minimalist approach:
+### Building Frontend
 
-1. **JSON Schemas** - Define model structure for CRUD6
-2. **CRUD6 Integration** - All CRUD handled by sprinkle-crud6
-3. **Admin Utilities** - Dashboard and config endpoints only
+```bash
+# Install dependencies
+npm install
 
-No custom injectors, no custom CRUD controllers, no route conflicts.
+# Development build with watch
+npm run dev
+
+# Production build
+npm run build
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+```
+
+### Testing
+
+```bash
+# Backend tests
+composer test
+
+# Frontend tests
+npm test
+```
 
 ## Contributing
 
@@ -168,7 +189,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Credits
 
-- Designed to work with [ssnukala/sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6)
+- Frontend components from [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin)
+- CRUD functionality by [ssnukala/sprinkle-crud6](https://github.com/ssnukala/sprinkle-crud6)
 - Part of the [UserFrosting](https://www.userfrosting.com) ecosystem
 
 ## Support
