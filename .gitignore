@@ -9,6 +9,7 @@ app/.env
 
 # Ignore lock files
 composer.lock
+package-lock.json
 
 # Ignore log, cache, sessions and storage directories in sprinkle
 app/cache/*

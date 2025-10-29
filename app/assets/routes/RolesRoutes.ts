@@ -1,6 +1,6 @@
 export default [
     {
-        path: 'roles',
+        path: 'c6/admin/roles',
         meta: {
             auth: {},
             title: 'ROLE.PAGE',

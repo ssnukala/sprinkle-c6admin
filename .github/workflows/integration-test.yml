@@ -50,8 +50,7 @@ jobs:
       - name: Configure Composer for beta packages and local sprinkles
         run: |
           cd userfrosting
-          # Remove userfrosting/sprinkle-admin from composer.json as C6Admin is a replacement
-          composer config --unset require.userfrosting/sprinkle-admin
+          # Keep sprinkle-admin and add C6Admin alongside it
           # Add sprinkle-crud6 from GitHub (required dependency)
           composer config repositories.sprinkle-crud6 vcs https://github.com/ssnukala/sprinkle-crud6
           # Add local paths to composer.json
@@ -60,37 +59,32 @@ jobs:
           composer config minimum-stability dev
           composer config prefer-stable true
 
-      - name: Configure package.json
-        run: |
-          cd userfrosting
-          # Remove @userfrosting/sprinkle-admin from package.json as C6Admin is a replacement
-          npm pkg delete dependencies.@userfrosting/sprinkle-admin
-
       - name: Configure MyApp.php
         run: |
           cd userfrosting
-          # Configure MyApp.php to replace Admin with CRUD6 and C6Admin sprinkles
-          # Remove Admin import and add CRUD6 and C6Admin imports
-          sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/d' app/src/MyApp.php
-          sed -i '/use UserFrosting\\Sprinkle\\Core\\Core;/a use UserFrosting\\Sprinkle\\CRUD6\\CRUD6;\nuse UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
-          # Replace Admin::class with CRUD6::class and C6Admin::class in getSprinkles() array
-          sed -i 's/Admin::class,/CRUD6::class,\n            C6Admin::class,/' app/src/MyApp.php
+          # Configure MyApp.php to add CRUD6 and C6Admin sprinkles alongside Admin
+          # Add CRUD6 and C6Admin imports
+          sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\CRUD6\\CRUD6;\nuse UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
+          # Add CRUD6::class and C6Admin::class after Admin::class in getSprinkles() array
+          sed -i '/Admin::class,/a \            CRUD6::class,\n            C6Admin::class,' app/src/MyApp.php
 
       - name: Configure router/index.ts
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to replace Admin routes with C6Admin routes
-          # Replace AdminRoutes import with C6AdminRoutes import
-          sed -i "s|import AdminRoutes from '@userfrosting/sprinkle-admin/routes'|import AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'|" app/assets/router/index.ts
-          # Note: We keep the variable name as AdminRoutes to avoid changing the rest of the file
+          # Configure app/assets/router/index.ts to add C6Admin routes alongside Admin routes
+          # Add C6AdminRoutes import
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
+          # Add C6AdminRoutes to routes array
+          sed -i '/\.\.\.AdminRoutes,/a \            ...C6AdminRoutes,' app/assets/router/index.ts
 
       - name: Configure main.ts
         run: |
           cd userfrosting
-          # Configure app/assets/main.ts to replace Admin sprinkle with C6Admin sprinkle
-          # Replace AdminSprinkle import with C6AdminSprinkle import
-          sed -i "s|import AdminSprinkle from '@userfrosting/sprinkle-admin'|import AdminSprinkle from '@ssnukala/sprinkle-c6admin'|" app/assets/main.ts
-          # Note: We keep the variable name as AdminSprinkle to avoid changing the rest of the file
+          # Configure app/assets/main.ts to add C6Admin sprinkle alongside Admin sprinkle
+          # Add C6AdminSprinkle import
+          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
+          # Add C6AdminSprinkle registration
+          sed -i '/app\.use(AdminSprinkle)/a app.use(C6AdminSprinkle)' app/assets/main.ts
 
       - name: Install PHP dependencies
         run: |
@@ -277,20 +271,52 @@ jobs:
             cat /tmp/api_response_single.json
           fi
 
-      - name: Test API endpoint - Dashboard (GET /api/dashboard)
+      - name: Test API endpoint - C6Admin Dashboard (GET /api/c6/dashboard)
         run: |
           cd userfrosting
-          echo "Testing GET /api/dashboard"
+          echo "Testing GET /api/c6/dashboard"
+          
+          # Test without authentication (should fail with 401)
+          HTTP_CODE=$(curl -s -o /tmp/api_c6_dashboard.json -w "%{http_code}" http://localhost:8080/api/c6/dashboard)
+          echo "Response code (no auth): $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "401" ]; then
+            echo "✅ C6Admin Dashboard correctly requires authentication"
+          else
+            echo "⚠️ Expected 401 but got $HTTP_CODE"
+            cat /tmp/api_c6_dashboard.json
+          fi
+
+      - name: Test API endpoint - Original Admin Dashboard (GET /api/dashboard)
+        run: |
+          cd userfrosting
+          echo "Testing GET /api/dashboard (original sprinkle-admin)"
           
           # Test without authentication (should fail with 401)
           HTTP_CODE=$(curl -s -o /tmp/api_dashboard.json -w "%{http_code}" http://localhost:8080/api/dashboard)
           echo "Response code (no auth): $HTTP_CODE"
           
           if [ "$HTTP_CODE" = "401" ]; then
-            echo "✅ Dashboard correctly requires authentication"
+            echo "✅ Admin Dashboard correctly requires authentication"
           else
             echo "⚠️ Expected 401 but got $HTTP_CODE"
             cat /tmp/api_dashboard.json
+          fi
+
+      - name: Test Frontend route - C6Admin Dashboard
+        run: |
+          cd userfrosting
+          echo "Testing frontend route /c6/admin/dashboard"
+          
+          # Test that the page loads (may redirect to login)
+          HTTP_CODE=$(curl -s -o /tmp/frontend_c6_dashboard.html -w "%{http_code}" -L http://localhost:8080/c6/admin/dashboard)
+          echo "Response code: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ C6Admin Frontend dashboard page loads successfully"
+            echo "Page size: $(wc -c < /tmp/frontend_c6_dashboard.html) bytes"
+          else
+            echo "⚠️ Expected 200 but got $HTTP_CODE"
           fi
 
       - name: Test Frontend route - Admin Dashboard
@@ -309,6 +335,22 @@ jobs:
             echo "⚠️ Expected 200 but got $HTTP_CODE"
           fi
 
+      - name: Test Frontend route - C6Admin Groups List Page
+        run: |
+          cd userfrosting
+          echo "Testing frontend route /c6/admin/groups"
+          
+          # Test that the page loads (may redirect to login)
+          HTTP_CODE=$(curl -s -o /tmp/frontend_c6_groups_list.html -w "%{http_code}" -L http://localhost:8080/c6/admin/groups)
+          echo "Response code: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ C6Admin Frontend groups list page loads successfully"
+            echo "Page size: $(wc -c < /tmp/frontend_c6_groups_list.html) bytes"
+          else
+            echo "⚠️ Expected 200 but got $HTTP_CODE"
+          fi
+
       - name: Test Frontend route - Groups List Page
         run: |
           cd userfrosting
@@ -321,6 +363,22 @@ jobs:
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Frontend list page loads successfully"
             echo "Page size: $(wc -c < /tmp/frontend_list.html) bytes"
+          else
+            echo "⚠️ Expected 200 but got $HTTP_CODE"
+          fi
+
+      - name: Test Frontend route - C6Admin Single Group Page
+        run: |
+          cd userfrosting
+          echo "Testing frontend route /c6/admin/groups/1"
+          
+          # Test that the page loads (may redirect to login)
+          HTTP_CODE=$(curl -s -o /tmp/frontend_c6_group_detail.html -w "%{http_code}" -L http://localhost:8080/c6/admin/groups/1)
+          echo "Response code: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ C6Admin Frontend group detail page loads successfully"
+            echo "Page size: $(wc -c < /tmp/frontend_c6_group_detail.html) bytes"
           else
             echo "⚠️ Expected 200 but got $HTTP_CODE"
           fi
@@ -346,8 +404,17 @@ jobs:
           cd userfrosting
           
           echo "========================================="
-          echo "Taking screenshots of pages"
+          echo "Taking screenshots of C6Admin and Admin pages"
           echo "========================================="
+          
+          # Screenshot of C6Admin dashboard
+          echo "📸 Taking screenshot: /c6/admin/dashboard"
+          npx playwright screenshot --browser chromium \
+            --viewport-size=1280,720 \
+            --full-page \
+            --timeout 10000 \
+            http://localhost:8080/c6/admin/dashboard /tmp/screenshot_c6_dashboard.png \
+            2>&1 || echo "⚠️ Failed to screenshot C6Admin dashboard page"
           
           # Screenshot of admin dashboard
           echo "📸 Taking screenshot: /admin/dashboard"
@@ -358,6 +425,15 @@ jobs:
             http://localhost:8080/admin/dashboard /tmp/screenshot_dashboard.png \
             2>&1 || echo "⚠️ Failed to screenshot dashboard page"
           
+          # Screenshot of C6Admin groups list page
+          echo "📸 Taking screenshot: /c6/admin/groups"
+          npx playwright screenshot --browser chromium \
+            --viewport-size=1280,720 \
+            --full-page \
+            --timeout 10000 \
+            http://localhost:8080/c6/admin/groups /tmp/screenshot_c6_groups_list.png \
+            2>&1 || echo "⚠️ Failed to screenshot C6Admin groups list page"
+          
           # Screenshot of groups list page
           echo "📸 Taking screenshot: /admin/groups"
           npx playwright screenshot --browser chromium \
@@ -367,6 +443,15 @@ jobs:
             http://localhost:8080/admin/groups /tmp/screenshot_groups_list.png \
             2>&1 || echo "⚠️ Failed to screenshot groups list page"
           
+          # Screenshot of C6Admin single group page
+          echo "📸 Taking screenshot: /c6/admin/groups/1"
+          npx playwright screenshot --browser chromium \
+            --viewport-size=1280,720 \
+            --full-page \
+            --timeout 10000 \
+            http://localhost:8080/c6/admin/groups/1 /tmp/screenshot_c6_group_detail.png \
+            2>&1 || echo "⚠️ Failed to screenshot C6Admin group detail page"
+          
           # Screenshot of single group page
           echo "📸 Taking screenshot: /admin/groups/1"
           npx playwright screenshot --browser chromium \
@@ -375,6 +460,15 @@ jobs:
             --timeout 10000 \
             http://localhost:8080/admin/groups/1 /tmp/screenshot_group_detail.png \
             2>&1 || echo "⚠️ Failed to screenshot group detail page"
+          
+          # Screenshot of C6Admin users list page
+          echo "📸 Taking screenshot: /c6/admin/users"
+          npx playwright screenshot --browser chromium \
+            --viewport-size=1280,720 \
+            --full-page \
+            --timeout 10000 \
+            http://localhost:8080/c6/admin/users /tmp/screenshot_c6_users_list.png \
+            2>&1 || echo "⚠️ Failed to screenshot C6Admin users list page"
           
           # Screenshot of users list page
           echo "📸 Taking screenshot: /admin/users"
