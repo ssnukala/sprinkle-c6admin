@@ -10,7 +10,7 @@ import { useAlertsStore } from '@userfrosting/sprinkle-core/stores'
  * This forces a user to reset their password on next login by expiring
  * their current password.
  * 
- * Endpoint: POST /api/users/{id}/password-reset
+ * Endpoint: POST /api/c6/users/{id}/password-reset
  */
 export function useUserPasswordResetApi() {
     // Form data
@@ -21,7 +21,7 @@ export function useUserPasswordResetApi() {
         apiLoading.value = true
         apiError.value = null
         return axios
-            .post<UserDeleteResponse>('/api/users/' + id + '/password-reset')
+            .post<UserDeleteResponse>('/api/c6/users/' + id + '/password-reset')
             .then((response) => {
                 useAlertsStore().push({
                     title: response.data.title,

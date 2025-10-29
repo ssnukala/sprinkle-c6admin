@@ -1,6 +1,6 @@
 export default [
     {
-        path: 'permissions',
+        path: 'c6/admin/permissions',
         meta: {
             permission: {
                 slug: 'c6_uri_permissions'

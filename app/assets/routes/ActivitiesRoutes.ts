@@ -1,6 +1,6 @@
 export default [
     {
-        path: 'activities',
+        path: 'c6/admin/activities',
         name: 'c6admin.activities',
         meta: {
             auth: {},

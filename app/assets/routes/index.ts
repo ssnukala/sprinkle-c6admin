@@ -7,7 +7,7 @@ import AdminRolesRoutes from './RolesRoutes'
 import AdminUsersRoutes from './UserRoutes'
 
 const AdminRoutes = [
-    { path: '', redirect: { name: 'admin.dashboard' } },
+    { path: '', redirect: { name: 'c6admin.dashboard' } },
     ...AdminDashboardRoutes,
     ...AdminActivitiesRoutes,
     ...AdminGroupsRoutes,
