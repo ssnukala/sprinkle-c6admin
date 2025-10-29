@@ -55,7 +55,7 @@ jobs:
           # Add local paths to composer.json
           composer config repositories.local-c6admin path ../sprinkle-c6admin
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
-          composer config minimum-stability beta
+          composer config minimum-stability dev
           composer config prefer-stable true
 
       - name: Install PHP dependencies
