@@ -50,6 +50,8 @@ jobs:
       - name: Configure Composer for beta packages and local sprinkles
         run: |
           cd userfrosting
+          # Remove userfrosting/sprinkle-admin from composer.json as C6Admin is a replacement
+          composer config --unset require.userfrosting/sprinkle-admin
           # Add sprinkle-crud6 from GitHub (required dependency)
           composer config repositories.sprinkle-crud6 vcs https://github.com/ssnukala/sprinkle-crud6
           # Add local paths to composer.json
@@ -57,8 +59,6 @@ jobs:
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
           composer config minimum-stability dev
           composer config prefer-stable true
-          # Remove userfrosting/sprinkle-admin as C6Admin is a replacement
-          composer remove userfrosting/sprinkle-admin --no-update
 
       - name: Install PHP dependencies
         run: |
@@ -74,9 +74,9 @@ jobs:
       - name: Install NPM dependencies
         run: |
           cd userfrosting
+          # Remove @userfrosting/sprinkle-admin from package.json as C6Admin is a replacement
+          npm pkg delete dependencies.@userfrosting/sprinkle-admin
           npm update
-          # Remove @userfrosting/sprinkle-admin as C6Admin is a replacement
-          npm uninstall @userfrosting/sprinkle-admin || true
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Configure MyApp.php
