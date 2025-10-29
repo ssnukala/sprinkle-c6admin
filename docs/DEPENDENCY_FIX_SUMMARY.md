@@ -14,8 +14,10 @@ Your requirements could not be resolved to an installable set of packages.
 **Root Cause:**
 - `composer.json` required `"ssnukala/sprinkle-crud6": "^1.0||dev-main"`
 - sprinkle-crud6 doesn't have a 1.0 release yet (still in pre-release development)
-- The integration test workflow sets `minimum-stability: beta`
-- Composer rejected `dev-main` branch because it doesn't match the beta minimum stability
+- The integration test workflow sets `minimum-stability: beta` in the UserFrosting parent project
+- When the parent project tries to install sprinkle-c6admin, it evaluates sprinkle-c6admin's dependencies
+- Composer rejected `dev-main` branch because the constraint `^1.0||dev-main` requires either a 1.0 version or dev-main
+- Since only dev-main exists and the parent has beta stability, the `^1.0` part fails and `dev-main` is rejected by the beta minimum-stability setting
 
 ## Solution
 Changed the dependency constraint in `composer.json` from:
@@ -29,7 +31,7 @@ To:
 ```
 
 ## Rationale
-Since sprinkle-crud6 is still under active development and doesn't have a 1.0 release, we should directly use the `dev-main` branch. The existing `"minimum-stability": "dev"` setting in composer.json allows dev dependencies, so this change works correctly.
+Since sprinkle-crud6 is still under active development and doesn't have a 1.0 release, we should directly use the `dev-main` branch without the `^1.0` constraint. By specifying just `"dev-main"`, composer will use an alias internally (like `dev-main as 0.x-dev`) which is compatible with the parent project's beta minimum-stability requirement. This is the standard approach for requiring development branches of dependencies.
 
 ## Files Changed
 - `composer.json` (line 29)
