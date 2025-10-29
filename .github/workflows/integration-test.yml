@@ -60,24 +60,11 @@ jobs:
           composer config minimum-stability dev
           composer config prefer-stable true
 
-      - name: Install PHP dependencies
-        run: |
-          cd userfrosting
-          composer install --no-interaction --prefer-dist
-
-      - name: Package sprinkle-c6admin for NPM
-        run: |
-          cd sprinkle-c6admin
-          npm pack
-          mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
-
-      - name: Install NPM dependencies
+      - name: Configure package.json
         run: |
           cd userfrosting
           # Remove @userfrosting/sprinkle-admin from package.json as C6Admin is a replacement
           npm pkg delete dependencies.@userfrosting/sprinkle-admin
-          npm update
-          npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Configure MyApp.php
         run: |
@@ -97,13 +84,30 @@ jobs:
           sed -i "s|import AdminRoutes from '@userfrosting/sprinkle-admin/routes'|import AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'|" app/assets/router/index.ts
           # Note: We keep the variable name as AdminRoutes to avoid changing the rest of the file
 
-      - name: Configure /main.ts
+      - name: Configure main.ts
         run: |
           cd userfrosting
           # Configure app/assets/main.ts to replace Admin sprinkle with C6Admin sprinkle
           # Replace AdminSprinkle import with C6AdminSprinkle import
           sed -i "s|import AdminSprinkle from '@userfrosting/sprinkle-admin'|import AdminSprinkle from '@ssnukala/sprinkle-c6admin'|" app/assets/main.ts
           # Note: We keep the variable name as AdminSprinkle to avoid changing the rest of the file
+
+      - name: Install PHP dependencies
+        run: |
+          cd userfrosting
+          composer install --no-interaction --prefer-dist
+
+      - name: Package sprinkle-c6admin for NPM
+        run: |
+          cd sprinkle-c6admin
+          npm pack
+          mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
+
+      - name: Install NPM dependencies
+        run: |
+          cd userfrosting
+          npm update
+          npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Verify NPM package installation
         run: |
