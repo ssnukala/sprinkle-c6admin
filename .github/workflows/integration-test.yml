@@ -141,11 +141,14 @@ jobs:
       - name: Seed database
         run: |
           cd userfrosting
-          # Seed Account sprinkle data (required base data)
+          # Seed Account sprinkle data first (required base data)
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultGroups --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultPermissions --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultRoles --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\UpdatePermissions --force
+          # C6Admin uses CRUD6 permissions
+          php bakery seed UserFrosting\\Sprinkle\\CRUD6\\Database\\Seeds\\DefaultRoles --force
+          php bakery seed UserFrosting\\Sprinkle\\CRUD6\\Database\\Seeds\\DefaultPermissions --force
 
       - name: Create admin user
         run: |
