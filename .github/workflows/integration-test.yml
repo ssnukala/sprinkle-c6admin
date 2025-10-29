@@ -212,9 +212,9 @@ jobs:
           echo $SERVER_PID > /tmp/server.pid
           sleep 10
           
-          # Test if server process is running (don't fail on HTTP errors - we need Vite dev server for proper frontend serving)
-          curl -s http://localhost:8080 > /dev/null || echo "⚠️ Server responding (may show errors until Vite dev server starts)"
-          echo "✅ PHP server started on localhost:8080"
+          # Verify server process is running (don't fail on HTTP errors - Vite dev server needed for frontend)
+          curl -s http://localhost:8080 > /dev/null 2>&1 || true
+          echo "✅ PHP server started on localhost:8080 (Vite dev server needed for frontend)"
 
       - name: Start Vite development server
         run: |
