@@ -57,6 +57,8 @@ jobs:
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
           composer config minimum-stability dev
           composer config prefer-stable true
+          # Remove userfrosting/sprinkle-admin as C6Admin is a replacement
+          composer remove userfrosting/sprinkle-admin --no-update
 
       - name: Install PHP dependencies
         run: |
@@ -73,34 +75,35 @@ jobs:
         run: |
           cd userfrosting
           npm update
+          # Remove @userfrosting/sprinkle-admin as C6Admin is a replacement
+          npm uninstall @userfrosting/sprinkle-admin || true
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Configure MyApp.php
         run: |
           cd userfrosting
-          # Configure MyApp.php to include CRUD6 and C6Admin sprinkles
-          # Add CRUD6 and C6Admin imports after existing imports
+          # Configure MyApp.php to replace Admin with CRUD6 and C6Admin sprinkles
+          # Remove Admin import and add CRUD6 and C6Admin imports
+          sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/d' app/src/MyApp.php
           sed -i '/use UserFrosting\\Sprinkle\\Core\\Core;/a use UserFrosting\\Sprinkle\\CRUD6\\CRUD6;\nuse UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
-          # Add CRUD6::class and C6Admin::class to getSprinkles() array before the closing bracket
-          sed -i '/Admin::class,/a \            CRUD6::class,\n            C6Admin::class,' app/src/MyApp.php
+          # Replace Admin::class with CRUD6::class and C6Admin::class in getSprinkles() array
+          sed -i 's/Admin::class,/CRUD6::class,\n            C6Admin::class,/' app/src/MyApp.php
 
       - name: Configure router/index.ts
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to include C6Admin routes
-          # Add C6AdminRoutes import after AdminRoutes import
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
-          # Add ...C6AdminRoutes after ...AccountRoutes
-          sed -i '/\.\.\.AccountRoutes,/a \            ...C6AdminRoutes,' app/assets/router/index.ts
+          # Configure app/assets/router/index.ts to replace Admin routes with C6Admin routes
+          # Replace AdminRoutes import with C6AdminRoutes import
+          sed -i "s|import AdminRoutes from '@userfrosting/sprinkle-admin/routes'|import AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'|" app/assets/router/index.ts
+          # Note: We keep the variable name as AdminRoutes to avoid changing the rest of the file
 
       - name: Configure /main.ts
         run: |
           cd userfrosting
-          # Configure app/assets/main.ts to include C6Admin sprinkle
-          # Add C6AdminSprinkle import after AdminSprinkle import
-          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
-          # Add app.use(C6AdminSprinkle) after app.use(AdminSprinkle)
-          sed -i "/app.use(AdminSprinkle)/a app.use(C6AdminSprinkle)" app/assets/main.ts
+          # Configure app/assets/main.ts to replace Admin sprinkle with C6Admin sprinkle
+          # Replace AdminSprinkle import with C6AdminSprinkle import
+          sed -i "s|import AdminSprinkle from '@userfrosting/sprinkle-admin'|import AdminSprinkle from '@ssnukala/sprinkle-c6admin'|" app/assets/main.ts
+          # Note: We keep the variable name as AdminSprinkle to avoid changing the rest of the file
 
       - name: Verify NPM package installation
         run: |
