@@ -21,10 +21,8 @@ Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https:/
 - **All CRUD** handled by CRUD6 generic controllers
 
 ### Frontend
-- **CRUD6 Dynamic Templates**: PageList, PageDynamic, PageRow for all models
-- **10+ CRUD6 Components**: AutoLookup, CreateModal, EditModal, DeleteModal, etc.
-- **5 CRUD6 Composables**: useCRUD6Api, useCRUD6Schema, useMasterDetail, etc.
-- **Schema-Driven Rendering**: Single template system for all CRUD models
+- **CRUD6 Package Integration**: Uses `@ssnukala/sprinkle-crud6` for all CRUD views
+- **Schema-Driven Rendering**: All CRUD models rendered from JSON schemas
 - **14 API Composables**: Full CRUD operations for all models
 - **20+ TypeScript Interfaces**: Type-safe API communication
 - **Vue Router Integration**: Clean routing with permissions
@@ -70,22 +68,16 @@ public function getSprinkles(): array
 ```
 app/
 ├── assets/                # Frontend (Vue.js, TypeScript)
-│   ├── components/        # Vue components + CRUD6 components
-│   │   └── CRUD6/        # AutoLookup, CreateModal, EditModal, etc.
-│   ├── composables/       # API composables (19+ files)
-│   │   └── useCRUD6*.ts  # CRUD6 composables
-│   ├── views/             # Page components (8 pages)
-│   │   ├── PageList.vue      # Common list template
-│   │   ├── PageDynamic.vue   # Dynamic view wrapper
-│   │   ├── PageRow.vue       # Detail view template
-│   │   ├── PageMasterDetail.vue # Master-detail template
-│   │   └── PageDashboard.vue # Dashboard page
+│   ├── components/        # C6Admin components
+│   │   └── SidebarMenuItems.vue
+│   ├── composables/       # API composables (14 files)
+│   ├── views/             # Page components (4 utility pages)
+│   │   ├── PageDashboard.vue # Dashboard page
+│   │   ├── PageConfig.vue    # Config page
+│   │   ├── PageConfigCache.vue
+│   │   └── PageConfigInfo.vue
 │   ├── routes/            # Vue Router definitions
-│   ├── interfaces/        # TypeScript types
-│   │   ├── types.ts      # CRUD6 types
-│   │   └── models/       # CRUD6Interface
-│   └── stores/           # Pinia stores
-│       └── useCRUD6SchemaStore.ts
+│   └── interfaces/        # TypeScript types
 ├── locale/                # Translations
 │   ├── en_US/
 │   └── fr_FR/
@@ -103,6 +95,8 @@ app/
 └── docs/                  # Documentation
     └── CRUD6_MIGRATION.md # Migration guide
 ```
+
+**Note**: CRUD views (users, groups, roles, permissions, activities) are imported from `@ssnukala/sprinkle-crud6` package.
 
 ## Usage
 
@@ -187,18 +181,18 @@ npm run dev
 
 ## CRUD6 Dynamic Templates
 
-C6Admin uses CRUD6's dynamic template system instead of separate view files for each model:
+C6Admin imports CRUD6's dynamic template system from the `@ssnukala/sprinkle-crud6` package:
 
-- **PageList.vue**: Common template for all list views (users, groups, roles, etc.)
-- **PageDynamic.vue**: Smart wrapper that chooses the appropriate detail view
-- **PageRow.vue**: Standard detail/edit view
-- **PageMasterDetail.vue**: Advanced view for models with relationships
+- **CRUD6ListPage**: Common template for all list views (users, groups, roles, etc.)
+- **CRUD6DynamicPage**: Smart wrapper that chooses the appropriate detail view
+- **CRUD6RowPage**: Standard detail/edit view
+- **CRUD6MasterDetailPage**: Advanced view for models with relationships
 
 This approach provides:
-- **Less code**: 4 reusable templates instead of 9+ separate page files
-- **Consistency**: All models use the same proven UI patterns
+- **No duplication**: Templates provided by CRUD6 package, not duplicated in C6Admin
+- **Consistency**: All models use the same proven UI patterns from CRUD6
 - **Schema-driven**: Changes only require updating JSON schemas
-- **Maintainability**: Single source of truth for CRUD operations
+- **Maintainability**: Single package provides all CRUD functionality
 
 See [docs/CRUD6_MIGRATION.md](docs/CRUD6_MIGRATION.md) for details.
 

@@ -16,7 +16,7 @@ export default [
                         slug: 'c6_uri_groups'
                     }
                 },
-                component: () => import('../views/PageList.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
                 beforeEnter: (to) => {
                     to.params.model = 'groups'
                 }
@@ -31,7 +31,7 @@ export default [
                         slug: 'c6_uri_group'
                     }
                 },
-                component: () => import('../views/PageDynamic.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6DynamicPage),
                 beforeEnter: (to) => {
                     to.params.model = 'groups'
                 }

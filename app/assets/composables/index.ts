@@ -23,10 +23,3 @@ export { useUserUpdateApi } from './useUserUpdateApi'
 export { useUserPasswordResetApi } from './useUserPasswordResetApi'
 export { useUserRolesApi } from './useUserRolesApi'
 
-// CRUD6 Generic Composables
-export { useCRUD6Api } from './useCRUD6Api'
-export { useCRUD6Schema } from './useCRUD6Schema'
-export { useCRUD6Relationships } from './useCRUD6Relationships'
-export { useCRUD6sApi } from './useCRUD6sApi'
-export { useMasterDetail } from './useMasterDetail'
-

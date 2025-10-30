@@ -32,15 +32,3 @@ export type { UserPasswordRequest } from './UserPasswordApi'
 export type { UsersSprunjerResponse } from './UsersApi'
 export type { UserRoleSprunjeResponse } from './UserRolesApi'
 
-// CRUD6 Types
-export type {
-    CRUD6Interface,
-    CRUD6Response,
-    CRUD6CreateRequest,
-    CRUD6CreateResponse,
-    CRUD6EditRequest,
-    CRUD6EditResponse,
-    CRUD6DeleteResponse,
-    CRUD6SprunjerResponse
-} from './types'
-

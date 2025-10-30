@@ -14,7 +14,7 @@ export default [
             {
                 path: '',
                 name: 'c6admin.permissions',
-                component: () => import('../views/PageList.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
                 beforeEnter: (to) => {
                     to.params.model = 'permissions'
                 }
@@ -22,7 +22,7 @@ export default [
             {
                 path: ':id',
                 name: 'c6admin.permission',
-                component: () => import('../views/PageDynamic.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6DynamicPage),
                 beforeEnter: (to) => {
                     to.params.model = 'permissions'
                 },

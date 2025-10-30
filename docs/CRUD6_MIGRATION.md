@@ -33,19 +33,22 @@ Each file simply imported a component from UserFrosting's sprinkle-admin:
 
 ### After (New Structure)
 
-C6Admin now uses CRUD6's common dynamic templates:
+C6Admin now imports CRUD6's dynamic templates from the `@ssnukala/sprinkle-crud6` package:
 
 ```
 app/assets/views/
-├── PageList.vue          # Common list template for all models
-├── PageDynamic.vue       # Dynamic wrapper (chooses PageRow or PageMasterDetail)
-├── PageRow.vue           # Standard detail view
-├── PageMasterDetail.vue  # Master-detail view (for related data)
 ├── PageDashboard.vue     # Dashboard (unchanged - not CRUD)
 ├── PageConfig.vue        # Config (unchanged - not CRUD)
 ├── PageConfigCache.vue   # Cache config (unchanged - not CRUD)
 └── PageConfigInfo.vue    # System info (unchanged - not CRUD)
 ```
+
+CRUD views now use templates from the CRUD6 package:
+- `CRUD6ListPage` - Common list template for all models
+- `CRUD6DynamicPage` - Dynamic wrapper (chooses PageRow or PageMasterDetail)
+- `CRUD6RowPage` - Standard detail view  
+- `CRUD6MasterDetailPage` - Master-detail view (for related data)
+
 
 ## How It Works
 
@@ -53,14 +56,16 @@ app/assets/views/
 
 The CRUD6 templates are **schema-driven**:
 
-- **PageList.vue**: Renders list views using the schema from `app/schema/crud6/{model}.json`
-- **PageDynamic.vue**: Wrapper that chooses between PageRow and PageMasterDetail based on schema settings
-- **PageRow.vue**: Standard detail/edit view
-- **PageMasterDetail.vue**: Advanced view for models with nested relationships
+- **CRUD6ListPage**: Renders list views using the schema from `app/schema/crud6/{model}.json`
+- **CRUD6DynamicPage**: Wrapper that chooses between CRUD6RowPage and CRUD6MasterDetailPage based on schema settings
+- **CRUD6RowPage**: Standard detail/edit view
+- **CRUD6MasterDetailPage**: Advanced view for models with nested relationships
+
+All templates are imported from `@ssnukala/sprinkle-crud6` package.
 
 ### 2. Route Configuration
 
-Routes now inject the model name via `beforeEnter` hooks:
+Routes now inject the model name via `beforeEnter` hooks and import from the CRUD6 package:
 
 ```typescript
 // app/assets/routes/UserRoutes.ts
@@ -70,7 +75,7 @@ Routes now inject the model name via `beforeEnter` hooks:
         {
             path: '',
             name: 'c6admin.users',
-            component: () => import('../views/PageList.vue'),
+            component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
             beforeEnter: (to) => {
                 to.params.model = 'users'  // Inject model name
             }
@@ -78,7 +83,7 @@ Routes now inject the model name via `beforeEnter` hooks:
         {
             path: ':id',
             name: 'c6admin.user',
-            component: () => import('../views/PageDynamic.vue'),
+            component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6DynamicPage),
             beforeEnter: (to) => {
                 to.params.model = 'users'
             }
@@ -92,7 +97,7 @@ Routes now inject the model name via `beforeEnter` hooks:
 The templates read the model from `route.params.model` and load the corresponding schema:
 
 ```javascript
-// Inside PageList.vue
+// Inside CRUD6ListPage (from @ssnukala/sprinkle-crud6)
 const model = computed(() => route.params.model as string)
 const { schema, loadSchema } = useCRUD6Schema()
 
@@ -109,40 +114,44 @@ The schema defines:
 - Permissions
 - And more...
 
-## Added Components and Composables
+## CRUD6 Package Dependency
 
-### Components (from CRUD6)
+C6Admin now uses `@ssnukala/sprinkle-crud6` as a peer dependency. All CRUD6 components, composables, and views are imported from this package:
 
-All components in `app/assets/components/CRUD6/`:
+### Components (from @ssnukala/sprinkle-crud6)
 
-- **AutoLookup.vue**: Smart lookup/autocomplete for relationships
-- **CreateModal.vue**: Modal for creating new records
-- **EditModal.vue**: Modal for editing records
-- **DeleteModal.vue**: Modal for deleting records
-- **Info.vue**: Display record information
-- **Form.vue**: Generic form renderer based on schema
-- **Details.vue**: Display related/nested data
-- **DetailGrid.vue**: Grid display for detail records
-- **MasterDetailForm.vue**: Form for master-detail views
+Components available in the CRUD6 package:
 
-### Composables (from CRUD6)
+- **AutoLookup**: Smart lookup/autocomplete for relationships
+- **CreateModal**: Modal for creating new records
+- **EditModal**: Modal for editing records
+- **DeleteModal**: Modal for deleting records
+- **Info**: Display record information
+- **Form**: Generic form renderer based on schema
+- **Details**: Display related/nested data
+- **DetailGrid**: Grid display for detail records
+- **MasterDetailForm**: Form for master-detail views
 
-All composables starting with `useCRUD6*`:
+### Composables (from @ssnukala/sprinkle-crud6)
 
-- **useCRUD6Api.ts**: Generic CRUD operations (create, read, update, delete)
-- **useCRUD6Schema.ts**: Schema loading and caching
-- **useCRUD6Relationships.ts**: Handle model relationships
-- **useCRUD6sApi.ts**: Batch operations
-- **useMasterDetail.ts**: Master-detail view logic
+Composables available in the CRUD6 package:
 
-### Interfaces and Types
+- **useCRUD6Api**: Generic CRUD operations (create, read, update, delete)
+- **useCRUD6Schema**: Schema loading and caching
+- **useCRUD6Relationships**: Handle model relationships
+- **useCRUD6sApi**: Batch operations
+- **useMasterDetail**: Master-detail view logic
 
-- **CRUD6Interface.ts**: Base interface for CRUD6 models
-- **types.ts**: TypeScript types for all CRUD6 operations
+### Views (from @ssnukala/sprinkle-crud6)
 
-### Stores
+View templates used by C6Admin:
 
-- **useCRUD6SchemaStore.ts**: Pinia store for caching schemas
+- **CRUD6ListPage**: Common list view for all models
+- **CRUD6DynamicPage**: Dynamic wrapper component
+- **CRUD6RowPage**: Standard detail/edit view
+- **CRUD6MasterDetailPage**: Master-detail view
+
+All are imported from `@ssnukala/sprinkle-crud6` package.
 
 ## Benefits
 
@@ -150,7 +159,7 @@ All composables starting with `useCRUD6*`:
 
 **Before**: 9 separate view files (Users, Groups, Roles, Permissions, Activities - each with list and detail)
 
-**After**: 4 reusable template files that work for all models
+**After**: CRUD6 package provides reusable templates for all models
 
 ### 2. Schema-Driven Development
 

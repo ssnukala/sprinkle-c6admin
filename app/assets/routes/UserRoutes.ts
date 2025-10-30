@@ -16,7 +16,7 @@ export default [
                         slug: 'c6_uri_users'
                     }
                 },
-                component: () => import('../views/PageList.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
                 // Pass model as a route param
                 beforeEnter: (to) => {
                     to.params.model = 'users'
@@ -32,7 +32,7 @@ export default [
                         slug: 'c6_uri_user'
                     }
                 },
-                component: () => import('../views/PageDynamic.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6DynamicPage),
                 beforeEnter: (to) => {
                     to.params.model = 'users'
                 }

@@ -16,7 +16,7 @@ export default [
                         slug: 'c6_uri_roles'
                     }
                 },
-                component: () => import('../views/PageList.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
                 beforeEnter: (to) => {
                     to.params.model = 'roles'
                 }
@@ -31,7 +31,7 @@ export default [
                         slug: 'c6_uri_role'
                     }
                 },
-                component: () => import('../views/PageDynamic.vue'),
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6DynamicPage),
                 beforeEnter: (to) => {
                     to.params.model = 'roles'
                 }

@@ -11,7 +11,7 @@ export default [
             description: 'ACTIVITY.PAGE_DESCRIPTION',
             model: 'activities' // Model name for CRUD6 components
         },
-        component: () => import('../views/PageList.vue'),
+        component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
         beforeEnter: (to) => {
             to.params.model = 'activities'
         }
