@@ -173,4 +173,47 @@ class SchemaValidationTest extends C6AdminTestCase
             }
         }
     }
+
+    /**
+     * Test that default_sort fields are both listable and sortable.
+     * According to UserFrosting 6 Sprunje conventions, the sort field needs to be sortable,
+     * and if it's used as the default sort field, it should also be visible in the table (listable).
+     */
+    public function testDefaultSortFieldsAreListableAndSortable(): void
+    {
+        foreach ($this->schemas as $schema) {
+            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $content = file_get_contents($path);
+            $decoded = json_decode($content, true);
+
+            // Skip if no default_sort is defined
+            if (!isset($decoded['default_sort'])) {
+                continue;
+            }
+
+            foreach ($decoded['default_sort'] as $fieldName => $direction) {
+                $this->assertArrayHasKey(
+                    $fieldName,
+                    $decoded['fields'],
+                    "Default sort field '{$fieldName}' in {$schema}.json must exist in fields"
+                );
+
+                $field = $decoded['fields'][$fieldName];
+                $listable = $field['listable'] ?? false;
+                $sortable = $field['sortable'] ?? false;
+
+                $this->assertTrue(
+                    $listable,
+                    "Default sort field '{$fieldName}' in {$schema}.json must be listable " .
+                    "(UserFrosting 6 Sprunje convention)"
+                );
+
+                $this->assertTrue(
+                    $sortable,
+                    "Default sort field '{$fieldName}' in {$schema}.json must be sortable " .
+                    "(UserFrosting 6 Sprunje convention)"
+                );
+            }
+        }
+    }
 }

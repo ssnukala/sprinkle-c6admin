@@ -16,6 +16,7 @@ The schema files contained logical inconsistencies:
 1. **Remove `searchable` attribute entirely** - Only `filterable` should be used (to match sprinkle-crud6)
 2. **Remove `sortable` when `listable` is `false`** - Cannot sort fields that aren't displayed in lists
 3. **Remove `filterable` when `listable` is `false`** - Cannot filter fields that aren't displayed in lists
+4. **Default sort fields must be `listable` and `sortable`** - Per UserFrosting 6 Sprunje conventions, fields used in `default_sort` must be visible in tables and sortable
 
 ## Changes Made
 
@@ -39,7 +40,7 @@ Updated `app/tests/Schema/SchemaValidationTest.php`:
 - Updated test names for clarity
 
 #### Added New Validation Tests
-Three new test methods to enforce cleanup rules:
+Four new test methods to enforce cleanup rules and UserFrosting 6 conventions:
 
 1. **`testSchemasDoNotHaveSearchableAttribute()`**
    - Ensures no field has `searchable` attribute
@@ -52,6 +53,10 @@ Three new test methods to enforce cleanup rules:
 3. **`testFilterableOnlyExistsWhenListable()`**
    - Validates `filterable` only exists when `listable` is `true`
    - Prevents illogical filtering of non-displayed fields
+
+4. **`testDefaultSortFieldsAreListableAndSortable()`**
+   - Validates that fields used in `default_sort` are both `listable` and `sortable`
+   - Enforces UserFrosting 6 Sprunje convention that sort fields must be visible in tables
 
 ## Verification
 
@@ -68,6 +73,16 @@ All 5 schemas had multiple issues:
 Total schemas processed: 5
 Total fields checked: 39
 Schemas compliant: 5 / 5
+```
+
+### Default Sort Fields Validation
+All `default_sort` fields comply with UserFrosting 6 Sprunje conventions:
+```
+✅ users.json        - default_sort: user_name (listable=true, sortable=true)
+✅ groups.json       - default_sort: name (listable=true, sortable=true)
+✅ roles.json        - default_sort: name (listable=true, sortable=true)
+✅ permissions.json  - default_sort: slug (listable=true, sortable=true)
+✅ activities.json   - default_sort: occurred_at (listable=true, sortable=true)
 ```
 
 ### JSON Validation
