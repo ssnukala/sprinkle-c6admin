@@ -6,7 +6,7 @@ Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https:/
 
 `sprinkle-c6admin` replicates all functionality of the official [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin) while leveraging sprinkle-crud6 for CRUD operations. It provides:
 
-- **Complete Frontend**: All Vue.js components, views, and routes from sprinkle-admin
+- **CRUD6 Dynamic Templates**: Schema-driven views using common templates
 - **JSON Schema-based Backend**: Model definitions that work with CRUD6
 - **ID-based Lookups**: Consistent use of `id` instead of slug/user_name
 - **RESTful API via CRUD6**: All CRUD at `/api/crud6/{model}` endpoints
@@ -21,7 +21,10 @@ Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https:/
 - **All CRUD** handled by CRUD6 generic controllers
 
 ### Frontend
-- **14 Vue.js Pages**: Dashboard, Users, Groups, Roles, Permissions, Activities, Config
+- **CRUD6 Dynamic Templates**: PageList, PageDynamic, PageRow for all models
+- **10+ CRUD6 Components**: AutoLookup, CreateModal, EditModal, DeleteModal, etc.
+- **5 CRUD6 Composables**: useCRUD6Api, useCRUD6Schema, useMasterDetail, etc.
+- **Schema-Driven Rendering**: Single template system for all CRUD models
 - **14 API Composables**: Full CRUD operations for all models
 - **20+ TypeScript Interfaces**: Type-safe API communication
 - **Vue Router Integration**: Clean routing with permissions
@@ -67,11 +70,22 @@ public function getSprinkles(): array
 ```
 app/
 ├── assets/                # Frontend (Vue.js, TypeScript)
-│   ├── components/        # Vue components
-│   ├── composables/       # API composables (14 files)
-│   ├── views/             # Page components (14 pages)
+│   ├── components/        # Vue components + CRUD6 components
+│   │   └── CRUD6/        # AutoLookup, CreateModal, EditModal, etc.
+│   ├── composables/       # API composables (19+ files)
+│   │   └── useCRUD6*.ts  # CRUD6 composables
+│   ├── views/             # Page components (8 pages)
+│   │   ├── PageList.vue      # Common list template
+│   │   ├── PageDynamic.vue   # Dynamic view wrapper
+│   │   ├── PageRow.vue       # Detail view template
+│   │   ├── PageMasterDetail.vue # Master-detail template
+│   │   └── PageDashboard.vue # Dashboard page
 │   ├── routes/            # Vue Router definitions
-│   └── interfaces/        # TypeScript types
+│   ├── interfaces/        # TypeScript types
+│   │   ├── types.ts      # CRUD6 types
+│   │   └── models/       # CRUD6Interface
+│   └── stores/           # Pinia stores
+│       └── useCRUD6SchemaStore.ts
 ├── locale/                # Translations
 │   ├── en_US/
 │   └── fr_FR/
@@ -85,7 +99,9 @@ app/
 │   ├── C6Admin.php        # Main sprinkle class
 │   ├── Controller/        # Dashboard & Config controllers
 │   └── Routes/            # Route definitions
-└── templates/             # Email templates
+├── templates/             # Email templates
+└── docs/                  # Documentation
+    └── CRUD6_MIGRATION.md # Migration guide
 ```
 
 ## Usage
@@ -161,11 +177,30 @@ npm run dev
 
 ## Key Differences from sprinkle-admin
 
-1. **ID-based lookups**: Uses `id` instead of `slug` or `user_name` for consistency
-2. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of custom `/api/{model}` routes
-3. **No custom controllers**: Leverages CRUD6's generic CRUD controllers
-4. **Simpler backend**: Just schemas + dashboard/config utilities
-5. **Same frontend**: Exact UI/UX replication with refactored API calls
+1. **CRUD6 Dynamic Templates**: Uses common PageList/PageDynamic templates instead of separate page files
+2. **Schema-Driven Views**: All CRUD views rendered from JSON schemas, not hardcoded components
+3. **ID-based lookups**: Uses `id` instead of `slug` or `user_name` for consistency
+4. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of custom `/api/{model}` routes
+5. **No custom controllers**: Leverages CRUD6's generic CRUD controllers
+6. **Simpler backend**: Just schemas + dashboard/config utilities
+7. **Same frontend UX**: Exact UI/UX replication with refactored implementation
+
+## CRUD6 Dynamic Templates
+
+C6Admin uses CRUD6's dynamic template system instead of separate view files for each model:
+
+- **PageList.vue**: Common template for all list views (users, groups, roles, etc.)
+- **PageDynamic.vue**: Smart wrapper that chooses the appropriate detail view
+- **PageRow.vue**: Standard detail/edit view
+- **PageMasterDetail.vue**: Advanced view for models with relationships
+
+This approach provides:
+- **Less code**: 4 reusable templates instead of 9+ separate page files
+- **Consistency**: All models use the same proven UI patterns
+- **Schema-driven**: Changes only require updating JSON schemas
+- **Maintainability**: Single source of truth for CRUD operations
+
+See [docs/CRUD6_MIGRATION.md](docs/CRUD6_MIGRATION.md) for details.
 
 ## Development
 
