@@ -16,8 +16,8 @@ import C6AdminRoutes from '../../routes'
  */
 describe('routes.test.ts', () => {
     test('C6AdminRoutes should contain all the individual routes', () => {
-        // We have 7 route modules: Dashboard, Users, Groups, Roles, Permissions, Activities, Config
-        expect(C6AdminRoutes.length).toBe(7)
+        // We have 7 route modules + 1 redirect, total 8 items
+        expect(C6AdminRoutes.length).toBe(8)
     })
 
     test('Routes should have expected paths', () => {

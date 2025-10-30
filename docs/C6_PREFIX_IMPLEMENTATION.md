@@ -37,42 +37,59 @@ All backend routes now use the `/api/c6` prefix:
 
 ### 2. Frontend Routes (TypeScript)
 
-All frontend routes now use the `c6/admin` prefix:
+**IMPORTANT**: Individual route files use **relative paths**. The `c6/admin` prefix is added when these routes are nested under a parent route during integration.
+
+#### Route Definitions
+
+All route files define relative paths:
 
 #### DashboardRoutes.ts
-- **Before**: `dashboard`
-- **After**: `c6/admin/dashboard`
+- **Path**: `dashboard` (relative)
 - **Route name**: `c6admin.dashboard`
 
 #### GroupsRoutes.ts
-- **Before**: `groups`
-- **After**: `c6/admin/groups`
+- **Path**: `groups` (relative)
 - **Route names**: `c6admin.groups`, `c6admin.group`
 
 #### UserRoutes.ts
-- **Before**: `users`
-- **After**: `c6/admin/users`
+- **Path**: `users` (relative)
 - **Route names**: `c6admin.users`, `c6admin.user`
 
 #### RolesRoutes.ts
-- **Before**: `roles`
-- **After**: `c6/admin/roles`
+- **Path**: `roles` (relative)
 - **Route names**: `c6admin.roles`, `c6admin.role`
 
 #### PermissionsRoutes.ts
-- **Before**: `permissions`
-- **After**: `c6/admin/permissions`
+- **Path**: `permissions` (relative)
 - **Route names**: `c6admin.permissions`, `c6admin.permission`
 
 #### ActivitiesRoutes.ts
-- **Before**: `activities`
-- **After**: `c6/admin/activities`
+- **Path**: `activities` (relative)
 - **Route name**: `c6admin.activities`
 
 #### ConfigRoutes.ts
-- **Before**: `config`
-- **After**: `c6/admin/config`
+- **Path**: `config` (relative)
 - **Route names**: `c6admin.config`, `c6admin.config.info`, `c6admin.config.cache`
+
+#### Integration Pattern
+
+When integrating into a parent application, these routes must be nested under a `c6/admin` parent route:
+
+```typescript
+import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
+
+// In your router configuration
+{
+  path: 'c6/admin',
+  children: C6AdminRoutes
+}
+```
+
+This creates the final URLs:
+- `/c6/admin/dashboard`
+- `/c6/admin/groups`
+- `/c6/admin/users`
+- etc.
 
 ### 3. API Composables (TypeScript)
 
@@ -124,9 +141,11 @@ sed -i '/Admin::class,/a \            CRUD6::class,\n            C6Admin::class,
 # Add C6AdminRoutes import after AdminRoutes
 sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
 
-# Add C6AdminRoutes to routes array
-sed -i '/\.\.\.AdminRoutes,/a \            ...C6AdminRoutes,' app/assets/router/index.ts
+# Add C6AdminRoutes nested under c6/admin path
+sed -i '/\.\.\.AdminRoutes,/a \            {\n                path: '\''c6\/admin'\'',\n                children: C6AdminRoutes\n            },' app/assets/router/index.ts
 ```
+
+**Note**: The routes are nested under a `c6/admin` parent route because the individual route files use relative paths.
 
 **Main.ts Configuration**:
 ```bash
