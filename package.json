@@ -49,8 +49,11 @@
         "vue-router": "^4.2.4"
     },
     "devDependencies": {
+        "@modyfi/vite-plugin-yaml": "^1.1.1",
+        "@tsconfig/node20": "^20.1.6",
         "@vitejs/plugin-vue": "^5.0.0",
         "@vitest/coverage-v8": "^1.2.0",
+        "@vue/tsconfig": "^0.8.1",
         "happy-dom": "^13.3.5",
         "vite": "^5.0.0",
         "vitest": "^1.2.0"

@@ -74,8 +74,8 @@ jobs:
           # Configure app/assets/router/index.ts to add C6Admin routes alongside Admin routes
           # Add C6AdminRoutes import
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
-          # Add C6AdminRoutes to routes array
-          sed -i '/\.\.\.AdminRoutes,/a \            ...C6AdminRoutes,' app/assets/router/index.ts
+          # Add C6AdminRoutes nested under c6/admin path
+          sed -i '/\.\.\.AdminRoutes,/a \            {\n                path: '\''c6\/admin'\'',\n                children: C6AdminRoutes\n            },' app/assets/router/index.ts
 
       - name: Configure main.ts
         run: |

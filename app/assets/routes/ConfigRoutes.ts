@@ -1,6 +1,6 @@
 export default [
     {
-        path: 'c6/admin/config',
+        path: 'config',
         name: 'c6admin.config',
         redirect: { name: 'c6admin.config.info' },
         meta: {

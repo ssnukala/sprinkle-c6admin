@@ -1,6 +1,6 @@
 export default [
     {
-        path: 'c6/admin/dashboard',
+        path: 'dashboard',
         name: 'c6admin.dashboard',
         meta: {
             auth: {},
