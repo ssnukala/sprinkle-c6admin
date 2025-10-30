@@ -4,7 +4,8 @@ export default [
         meta: {
             auth: {},
             title: 'ROLE.PAGE',
-            description: 'ROLE.PAGE_DESCRIPTION'
+            description: 'ROLE.PAGE_DESCRIPTION',
+            model: 'roles' // Model name for CRUD6 components
         },
         children: [
             {
@@ -15,7 +16,10 @@ export default [
                         slug: 'c6_uri_roles'
                     }
                 },
-                component: () => import('../views/PageRoles.vue')
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
+                beforeEnter: (to) => {
+                    to.params.model = 'roles'
+                }
             },
             {
                 path: ':id',
@@ -27,7 +31,10 @@ export default [
                         slug: 'c6_uri_role'
                     }
                 },
-                component: () => import('../views/PageRole.vue')
+                component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6DynamicPage),
+                beforeEnter: (to) => {
+                    to.params.model = 'roles'
+                }
             }
         ]
     }

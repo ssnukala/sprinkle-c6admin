@@ -8,8 +8,12 @@ export default [
                 slug: 'c6_uri_activities'
             },
             title: 'ACTIVITY.PAGE',
-            description: 'ACTIVITY.PAGE_DESCRIPTION'
+            description: 'ACTIVITY.PAGE_DESCRIPTION',
+            model: 'activities' // Model name for CRUD6 components
         },
-        component: () => import('../views/PageActivities.vue')
+        component: () => import('@ssnukala/sprinkle-crud6/views').then(m => m.CRUD6ListPage),
+        beforeEnter: (to) => {
+            to.params.model = 'activities'
+        }
     }
 ]

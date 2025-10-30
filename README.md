@@ -6,7 +6,7 @@ Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https:/
 
 `sprinkle-c6admin` replicates all functionality of the official [userfrosting/sprinkle-admin](https://github.com/userfrosting/sprinkle-admin) while leveraging sprinkle-crud6 for CRUD operations. It provides:
 
-- **Complete Frontend**: All Vue.js components, views, and routes from sprinkle-admin
+- **CRUD6 Dynamic Templates**: Schema-driven views using common templates
 - **JSON Schema-based Backend**: Model definitions that work with CRUD6
 - **ID-based Lookups**: Consistent use of `id` instead of slug/user_name
 - **RESTful API via CRUD6**: All CRUD at `/api/crud6/{model}` endpoints
@@ -21,7 +21,8 @@ Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https:/
 - **All CRUD** handled by CRUD6 generic controllers
 
 ### Frontend
-- **14 Vue.js Pages**: Dashboard, Users, Groups, Roles, Permissions, Activities, Config
+- **CRUD6 Package Integration**: Uses `@ssnukala/sprinkle-crud6` for all CRUD views
+- **Schema-Driven Rendering**: All CRUD models rendered from JSON schemas
 - **14 API Composables**: Full CRUD operations for all models
 - **20+ TypeScript Interfaces**: Type-safe API communication
 - **Vue Router Integration**: Clean routing with permissions
@@ -67,9 +68,14 @@ public function getSprinkles(): array
 ```
 app/
 ├── assets/                # Frontend (Vue.js, TypeScript)
-│   ├── components/        # Vue components
+│   ├── components/        # C6Admin components
+│   │   └── SidebarMenuItems.vue
 │   ├── composables/       # API composables (14 files)
-│   ├── views/             # Page components (14 pages)
+│   ├── views/             # Page components (4 utility pages)
+│   │   ├── PageDashboard.vue # Dashboard page
+│   │   ├── PageConfig.vue    # Config page
+│   │   ├── PageConfigCache.vue
+│   │   └── PageConfigInfo.vue
 │   ├── routes/            # Vue Router definitions
 │   └── interfaces/        # TypeScript types
 ├── locale/                # Translations
@@ -85,8 +91,12 @@ app/
 │   ├── C6Admin.php        # Main sprinkle class
 │   ├── Controller/        # Dashboard & Config controllers
 │   └── Routes/            # Route definitions
-└── templates/             # Email templates
+├── templates/             # Email templates
+└── docs/                  # Documentation
+    └── CRUD6_MIGRATION.md # Migration guide
 ```
+
+**Note**: CRUD views (users, groups, roles, permissions, activities) are imported from `@ssnukala/sprinkle-crud6` package.
 
 ## Usage
 
@@ -161,11 +171,30 @@ npm run dev
 
 ## Key Differences from sprinkle-admin
 
-1. **ID-based lookups**: Uses `id` instead of `slug` or `user_name` for consistency
-2. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of custom `/api/{model}` routes
-3. **No custom controllers**: Leverages CRUD6's generic CRUD controllers
-4. **Simpler backend**: Just schemas + dashboard/config utilities
-5. **Same frontend**: Exact UI/UX replication with refactored API calls
+1. **CRUD6 Dynamic Templates**: Uses common PageList/PageDynamic templates instead of separate page files
+2. **Schema-Driven Views**: All CRUD views rendered from JSON schemas, not hardcoded components
+3. **ID-based lookups**: Uses `id` instead of `slug` or `user_name` for consistency
+4. **CRUD6 routes**: Uses `/api/crud6/{model}` instead of custom `/api/{model}` routes
+5. **No custom controllers**: Leverages CRUD6's generic CRUD controllers
+6. **Simpler backend**: Just schemas + dashboard/config utilities
+7. **Same frontend UX**: Exact UI/UX replication with refactored implementation
+
+## CRUD6 Dynamic Templates
+
+C6Admin imports CRUD6's dynamic template system from the `@ssnukala/sprinkle-crud6` package:
+
+- **CRUD6ListPage**: Common template for all list views (users, groups, roles, etc.)
+- **CRUD6DynamicPage**: Smart wrapper that chooses the appropriate detail view
+- **CRUD6RowPage**: Standard detail/edit view
+- **CRUD6MasterDetailPage**: Advanced view for models with relationships
+
+This approach provides:
+- **No duplication**: Templates provided by CRUD6 package, not duplicated in C6Admin
+- **Consistency**: All models use the same proven UI patterns from CRUD6
+- **Schema-driven**: Changes only require updating JSON schemas
+- **Maintainability**: Single package provides all CRUD functionality
+
+See [docs/CRUD6_MIGRATION.md](docs/CRUD6_MIGRATION.md) for details.
 
 ## Development
 
