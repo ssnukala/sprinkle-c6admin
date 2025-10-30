@@ -8,7 +8,18 @@
 
 import DashboardView from './PageDashboard.vue'
 
+// CRUD6 Dynamic Templates (exported for reuse)
+import PageList from './PageList.vue'
+import PageDynamic from './PageDynamic.vue'
+import PageRow from './PageRow.vue'
+import PageMasterDetail from './PageMasterDetail.vue'
+
 export {
-    DashboardView
+    DashboardView,
+    // CRUD6 Templates
+    PageList,
+    PageDynamic,
+    PageRow,
+    PageMasterDetail
 }
 
