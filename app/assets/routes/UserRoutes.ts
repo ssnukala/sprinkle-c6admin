@@ -1,6 +1,6 @@
 export default [
     {
-        path: 'c6/admin/users',
+        path: 'users',
         meta: {
             auth: {},
             title: 'USER.PAGE',

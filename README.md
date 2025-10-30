@@ -93,17 +93,36 @@ app/
 ### Frontend Pages
 
 Access admin pages at these routes:
-- `/admin/dashboard` - Dashboard with statistics
-- `/admin/users` - User list
-- `/admin/users/{id}` - User details
-- `/admin/groups` - Group list
-- `/admin/groups/{id}` - Group details
-- `/admin/roles` - Role list
-- `/admin/roles/{id}` - Role details
-- `/admin/permissions` - Permission list
-- `/admin/permissions/{id}` - Permission details
-- `/admin/activities` - Activity log
-- `/admin/config` - System configuration
+- `/c6/admin/dashboard` - Dashboard with statistics
+- `/c6/admin/users` - User list
+- `/c6/admin/users/{id}` - User details
+- `/c6/admin/groups` - Group list
+- `/c6/admin/groups/{id}` - Group details
+- `/c6/admin/roles` - Role list
+- `/c6/admin/roles/{id}` - Role details
+- `/c6/admin/permissions` - Permission list
+- `/c6/admin/permissions/{id}` - Permission details
+- `/c6/admin/activities` - Activity log
+- `/c6/admin/config` - System configuration
+
+**Note**: The `/c6/admin` prefix allows C6Admin to coexist with the standard UserFrosting `sprinkle-admin` which uses `/admin` routes.
+
+### Frontend Integration
+
+When integrating C6Admin routes into your application's router, nest them under a `c6/admin` parent route:
+
+```typescript
+import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
+
+// In your router configuration (e.g., app/assets/router/index.ts)
+const routes = [
+  // ... other routes
+  {
+    path: 'c6/admin',
+    children: C6AdminRoutes
+  }
+]
+```
 
 ### API Endpoints
 
@@ -121,9 +140,9 @@ All models accessible at `/api/crud6/{model}` with ID-based endpoints:
 - `GET /api/crud6/roles/{id}/permissions` - Get role's permissions
 
 **Admin Utilities**:
-- `GET /api/dashboard` - Dashboard data
-- `GET /api/config/info` - System information
-- `DELETE /api/cache` - Clear cache
+- `GET /api/c6/dashboard` - Dashboard data
+- `GET /api/c6/config/info` - System information
+- `DELETE /api/c6/cache` - Clear cache
 
 ### Frontend Build
 

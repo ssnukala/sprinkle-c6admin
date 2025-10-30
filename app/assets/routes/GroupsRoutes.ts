@@ -1,6 +1,6 @@
 export default [
     {
-        path: 'c6/admin/groups',
+        path: 'groups',
         meta: {
             auth: {},
             title: 'GROUP.PAGE',
