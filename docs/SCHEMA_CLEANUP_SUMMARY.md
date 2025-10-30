@@ -13,9 +13,9 @@ The schema files contained logical inconsistencies:
 
 ## Rules Applied
 
-1. **Remove `filterable` attribute entirely** - Only `searchable` should be used
+1. **Remove `searchable` attribute entirely** - Only `filterable` should be used (to match sprinkle-crud6)
 2. **Remove `sortable` when `listable` is `false`** - Cannot sort fields that aren't displayed in lists
-3. **Remove `searchable` when `listable` is `false`** - Cannot search fields that aren't displayed in lists
+3. **Remove `filterable` when `listable` is `false`** - Cannot filter fields that aren't displayed in lists
 
 ## Changes Made
 
@@ -41,17 +41,17 @@ Updated `app/tests/Schema/SchemaValidationTest.php`:
 #### Added New Validation Tests
 Three new test methods to enforce cleanup rules:
 
-1. **`testSchemasDoNotHaveFilterableAttribute()`**
-   - Ensures no field has `filterable` attribute
-   - Enforces use of `searchable` instead
+1. **`testSchemasDoNotHaveSearchableAttribute()`**
+   - Ensures no field has `searchable` attribute
+   - Enforces use of `filterable` instead (to match sprinkle-crud6)
 
 2. **`testSortableOnlyExistsWhenListable()`**
    - Validates `sortable` only exists when `listable` is `true`
    - Prevents illogical sorting of non-displayed fields
 
-3. **`testSearchableOnlyExistsWhenListable()`**
-   - Validates `searchable` only exists when `listable` is `true`
-   - Prevents illogical searching of non-displayed fields
+3. **`testFilterableOnlyExistsWhenListable()`**
+   - Validates `filterable` only exists when `listable` is `true`
+   - Prevents illogical filtering of non-displayed fields
 
 ## Verification
 
@@ -90,8 +90,8 @@ All schema files remain valid JSON after cleanup:
     "auto_increment": true,
     "readonly": true,
     "sortable": true,        // ❌ Should not be here (listable=false)
-    "filterable": false,      // ❌ Should be removed (use searchable)
-    "searchable": false,      // ❌ Should not be here (listable=false)
+    "filterable": false,     // ❌ Should not be here (listable=false)
+    "searchable": false,     // ❌ Should be removed (use filterable)
     "listable": false
 }
 ```
@@ -114,8 +114,8 @@ All schema files remain valid JSON after cleanup:
     "label": "Username",
     "required": true,
     "sortable": true,
-    "filterable": true,       // ❌ Should be removed (use searchable)
-    "searchable": true,
+    "filterable": true,
+    "searchable": true,       // ❌ Should be removed (use filterable)
     "listable": true,
     "validation": {
         "required": true,
@@ -135,7 +135,7 @@ All schema files remain valid JSON after cleanup:
     "label": "Username",
     "required": true,
     "sortable": true,
-    "searchable": true,       // ✅ Only searchable remains
+    "filterable": true,       // ✅ Only filterable remains (matches sprinkle-crud6)
     "listable": true,
     "validation": {
         "required": true,
@@ -152,7 +152,7 @@ All schema files remain valid JSON after cleanup:
 
 ### Benefits
 - ✅ **Cleaner schema files** - Removed redundant and illogical attributes
-- ✅ **Consistent terminology** - Using only `searchable` instead of both `filterable` and `searchable`
+- ✅ **Consistent terminology** - Using only `filterable` instead of both `filterable` and `searchable` (matches sprinkle-crud6)
 - ✅ **Logical structure** - Non-listable fields don't have list-related attributes
 - ✅ **Test coverage** - New tests prevent regression of these issues
 

@@ -27,7 +27,7 @@
             "label": "Username",
             "required": true,
             "sortable": true,
-            "searchable": true,
+            "filterable": true,
             "listable": true,
             "validation": {
                 "required": true,
@@ -43,7 +43,7 @@
             "label": "First Name",
             "required": true,
             "sortable": true,
-            "searchable": true,
+            "filterable": true,
             "listable": true,
             "validation": {
                 "required": true,
@@ -58,7 +58,7 @@
             "label": "Last Name",
             "required": true,
             "sortable": true,
-            "searchable": true,
+            "filterable": true,
             "listable": true,
             "validation": {
                 "required": true,
@@ -73,7 +73,7 @@
             "label": "Email",
             "required": true,
             "sortable": true,
-            "searchable": true,
+            "filterable": true,
             "listable": true,
             "validation": {
                 "required": true,
@@ -107,7 +107,7 @@
             "label": "Verified",
             "default": true,
             "sortable": true,
-            "searchable": false,
+            "filterable": true,
             "listable": true
         },
         "flag_enabled": {
@@ -115,7 +115,7 @@
             "label": "Enabled",
             "default": true,
             "sortable": true,
-            "searchable": false,
+            "filterable": true,
             "listable": true
         },
         "password": {

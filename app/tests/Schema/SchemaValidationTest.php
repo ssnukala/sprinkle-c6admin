@@ -106,10 +106,10 @@ class SchemaValidationTest extends C6AdminTestCase
     }
 
     /**
-     * Test that filterable attribute does not exist in any field.
-     * According to cleanup rules, filterable should be removed and only searchable should be used.
+     * Test that searchable attribute does not exist in any field.
+     * According to cleanup rules, searchable should be removed and only filterable should be used.
      */
-    public function testSchemasDoNotHaveFilterableAttribute(): void
+    public function testSchemasDoNotHaveSearchableAttribute(): void
     {
         foreach ($this->schemas as $schema) {
             $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
@@ -118,9 +118,9 @@ class SchemaValidationTest extends C6AdminTestCase
 
             foreach ($decoded['fields'] as $fieldName => $field) {
                 $this->assertArrayNotHasKey(
-                    'filterable',
+                    'searchable',
                     $field,
-                    "Field '{$fieldName}' in {$schema}.json should not have 'filterable' attribute - use 'searchable' instead"
+                    "Field '{$fieldName}' in {$schema}.json should not have 'searchable' attribute - use 'filterable' instead"
                 );
             }
         }
@@ -151,10 +151,10 @@ class SchemaValidationTest extends C6AdminTestCase
     }
 
     /**
-     * Test that searchable attribute only exists when listable is true.
-     * If a field is not listable, it should not have searchable attribute.
+     * Test that filterable attribute only exists when listable is true.
+     * If a field is not listable, it should not have filterable attribute.
      */
-    public function testSearchableOnlyExistsWhenListable(): void
+    public function testFilterableOnlyExistsWhenListable(): void
     {
         foreach ($this->schemas as $schema) {
             $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
@@ -164,10 +164,10 @@ class SchemaValidationTest extends C6AdminTestCase
             foreach ($decoded['fields'] as $fieldName => $field) {
                 $listable = $field['listable'] ?? false;
                 
-                if (!$listable && isset($field['searchable'])) {
+                if (!$listable && isset($field['filterable'])) {
                     $this->fail(
-                        "Field '{$fieldName}' in {$schema}.json has 'searchable' attribute but listable is false. " .
-                        "Searchable should only exist when listable is true."
+                        "Field '{$fieldName}' in {$schema}.json has 'filterable' attribute but listable is false. " .
+                        "Filterable should only exist when listable is true."
                     );
                 }
             }

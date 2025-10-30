@@ -27,7 +27,7 @@
             "label": "Slug",
             "required": true,
             "sortable": true,
-            "searchable": true,
+            "filterable": true,
             "listable": true,
             "validation": {
                 "required": true,
@@ -42,7 +42,7 @@
             "label": "Name",
             "required": true,
             "sortable": true,
-            "searchable": true,
+            "filterable": true,
             "listable": true,
             "validation": {
                 "required": true,
@@ -63,7 +63,7 @@
             "label": "Description",
             "required": false,
             "sortable": false,
-            "searchable": true,
+            "filterable": false,
             "listable": true
         },
         "created_at": {

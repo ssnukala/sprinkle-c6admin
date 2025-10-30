@@ -6,63 +6,63 @@ This document shows the attributes removed from each field in all schemas.
 
 | Field | Listable | Attributes Kept | Attributes Removed |
 |-------|----------|-----------------|--------------------|
-| `id` | ❌ No | - | sortable, searchable, filterable |
-| `user_name` | ✅ Yes | sortable, searchable | filterable |
-| `first_name` | ✅ Yes | sortable, searchable | filterable |
-| `last_name` | ✅ Yes | sortable, searchable | filterable |
-| `email` | ✅ Yes | sortable, searchable | filterable |
-| `locale` | ❌ No | - | sortable, searchable, filterable |
-| `group_id` | ❌ No | - | sortable, searchable, filterable |
-| `flag_verified` | ✅ Yes | sortable, searchable | filterable |
-| `flag_enabled` | ✅ Yes | sortable, searchable | filterable |
-| `password` | ❌ No | - | sortable, searchable, filterable |
-| `deleted_at` | ❌ No | - | sortable, searchable, filterable |
-| `created_at` | ❌ No | - | sortable, searchable, filterable |
-| `updated_at` | ❌ No | - | sortable, searchable, filterable |
+| `id` | ❌ No | - | sortable, filterable, searchable |
+| `user_name` | ✅ Yes | sortable, filterable | searchable |
+| `first_name` | ✅ Yes | sortable, filterable | searchable |
+| `last_name` | ✅ Yes | sortable, filterable | searchable |
+| `email` | ✅ Yes | sortable, filterable | searchable |
+| `locale` | ❌ No | - | sortable, filterable, searchable |
+| `group_id` | ❌ No | - | sortable, filterable, searchable |
+| `flag_verified` | ✅ Yes | sortable, filterable | searchable |
+| `flag_enabled` | ✅ Yes | sortable, filterable | searchable |
+| `password` | ❌ No | - | sortable, filterable, searchable |
+| `deleted_at` | ❌ No | - | sortable, filterable, searchable |
+| `created_at` | ❌ No | - | sortable, filterable, searchable |
+| `updated_at` | ❌ No | - | sortable, filterable, searchable |
 
 ## Groups
 
 | Field | Listable | Attributes Kept | Attributes Removed |
 |-------|----------|-----------------|--------------------|
-| `id` | ❌ No | - | sortable, searchable, filterable |
-| `slug` | ❌ No | - | sortable, searchable, filterable |
-| `name` | ✅ Yes | sortable, searchable | filterable |
-| `description` | ✅ Yes | sortable, searchable | filterable |
-| `icon` | ❌ No | - | sortable, searchable, filterable |
-| `created_at` | ❌ No | - | sortable, searchable, filterable |
-| `updated_at` | ❌ No | - | sortable, searchable, filterable |
+| `id` | ❌ No | - | sortable, filterable, searchable |
+| `slug` | ❌ No | - | sortable, filterable, searchable |
+| `name` | ✅ Yes | sortable, filterable | searchable |
+| `description` | ✅ Yes | sortable, filterable | searchable |
+| `icon` | ❌ No | - | sortable, filterable, searchable |
+| `created_at` | ❌ No | - | sortable, filterable, searchable |
+| `updated_at` | ❌ No | - | sortable, filterable, searchable |
 
 ## Roles
 
 | Field | Listable | Attributes Kept | Attributes Removed |
 |-------|----------|-----------------|--------------------|
-| `id` | ❌ No | - | sortable, searchable, filterable |
-| `slug` | ❌ No | - | sortable, searchable, filterable |
-| `name` | ✅ Yes | sortable, searchable | filterable |
-| `description` | ✅ Yes | sortable, searchable | filterable |
-| `created_at` | ❌ No | - | sortable, searchable, filterable |
-| `updated_at` | ❌ No | - | sortable, searchable, filterable |
+| `id` | ❌ No | - | sortable, filterable, searchable |
+| `slug` | ❌ No | - | sortable, filterable, searchable |
+| `name` | ✅ Yes | sortable, filterable | searchable |
+| `description` | ✅ Yes | sortable, filterable | searchable |
+| `created_at` | ❌ No | - | sortable, filterable, searchable |
+| `updated_at` | ❌ No | - | sortable, filterable, searchable |
 
 ## Permissions
 
 | Field | Listable | Attributes Kept | Attributes Removed |
 |-------|----------|-----------------|--------------------|
-| `id` | ❌ No | - | sortable, searchable, filterable |
-| `slug` | ✅ Yes | sortable, searchable | filterable |
-| `name` | ✅ Yes | sortable, searchable | filterable |
-| `conditions` | ❌ No | - | sortable, searchable, filterable |
-| `description` | ✅ Yes | sortable, searchable | filterable |
-| `created_at` | ❌ No | - | sortable, searchable, filterable |
-| `updated_at` | ❌ No | - | sortable, searchable, filterable |
+| `id` | ❌ No | - | sortable, filterable, searchable |
+| `slug` | ✅ Yes | sortable, filterable | searchable |
+| `name` | ✅ Yes | sortable, filterable | searchable |
+| `conditions` | ❌ No | - | sortable, filterable, searchable |
+| `description` | ✅ Yes | sortable, filterable | searchable |
+| `created_at` | ❌ No | - | sortable, filterable, searchable |
+| `updated_at` | ❌ No | - | sortable, filterable, searchable |
 
 ## Activities
 
 | Field | Listable | Attributes Kept | Attributes Removed |
 |-------|----------|-----------------|--------------------|
-| `id` | ❌ No | - | sortable, searchable, filterable |
-| `ip_address` | ❌ No | - | sortable, searchable, filterable |
-| `user_id` | ❌ No | - | sortable, searchable, filterable |
-| `type` | ❌ No | - | sortable, searchable, filterable |
-| `occurred_at` | ✅ Yes | sortable, searchable | filterable |
-| `description` | ✅ Yes | sortable, searchable | filterable |
+| `id` | ❌ No | - | sortable, filterable, searchable |
+| `ip_address` | ❌ No | - | sortable, filterable, searchable |
+| `user_id` | ❌ No | - | sortable, filterable, searchable |
+| `type` | ❌ No | - | sortable, filterable, searchable |
+| `occurred_at` | ✅ Yes | sortable, filterable | searchable |
+| `description` | ✅ Yes | sortable, filterable | searchable |
 
