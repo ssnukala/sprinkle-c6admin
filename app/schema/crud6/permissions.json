@@ -23,7 +23,7 @@
       "sortable": true,
       "filterable": false,
       "searchable": false,
-      "listable": true
+      "listable": false
     },
     "slug": {
       "type": "string",
@@ -82,7 +82,7 @@
       "sortable": true,
       "filterable": false,
       "searchable": false,
-      "listable": true,
+      "listable": false,
       "date_format": "Y-m-d H:i:s"
     },
     "updated_at": {

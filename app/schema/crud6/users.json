@@ -23,7 +23,7 @@
       "sortable": true,
       "filterable": false,
       "searchable": false,
-      "listable": true
+      "listable": false
     },
     "user_name": {
       "type": "string",
@@ -98,7 +98,7 @@
       "sortable": true,
       "filterable": true,
       "searchable": false,
-      "listable": true,
+      "listable": false,
       "default": "en_US",
       "validation": {
         "length": {
@@ -113,7 +113,7 @@
       "sortable": true,
       "filterable": true,
       "searchable": false,
-      "listable": true
+      "listable": false
     },
     "flag_verified": {
       "type": "boolean",
@@ -160,7 +160,7 @@
       "sortable": true,
       "filterable": false,
       "searchable": false,
-      "listable": true,
+      "listable": false,
       "date_format": "Y-m-d H:i:s"
     },
     "updated_at": {

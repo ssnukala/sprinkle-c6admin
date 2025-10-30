@@ -39,7 +39,7 @@
         "build": "vite build"
     },
     "peerDependencies": {
-        "@ssnukala/sprinkle-crud6": "^0.5.0",
+        "@ssnukala/sprinkle-crud6": "github:ssnukala/sprinkle-crud6#main",
         "@userfrosting/sprinkle-account": "^6.0.0-beta",
         "@userfrosting/sprinkle-core": "^6.0.0-beta",
         "axios": "^1.12.0",

@@ -23,7 +23,7 @@
       "sortable": true,
       "filterable": false,
       "searchable": false,
-      "listable": true
+      "listable": false
     },
     "ip_address": {
       "type": "string",
@@ -32,7 +32,7 @@
       "sortable": true,
       "filterable": true,
       "searchable": true,
-      "listable": true,
+      "listable": false,
       "validation": {
         "length": {
           "max": 45
@@ -46,7 +46,7 @@
       "sortable": true,
       "filterable": true,
       "searchable": false,
-      "listable": true
+      "listable": false
     },
     "type": {
       "type": "string",
@@ -55,7 +55,7 @@
       "sortable": true,
       "filterable": true,
       "searchable": true,
-      "listable": true,
+      "listable": false,
       "validation": {
         "required": true,
         "length": {
