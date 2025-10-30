@@ -4,7 +4,8 @@ export default [
         meta: {
             auth: {},
             title: 'USER.PAGE',
-            description: 'USER.PAGE_DESCRIPTION'
+            description: 'USER.PAGE_DESCRIPTION',
+            model: 'users' // Model name for CRUD6 components
         },
         children: [
             {
@@ -15,7 +16,11 @@ export default [
                         slug: 'c6_uri_users'
                     }
                 },
-                component: () => import('../views/PageUsers.vue')
+                component: () => import('../views/PageList.vue'),
+                // Pass model as a route param
+                beforeEnter: (to) => {
+                    to.params.model = 'users'
+                }
             },
             {
                 path: ':id',
@@ -27,7 +32,10 @@ export default [
                         slug: 'c6_uri_user'
                     }
                 },
-                component: () => import('../views/PageUser.vue')
+                component: () => import('../views/PageDynamic.vue'),
+                beforeEnter: (to) => {
+                    to.params.model = 'users'
+                }
             }
         ]
     }

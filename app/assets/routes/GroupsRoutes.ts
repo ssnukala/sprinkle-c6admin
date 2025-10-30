@@ -4,7 +4,8 @@ export default [
         meta: {
             auth: {},
             title: 'GROUP.PAGE',
-            description: 'GROUP.PAGE_DESCRIPTION'
+            description: 'GROUP.PAGE_DESCRIPTION',
+            model: 'groups' // Model name for CRUD6 components
         },
         children: [
             {
@@ -15,7 +16,10 @@ export default [
                         slug: 'c6_uri_groups'
                     }
                 },
-                component: () => import('../views/PageGroups.vue')
+                component: () => import('../views/PageList.vue'),
+                beforeEnter: (to) => {
+                    to.params.model = 'groups'
+                }
             },
             {
                 path: ':id',
@@ -27,7 +31,10 @@ export default [
                         slug: 'c6_uri_group'
                     }
                 },
-                component: () => import('../views/PageGroup.vue')
+                component: () => import('../views/PageDynamic.vue'),
+                beforeEnter: (to) => {
+                    to.params.model = 'groups'
+                }
             }
         ]
     }

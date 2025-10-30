@@ -8,8 +8,12 @@ export default [
                 slug: 'c6_uri_activities'
             },
             title: 'ACTIVITY.PAGE',
-            description: 'ACTIVITY.PAGE_DESCRIPTION'
+            description: 'ACTIVITY.PAGE_DESCRIPTION',
+            model: 'activities' // Model name for CRUD6 components
         },
-        component: () => import('../views/PageActivities.vue')
+        component: () => import('../views/PageList.vue'),
+        beforeEnter: (to) => {
+            to.params.model = 'activities'
+        }
     }
 ]
