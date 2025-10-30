@@ -117,7 +117,14 @@ All schema files remain valid JSON after cleanup:
     "filterable": true,       // ❌ Should be removed (use searchable)
     "searchable": true,
     "listable": true,
-    "validation": {...}
+    "validation": {
+        "required": true,
+        "unique": true,
+        "length": {
+            "min": 1,
+            "max": 50
+        }
+    }
 }
 ```
 
@@ -130,7 +137,14 @@ All schema files remain valid JSON after cleanup:
     "sortable": true,
     "searchable": true,       // ✅ Only searchable remains
     "listable": true,
-    "validation": {...}
+    "validation": {
+        "required": true,
+        "unique": true,
+        "length": {
+            "min": 1,
+            "max": 50
+        }
+    }
 }
 ```
 
