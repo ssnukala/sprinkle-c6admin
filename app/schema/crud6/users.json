@@ -35,7 +35,8 @@
             "type": "integer",
             "label": "ID",
             "auto_increment": true,
-            "readonly": true,
+            "editable": false,
+            "viewable": true,
             "listable": false
         },
         "user_name": {
@@ -139,26 +140,30 @@
             "label": "Password",
             "required": false,
             "listable": false,
-            "readonly": true
+            "viewable": true,
+            "editable": false
         },
         "deleted_at": {
             "type": "datetime",
             "label": "Deleted At",
-            "readonly": true,
+            "editable": false,
+            "viewable": false,
             "listable": false,
             "date_format": "Y-m-d H:i:s"
         },
         "created_at": {
             "type": "datetime",
             "label": "Created At",
-            "readonly": true,
+            "editable": false,
+            "viewable": true,
             "listable": false,
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
             "label": "Updated At",
-            "readonly": true,
+            "editable": false,
+            "viewable": true,
             "listable": false,
             "date_format": "Y-m-d H:i:s"
         }

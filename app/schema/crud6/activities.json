@@ -19,7 +19,8 @@
             "type": "integer",
             "label": "ID",
             "auto_increment": true,
-            "readonly": true,
+            "editable": false,
+            "viewable": true,
             "listable": false
         },
         "ip_address": {
