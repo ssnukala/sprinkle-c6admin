@@ -29,7 +29,8 @@
             "type": "integer",
             "label": "ID",
             "auto_increment": true,
-            "readonly": true,
+            "editable": false,
+            "viewable": true,
             "listable": false
         },
         "slug": {
@@ -79,14 +80,16 @@
         "created_at": {
             "type": "datetime",
             "label": "Created At",
-            "readonly": true,
+            "editable": false,
+            "viewable": true,
             "listable": false,
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
             "label": "Updated At",
-            "readonly": true,
+            "editable": false,
+            "viewable": true,
             "listable": false,
             "date_format": "Y-m-d H:i:s"
         }
