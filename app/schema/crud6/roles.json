@@ -1,8 +1,8 @@
 {
     "model": "roles",
-    "title": "Role Management",
-    "singular_title": "Role",
-    "description": "Manage user roles",
+    "title": "ROLE.PAGE",
+    "singular_title": "ROLE.1",
+    "description": "ROLE.PAGE_DESCRIPTION",
     "table": "roles",
     "primary_key": "id",
     "permissions": {
@@ -30,6 +30,20 @@
             "foreign_key": "role_id",
             "related_key": "user_id",
             "title": "ROLE.USERS"
+        }
+    ],
+    "details": [
+        {
+            "model": "users",
+            "foreign_key": "role_id",
+            "list_fields": ["user_name", "first_name", "last_name", "email", "flag_enabled"],
+            "title": "ROLE.USERS"
+        },
+        {
+            "model": "permissions",
+            "foreign_key": "role_id",
+            "list_fields": ["slug", "name", "description"],
+            "title": "ROLE.PERMISSIONS"
         }
     ],
     "fields": {
