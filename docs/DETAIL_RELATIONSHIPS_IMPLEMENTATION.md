@@ -74,7 +74,7 @@ Use the `relationships` array for many-to-many associations through pivot tables
 
 #### users.json
 
-Added `relationships` array to show user's roles:
+Added `relationships` array to show user's roles and `detail` object to show user's activities:
 
 ```json
 "relationships": [
@@ -86,10 +86,18 @@ Added `relationships` array to show user's roles:
     "related_key": "role_id",
     "title": "ROLE.2"
   }
-]
+],
+"detail": {
+  "model": "activities",
+  "foreign_key": "user_id",
+  "list_fields": ["occurred_at", "type", "description", "ip_address"],
+  "title": "ACTIVITY.2"
+}
 ```
 
-This displays a list of roles assigned to the user on the user detail page.
+This displays:
+- A list of roles assigned to the user
+- A list of activities (audit log) for this user
 
 #### groups.json
 
@@ -162,6 +170,7 @@ All relationship titles use existing translation keys from the locale files:
 - `ROLE.PERMISSIONS` - "Role permissions"
 - `ROLE.USERS` - "Users with this role"
 - `GROUP.USERS` - "Users in this group"
+- `ACTIVITY.2` - "Activities" (plural form)
 
 These keys are already defined in:
 - `app/locale/en_US/messages.php`
@@ -239,6 +248,7 @@ To test the detail relationships in a full UserFrosting 6 application:
 1. **User detail page** (`/c6/admin/users/{id}`):
    - Should display user information
    - Should show a "Roles" section with the user's assigned roles
+   - Should show an "Activities" section with the user's activity log
    - Should have a change password button (if implemented in CRUD6 detail view)
 
 2. **Group detail page** (`/c6/admin/groups/{id}`):

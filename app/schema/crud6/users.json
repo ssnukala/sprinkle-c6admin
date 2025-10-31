@@ -24,6 +24,12 @@
             "title": "ROLE.2"
         }
     ],
+    "detail": {
+        "model": "activities",
+        "foreign_key": "user_id",
+        "list_fields": ["occurred_at", "type", "description", "ip_address"],
+        "title": "ACTIVITY.2"
+    },
     "fields": {
         "id": {
             "type": "integer",
