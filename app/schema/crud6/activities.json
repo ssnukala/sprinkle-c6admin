@@ -1,8 +1,8 @@
 {
     "model": "activities",
-    "title": "Activity Log",
-    "singular_title": "Activity",
-    "description": "View user activity logs",
+    "title": "ACTIVITY.PAGE",
+    "singular_title": "ACTIVITY.1",
+    "description": "ACTIVITY.PAGE_DESCRIPTION",
     "table": "activities",
     "primary_key": "id",
     "permissions": {

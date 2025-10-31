@@ -1,8 +1,8 @@
 {
     "model": "groups",
-    "title": "Group Management",
-    "singular_title": "Group",
-    "description": "Manage user groups",
+    "title": "GROUP.PAGE",
+    "singular_title": "GROUP.1",
+    "description": "GROUP.PAGE_DESCRIPTION",
     "table": "groups",
     "primary_key": "id",
     "permissions": {
@@ -14,12 +14,14 @@
     "default_sort": {
         "name": "asc"
     },
-    "detail": {
-        "model": "users",
-        "foreign_key": "group_id",
-        "list_fields": ["user_name", "first_name", "last_name", "email", "flag_enabled"],
-        "title": "GROUP.USERS"
-    },
+    "details": [
+        {
+            "model": "users",
+            "foreign_key": "group_id",
+            "list_fields": ["user_name", "first_name", "last_name", "email", "flag_enabled"],
+            "title": "GROUP.USERS"
+        }
+    ],
     "fields": {
         "id": {
             "type": "integer",
