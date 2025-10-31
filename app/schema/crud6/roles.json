@@ -14,6 +14,24 @@
     "default_sort": {
         "name": "asc"
     },
+    "relationships": [
+        {
+            "name": "permissions",
+            "type": "many_to_many",
+            "pivot_table": "permission_role",
+            "foreign_key": "role_id",
+            "related_key": "permission_id",
+            "title": "ROLE.PERMISSIONS"
+        },
+        {
+            "name": "users",
+            "type": "many_to_many",
+            "pivot_table": "role_user",
+            "foreign_key": "role_id",
+            "related_key": "user_id",
+            "title": "ROLE.USERS"
+        }
+    ],
     "fields": {
         "id": {
             "type": "integer",
