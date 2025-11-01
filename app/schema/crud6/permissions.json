@@ -22,6 +22,18 @@
             "foreign_key": "permission_id",
             "related_key": "role_id",
             "title": "ROLE.2"
+        },
+        {
+            "name": "users",
+            "type": "belongs_to_many_through",
+            "through": "UserFrosting\\Sprinkle\\Account\\Database\\Models\\Role",
+            "first_pivot_table": "permission_role",
+            "first_foreign_key": "permission_id",
+            "first_related_key": "role_id",
+            "second_pivot_table": "role_user",
+            "second_foreign_key": "role_id",
+            "second_related_key": "user_id",
+            "title": "PERMISSION.USERS"
         }
     ],
     "details": [
