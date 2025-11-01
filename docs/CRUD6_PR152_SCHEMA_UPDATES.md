@@ -42,6 +42,12 @@ Previously, CRUD6 had special hardcoded logic to handle the `users → roles →
 }
 ```
 
+**Removed `foreign_key` from details:**
+- Removed `foreign_key: "user_id"` from `roles` detail entry
+- Removed `foreign_key: "user_id"` from `permissions` detail entry
+
+**Why:** When relationships are defined in the `relationships` array (many-to-many or belongs-to-many-through), the `foreign_key` in the `details` array is not used and should be removed to avoid confusion.
+
 **Relationship Path:** `users → role_user → roles → permission_role → permissions`
 
 **Why:** Users don't have direct permissions; they have permissions through their roles. This is a belongs-to-many-through relationship that requires two pivot tables.
@@ -65,11 +71,37 @@ Previously, CRUD6 had special hardcoded logic to handle the `users → roles →
 }
 ```
 
+**Removed `foreign_key` from details:**
+- Removed `foreign_key: "permission_id"` from `users` detail entry
+- Removed `foreign_key: "permission_id"` from `roles` detail entry
+
 **Relationship Path:** `permissions → permission_role → roles → role_user → users`
 
 **Why:** Permissions don't directly belong to users; users have permissions through roles. This is the reverse of the users-to-permissions relationship.
 
+### 3. `app/schema/crud6/roles.json`
+
+**Removed `foreign_key` from details:**
+- Removed `foreign_key: "role_id"` from `users` detail entry
+- Removed `foreign_key: "role_id"` from `permissions` detail entry
+
+**Why:** Both relationships are defined as many-to-many in the `relationships` array, so the `foreign_key` in details is not used.
+
 ## Relationship Types
+
+### Understanding `relationships` vs `details`
+
+**`relationships` array:**
+- Defines the actual relationship logic used by CRUD6 for querying
+- Required for many-to-many and belongs-to-many-through relationships
+- Contains all configuration needed to build the query (pivot tables, foreign keys, etc.)
+
+**`details` array:**
+- Defines display configuration for the UI (which fields to show in lists)
+- When a relationship is defined in `relationships` array, the `foreign_key` in `details` is ignored
+- For simple one-to-many relationships (e.g., groups → users), only `details` with `foreign_key` is needed
+
+**Important:** If a relationship is defined in the `relationships` array, do NOT include `foreign_key` in the corresponding `details` entry to avoid confusion.
 
 ### Many-to-Many (`many_to_many`)
 

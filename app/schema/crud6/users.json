@@ -45,13 +45,11 @@
         },
         {
             "model": "roles",
-            "foreign_key": "user_id",
             "list_fields": ["name", "slug", "description"],
             "title": "ROLE.2"
         },
         {
             "model": "permissions",
-            "foreign_key": "user_id",
             "list_fields": ["slug", "name", "description"],
             "title": "PERMISSION.2"
         }
