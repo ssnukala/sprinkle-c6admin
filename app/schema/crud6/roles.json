@@ -35,13 +35,11 @@
     "details": [
         {
             "model": "users",
-            "foreign_key": "role_id",
             "list_fields": ["user_name", "first_name", "last_name", "email", "flag_enabled"],
             "title": "ROLE.USERS"
         },
         {
             "model": "permissions",
-            "foreign_key": "role_id",
             "list_fields": ["slug", "name", "description"],
             "title": "ROLE.PERMISSIONS"
         }
