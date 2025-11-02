@@ -26,7 +26,7 @@
         {
             "name": "users",
             "type": "belongs_to_many_through",
-            "through": "UserFrosting\\Sprinkle\\Account\\Database\\Models\\Role",
+            "through": "roles",
             "first_pivot_table": "permission_role",
             "first_foreign_key": "permission_id",
             "first_related_key": "role_id",
