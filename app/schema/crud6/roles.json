@@ -18,7 +18,7 @@
         {
             "name": "permissions",
             "type": "many_to_many",
-            "pivot_table": "permission_role",
+            "pivot_table": "permission_roles",
             "foreign_key": "role_id",
             "related_key": "permission_id",
             "title": "ROLE.PERMISSIONS"
@@ -26,7 +26,7 @@
         {
             "name": "users",
             "type": "many_to_many",
-            "pivot_table": "role_user",
+            "pivot_table": "role_users",
             "foreign_key": "role_id",
             "related_key": "user_id",
             "title": "ROLE.USERS"
