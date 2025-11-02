@@ -18,7 +18,7 @@
         {
             "name": "roles",
             "type": "many_to_many",
-            "pivot_table": "role_user",
+            "pivot_table": "role_users",
             "foreign_key": "user_id",
             "related_key": "role_id",
             "title": "ROLE.2"
@@ -27,10 +27,10 @@
             "name": "permissions",
             "type": "belongs_to_many_through",
             "through": "roles",
-            "first_pivot_table": "role_user",
+            "first_pivot_table": "role_users",
             "first_foreign_key": "user_id",
             "first_related_key": "role_id",
-            "second_pivot_table": "permission_role",
+            "second_pivot_table": "permission_roles",
             "second_foreign_key": "role_id",
             "second_related_key": "permission_id",
             "title": "PERMISSION.2"
@@ -40,17 +40,30 @@
         {
             "model": "activities",
             "foreign_key": "user_id",
-            "list_fields": ["occurred_at", "type", "description", "ip_address"],
+            "list_fields": [
+                "occurred_at",
+                "type",
+                "description",
+                "ip_address"
+            ],
             "title": "ACTIVITY.2"
         },
         {
             "model": "roles",
-            "list_fields": ["name", "slug", "description"],
+            "list_fields": [
+                "name",
+                "slug",
+                "description"
+            ],
             "title": "ROLE.2"
         },
         {
             "model": "permissions",
-            "list_fields": ["slug", "name", "description"],
+            "list_fields": [
+                "slug",
+                "name",
+                "description"
+            ],
             "title": "PERMISSION.2"
         }
     ],
