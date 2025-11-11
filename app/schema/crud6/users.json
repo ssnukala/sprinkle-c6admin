@@ -183,7 +183,7 @@
             }
         },
         "email": {
-            "type": "string",
+            "type": "email",
             "label": "Email",
             "required": true,
             "sortable": true,
@@ -233,12 +233,17 @@
             "listable": true
         },
         "password": {
-            "type": "string",
+            "type": "password",
             "label": "Password",
             "required": false,
+            "editable": true,
             "listable": false,
             "viewable": false,
-            "editable": false
+            "validation": {
+                "length": {
+                    "min": 8
+                }
+            }
         },
         "deleted_at": {
             "type": "datetime",
