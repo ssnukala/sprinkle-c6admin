@@ -21,7 +21,17 @@
             "pivot_table": "permission_roles",
             "foreign_key": "permission_id",
             "related_key": "role_id",
-            "title": "ROLE.2"
+            "title": "ROLE.2",
+            "actions": {
+                "on_update": {
+                    "sync": "role_ids",
+                    "description": "Sync permission roles from form input"
+                },
+                "on_delete": {
+                    "detach": "all",
+                    "description": "Remove all role associations when permission is deleted"
+                }
+            }
         },
         {
             "name": "users",
@@ -100,6 +110,15 @@
             "sortable": false,
             "filterable": false,
             "listable": true
+        },
+        "role_ids": {
+            "type": "multiselect",
+            "label": "Roles",
+            "description": "Permission roles (used for sync on update)",
+            "required": false,
+            "editable": true,
+            "viewable": false,
+            "listable": false
         },
         "created_at": {
             "type": "datetime",
