@@ -1,46 +1,159 @@
 # Schema Updates: Toggle Buttons and Pivot Table Management
 
 **Date:** 2025-11-12  
-**Related PR:** Based on [sprinkle-crud6 PR #165](https://github.com/ssnukala/sprinkle-crud6/pull/165)
+**Related PRs:**
+- [sprinkle-crud6 PR #165](https://github.com/ssnukala/sprinkle-crud6/pull/165) - Toggle buttons and pivot actions
+- [sprinkle-crud6 PR #166](https://github.com/ssnukala/sprinkle-crud6/pull/166) - ORM-aligned refactoring
 
 ## Overview
 
-This update implements two key features from CRUD6 in the C6Admin schema files:
+This update implements modern schema patterns from CRUD6:
 
-1. **Boolean Toggle Switches** - Modern UI for boolean fields
+1. **Boolean Toggle Switches** - Modern UI for boolean fields with separated type and presentation
 2. **Automatic Pivot Table Management** - Schema-driven relationship actions
+3. **Nested Lookup Objects** - Cleaner organization of lookup configuration
+4. **Context-Specific Visibility** - Precise control over when fields appear
 
 ## Changes Made
 
 ### 1. Boolean Toggle Switches
 
-#### Updated Fields
+#### Updated Pattern (PR #166)
 
-**users.json:**
-- `flag_verified`: Changed from `boolean` to `boolean-tgl`
-- `flag_enabled`: Changed from `boolean` to `boolean-tgl`
-
-#### Visual Changes
-
-**Before (Checkbox):**
-```
-☐ Verified
-☐ Enabled
+**Before:**
+```json
+{
+  "flag_enabled": {
+    "type": "boolean-tgl",
+    "label": "Enabled"
+  }
+}
 ```
 
-**After (Toggle Switch):**
-```
-[████████○] Enabled
-[○────────] Disabled
+**After:**
+```json
+{
+  "flag_enabled": {
+    "type": "boolean",
+    "ui": "toggle",
+    "label": "Enabled"
+  }
+}
 ```
 
 #### Benefits
-- Modern, intuitive UI
-- Clear "Enabled/Disabled" labels
-- Better visual feedback
-- Improved accessibility
+- Separates data type from UI presentation
+- Allows multiple UI options: `"toggle"`, `"checkbox"`, `"select"`
+- More flexible and ORM-aligned
 
-### 2. Pivot Table Management
+### 2. Nested Lookup Objects
+
+#### Updated Pattern (PR #166)
+
+**Before:**
+```json
+{
+  "role_ids": {
+    "type": "multiselect",
+    "lookup_model": "roles",
+    "lookup_id": "id",
+    "lookup_desc": "name"
+  }
+}
+```
+
+**After:**
+```json
+{
+  "role_ids": {
+    "type": "multiselect",
+    "lookup": {
+      "model": "roles",
+      "id": "id",
+      "desc": "name"
+    }
+  }
+}
+```
+
+#### Benefits
+- Cleaner, more organized structure
+- Groups related configuration
+- Familiar pattern from other frameworks (Prisma, TypeORM)
+
+### 3. Context-Specific Visibility
+
+#### Updated Pattern (PR #166)
+
+**Before:**
+```json
+{
+  "user_name": {
+    "type": "string",
+    "editable": true,
+    "viewable": true,
+    "listable": true
+  }
+}
+```
+
+**After:**
+```json
+{
+  "user_name": {
+    "type": "string",
+    "show_in": ["list", "form", "detail"]
+  }
+}
+```
+
+**Supported Contexts:**
+- `list` - Table/grid view
+- `create` - Create form (when adding new records)
+- `edit` - Edit form (when modifying existing records)
+- `detail` - Read-only detail/view page
+- `form` - Shorthand for both create and edit
+
+#### Benefits
+- Clear, explicit visibility control
+- Context-based instead of overlapping flags
+- Better security (e.g., password only in forms, not in list/detail)
+- More intuitive than editable/viewable/listable
+
+#### Examples
+
+**Password Field - Form Only:**
+```json
+{
+  "password": {
+    "type": "password",
+    "show_in": ["create", "edit"]  // Hidden from list and detail for security
+  }
+}
+```
+
+**ID Field - Detail Only:**
+```json
+{
+  "id": {
+    "type": "integer",
+    "show_in": ["detail"]  // Not needed in forms or lists
+  }
+}
+```
+
+**Toggle Field - Everywhere:**
+```json
+{
+  "flag_enabled": {
+    "type": "boolean",
+    "ui": "toggle",
+    "show_in": ["list", "form", "detail"]
+  }
+}
+```
+
+### 4. Pivot Table Management
 
 Automatic management of pivot table entries through relationship actions defined in schemas.
 

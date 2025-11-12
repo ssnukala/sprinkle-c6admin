@@ -26,8 +26,8 @@
                 "on_create": {
                     "attach": [
                         {
-                            "related_id": 2,
-                            "description": "Assign default 'User' role to new users",
+                            "related_id": 1,
+                            "description": "Assign default role to new users",
                             "pivot_data": {
                                 "created_at": "now",
                                 "updated_at": "now"

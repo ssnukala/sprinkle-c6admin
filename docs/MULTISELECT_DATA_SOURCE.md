@@ -9,16 +9,27 @@ The multiselect fields get their data from CRUD6 API endpoints by querying the m
 
 ## Configuration
 
-Each multiselect field requires three properties to specify its data source:
+Each multiselect field requires a nested `lookup` object to specify its data source:
 
 ```json
 {
   "role_ids": {
     "type": "multiselect",
-    "lookup_model": "roles",     // Which model to query
-    "lookup_id": "id",            // Which field to use as the value
-    "lookup_desc": "name"         // Which field to display to the user
+    "lookup": {
+      "model": "roles",     // Which model to query
+      "id": "id",            // Which field to use as the value
+      "desc": "name"         // Which field to display to the user
+    }
   }
+}
+```
+
+**Note:** The old flat structure is still supported but deprecated:
+```json
+{
+  "lookup_model": "roles",
+  "lookup_id": "id",
+  "lookup_desc": "name"
 }
 ```
 
