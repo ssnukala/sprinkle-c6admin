@@ -203,7 +203,7 @@ The system processes special placeholder values in `pivot_data`:
 
 ## New Form Fields
 
-Added multiselect fields for relationship management:
+Added multiselect fields for relationship management. These fields populate their options by querying the related CRUD6 model.
 
 ### users.json
 ```json
@@ -212,6 +212,9 @@ Added multiselect fields for relationship management:
     "type": "multiselect",
     "label": "Roles",
     "description": "User roles (used for sync on update)",
+    "lookup_model": "roles",
+    "lookup_id": "id",
+    "lookup_desc": "name",
     "required": false,
     "editable": true,
     "viewable": false,
@@ -219,6 +222,11 @@ Added multiselect fields for relationship management:
   }
 }
 ```
+
+**Data Source Configuration:**
+- `lookup_model: "roles"` - Queries `/api/crud6/roles` endpoint
+- `lookup_id: "id"` - Uses the `id` field as the value
+- `lookup_desc: "name"` - Displays the `name` field in the multiselect options
 
 ### roles.json
 ```json
@@ -227,6 +235,9 @@ Added multiselect fields for relationship management:
     "type": "multiselect",
     "label": "Permissions",
     "description": "Role permissions (used for sync on update)",
+    "lookup_model": "permissions",
+    "lookup_id": "id",
+    "lookup_desc": "name",
     "required": false,
     "editable": true,
     "viewable": false,
@@ -235,6 +246,10 @@ Added multiselect fields for relationship management:
 }
 ```
 
+**Data Source Configuration:**
+- `lookup_model: "permissions"` - Queries `/api/crud6/permissions` endpoint
+- Displays permission names in the multiselect dropdown
+
 ### permissions.json
 ```json
 {
@@ -242,12 +257,43 @@ Added multiselect fields for relationship management:
     "type": "multiselect",
     "label": "Roles",
     "description": "Permission roles (used for sync on update)",
+    "lookup_model": "roles",
+    "lookup_id": "id",
+    "lookup_desc": "name",
     "required": false,
     "editable": true,
     "viewable": false,
     "listable": false
   }
 }
+```
+
+**Data Source Configuration:**
+- `lookup_model: "roles"` - Queries `/api/crud6/roles` endpoint
+- Displays role names in the multiselect dropdown
+
+### How Multiselect Data Population Works
+
+The multiselect fields use CRUD6's automatic lookup system:
+
+1. **Initial Load:** When the form loads, it queries `/api/crud6/{lookup_model}` to get all available options
+2. **Display:** Shows the `lookup_desc` field (e.g., "name") to the user
+3. **Value:** Stores the `lookup_id` field (e.g., "id") as the selected value(s)
+4. **Sync:** The selected IDs are used by the `on_update` sync action to update the pivot table
+
+**Example API Call:**
+```
+GET /api/crud6/roles
+Response: {
+  "rows": [
+    {"id": 1, "name": "Admin"},
+    {"id": 2, "name": "User"},
+    {"id": 3, "name": "Guest"}
+  ]
+}
+```
+
+The multiselect will display: "Admin", "User", "Guest" as options, and store [1, 2, 3] as values when selected.
 ```
 
 ## User Workflow Examples

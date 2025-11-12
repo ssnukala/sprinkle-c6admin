@@ -130,6 +130,9 @@
     "role_ids": {
       "type": "multiselect",
       "label": "Roles",
+      "lookup_model": "roles",
+      "lookup_id": "id",
+      "lookup_desc": "name",
       "editable": true
     }
   }
