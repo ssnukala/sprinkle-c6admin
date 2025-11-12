@@ -21,7 +21,29 @@
             "pivot_table": "role_users",
             "foreign_key": "user_id",
             "related_key": "role_id",
-            "title": "ROLE.2"
+            "title": "ROLE.2",
+            "actions": {
+                "on_create": {
+                    "attach": [
+                        {
+                            "related_id": 1,
+                            "description": "Assign default role to new users",
+                            "pivot_data": {
+                                "created_at": "now",
+                                "updated_at": "now"
+                            }
+                        }
+                    ]
+                },
+                "on_update": {
+                    "sync": "role_ids",
+                    "description": "Sync user roles from form input"
+                },
+                "on_delete": {
+                    "detach": "all",
+                    "description": "Remove all role associations when user is deleted"
+                }
+            }
         },
         {
             "name": "permissions",
@@ -132,9 +154,8 @@
             "type": "integer",
             "label": "ID",
             "auto_increment": true,
-            "editable": false,
-            "viewable": true,
-            "listable": false
+            "readonly": true,
+            "show_in": ["detail"]
         },
         "user_name": {
             "type": "string",
@@ -142,7 +163,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "unique": true,
@@ -158,7 +179,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "length": {
@@ -173,7 +194,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "length": {
@@ -188,7 +209,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "email": true,
@@ -202,7 +223,7 @@
             "type": "string",
             "label": "Locale",
             "required": false,
-            "listable": false,
+            "show_in": ["form", "detail"],
             "default": "en_US",
             "validation": {
                 "length": {
@@ -214,31 +235,45 @@
             "type": "integer",
             "label": "Group",
             "required": false,
-            "listable": false
+            "show_in": ["form", "detail"]
         },
         "flag_verified": {
             "type": "boolean",
+            "ui": "toggle",
             "label": "Verified",
+            "description": "Email verification status",
             "default": true,
             "sortable": true,
             "filterable": true,
-            "listable": true
+            "show_in": ["list", "form", "detail"]
         },
         "flag_enabled": {
             "type": "boolean",
+            "ui": "toggle",
             "label": "Enabled",
+            "description": "Account enabled status",
             "default": true,
             "sortable": true,
             "filterable": true,
-            "listable": true
+            "show_in": ["list", "form", "detail"]
+        },
+        "role_ids": {
+            "type": "multiselect",
+            "label": "Roles",
+            "description": "User roles (used for sync on update)",
+            "lookup": {
+                "model": "roles",
+                "id": "id",
+                "desc": "name"
+            },
+            "required": false,
+            "show_in": ["form"]
         },
         "password": {
             "type": "password",
             "label": "Password",
             "required": false,
-            "editable": true,
-            "listable": false,
-            "viewable": false,
+            "show_in": ["create", "edit"],
             "validation": {
                 "length": {
                     "min": 8
@@ -248,25 +283,22 @@
         "deleted_at": {
             "type": "datetime",
             "label": "Deleted At",
-            "editable": false,
-            "viewable": false,
-            "listable": false,
+            "readonly": true,
+            "show_in": [],
             "date_format": "Y-m-d H:i:s"
         },
         "created_at": {
             "type": "datetime",
             "label": "Created At",
-            "editable": false,
-            "viewable": false,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
             "label": "Updated At",
-            "editable": false,
-            "viewable": false,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         }
     }

@@ -27,15 +27,14 @@
             "type": "integer",
             "label": "ID",
             "auto_increment": true,
-            "editable": false,
-            "viewable": true,
-            "listable": false
+            "readonly": true,
+            "show_in": ["detail"]
         },
         "slug": {
             "type": "string",
             "label": "Slug",
             "required": true,
-            "listable": false,
+            "show_in": ["form", "detail"],
             "validation": {
                 "required": true,
                 "unique": true,
@@ -50,7 +49,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "length": {
@@ -65,13 +64,13 @@
             "required": false,
             "sortable": false,
             "filterable": false,
-            "listable": true
+            "show_in": ["list", "form", "detail"]
         },
         "icon": {
             "type": "string",
             "label": "Icon",
             "required": false,
-            "listable": false,
+            "show_in": ["form", "detail"],
             "validation": {
                 "length": {
                     "max": 100
@@ -81,17 +80,15 @@
         "created_at": {
             "type": "datetime",
             "label": "Created At",
-            "editable": false,
-            "viewable": true,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
             "label": "Updated At",
-            "editable": false,
-            "viewable": true,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         }
     }

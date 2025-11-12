@@ -21,7 +21,17 @@
             "pivot_table": "permission_roles",
             "foreign_key": "role_id",
             "related_key": "permission_id",
-            "title": "ROLE.PERMISSIONS"
+            "title": "ROLE.PERMISSIONS",
+            "actions": {
+                "on_update": {
+                    "sync": "permission_ids",
+                    "description": "Sync role permissions from form input"
+                },
+                "on_delete": {
+                    "detach": "all",
+                    "description": "Remove all permission associations when role is deleted"
+                }
+            }
         },
         {
             "name": "users",
@@ -29,7 +39,13 @@
             "pivot_table": "role_users",
             "foreign_key": "role_id",
             "related_key": "user_id",
-            "title": "ROLE.USERS"
+            "title": "ROLE.USERS",
+            "actions": {
+                "on_delete": {
+                    "detach": "all",
+                    "description": "Remove all user associations when role is deleted"
+                }
+            }
         }
     ],
     "details": [
@@ -49,15 +65,14 @@
             "type": "integer",
             "label": "ID",
             "auto_increment": true,
-            "editable": false,
-            "viewable": true,
-            "listable": false
+            "readonly": true,
+            "show_in": ["detail"]
         },
         "slug": {
             "type": "string",
             "label": "Slug",
             "required": true,
-            "listable": false,
+            "show_in": ["form", "detail"],
             "validation": {
                 "required": true,
                 "unique": true,
@@ -72,7 +87,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "length": {
@@ -87,22 +102,32 @@
             "required": false,
             "sortable": false,
             "filterable": false,
-            "listable": true
+            "show_in": ["list", "form", "detail"]
+        },
+        "permission_ids": {
+            "type": "multiselect",
+            "label": "Permissions",
+            "description": "Role permissions (used for sync on update)",
+            "lookup": {
+                "model": "permissions",
+                "id": "id",
+                "desc": "name"
+            },
+            "required": false,
+            "show_in": ["form"]
         },
         "created_at": {
             "type": "datetime",
             "label": "Created At",
-            "editable": false,
-            "viewable": true,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
             "label": "Updated At",
-            "editable": false,
-            "viewable": true,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         }
     }
