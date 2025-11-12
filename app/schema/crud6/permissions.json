@@ -63,9 +63,8 @@
             "type": "integer",
             "label": "ID",
             "auto_increment": true,
-            "editable": false,
-            "viewable": true,
-            "listable": false
+            "readonly": true,
+            "show_in": ["detail"]
         },
         "slug": {
             "type": "string",
@@ -73,7 +72,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "unique": true,
@@ -88,7 +87,7 @@
             "required": true,
             "sortable": true,
             "filterable": true,
-            "listable": true,
+            "show_in": ["list", "form", "detail"],
             "validation": {
                 "required": true,
                 "length": {
@@ -101,7 +100,7 @@
             "type": "text",
             "label": "Conditions",
             "required": false,
-            "listable": false
+            "show_in": ["form", "detail"]
         },
         "description": {
             "type": "text",
@@ -109,34 +108,32 @@
             "required": false,
             "sortable": false,
             "filterable": false,
-            "listable": true
+            "show_in": ["list", "form", "detail"]
         },
         "role_ids": {
             "type": "multiselect",
             "label": "Roles",
             "description": "Permission roles (used for sync on update)",
-            "lookup_model": "roles",
-            "lookup_id": "id",
-            "lookup_desc": "name",
+            "lookup": {
+                "model": "roles",
+                "id": "id",
+                "desc": "name"
+            },
             "required": false,
-            "editable": true,
-            "viewable": false,
-            "listable": false
+            "show_in": ["form"]
         },
         "created_at": {
             "type": "datetime",
             "label": "Created At",
-            "editable": false,
-            "viewable": true,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
             "label": "Updated At",
-            "editable": false,
-            "viewable": true,
-            "listable": false,
+            "readonly": true,
+            "show_in": ["detail"],
             "date_format": "Y-m-d H:i:s"
         }
     }
