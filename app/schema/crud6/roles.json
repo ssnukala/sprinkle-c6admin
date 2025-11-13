@@ -78,7 +78,8 @@
                 "unique": true,
                 "length": {
                     "max": 255
-                }
+                },
+                "no_whitespace": true
             }
         },
         "name": {
@@ -93,7 +94,9 @@
                 "length": {
                     "min": 1,
                     "max": 255
-                }
+                },
+                "no_leading_whitespace": true,
+                "no_trailing_whitespace": true
             }
         },
         "description": {

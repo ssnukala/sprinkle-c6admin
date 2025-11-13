@@ -170,7 +170,10 @@
                 "length": {
                     "min": 1,
                     "max": 50
-                }
+                },
+                "username": true,
+                "no_leading_whitespace": true,
+                "no_trailing_whitespace": true
             }
         },
         "first_name": {
@@ -185,7 +188,9 @@
                 "length": {
                     "min": 1,
                     "max": 20
-                }
+                },
+                "no_leading_whitespace": true,
+                "no_trailing_whitespace": true
             }
         },
         "last_name": {
@@ -200,7 +205,9 @@
                 "length": {
                     "min": 1,
                     "max": 30
-                }
+                },
+                "no_leading_whitespace": true,
+                "no_trailing_whitespace": true
             }
         },
         "email": {
@@ -216,7 +223,9 @@
                 "unique": true,
                 "length": {
                     "max": 254
-                }
+                },
+                "no_leading_whitespace": true,
+                "no_trailing_whitespace": true
             }
         },
         "locale": {
