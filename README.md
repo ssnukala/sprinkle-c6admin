@@ -162,17 +162,21 @@ const routes = [
 ]
 ```
 
-#### Option 3: Default Export (Legacy)
+#### Option 3: Default Export (Not Recommended)
 
-For backward compatibility, you can still import the default export, though it won't include a layout component:
+⚠️ **Warning**: The default export does not include a layout component, which means the admin interface will not have a sidebar panel. This option is provided for backward compatibility only.
+
+**You should use Option 1 or Option 2 instead.**
 
 ```typescript
 import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
 
 const routes = [
-  ...C6AdminRoutes  // Note: No layout component by default
+  ...C6AdminRoutes  // ⚠️ Missing layout component - sidebar will not appear
 ]
 ```
+
+If you use this option, the dashboard and other pages will render but **without the left sidebar navigation**. Use `createC6AdminRoutes()` with a `layoutComponent` instead.
 
 #### Sidebar Menu Integration
 
