@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * UserFrosting CRUD6 Sprinkle Integration Test - Modular Screenshot Script
+ * UserFrosting C6Admin Sprinkle Integration Test - Modular Screenshot Script
  * 
  * This script uses Playwright to take screenshots based on a JSON configuration.
  * It reads the paths configuration and takes screenshots for all frontend paths
  * that have the "screenshot" flag set to true.
  * 
  * Usage: node take-screenshots-modular.js <config_file> [base_url] [username] [password]
- * Example: node take-screenshots-modular.js integration-test-paths.json
- * Example: node take-screenshots-modular.js integration-test-paths.json http://localhost:8080 admin admin123
+ * Example: node take-screenshots-modular.js .github/config/integration-test-paths.json
+ * Example: node take-screenshots-modular.js .github/config/integration-test-paths.json http://localhost:8080 admin admin123
  */
 
 import { chromium } from 'playwright';
