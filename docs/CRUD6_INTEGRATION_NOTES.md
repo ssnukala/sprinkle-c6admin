@@ -42,33 +42,37 @@ This document describes how sprinkle-c6admin integrates with sprinkle-crud6 v0.6
 ```json
 {
   "dependencies": {
-    "@ssnukala/sprinkle-crud6": "^0.6.1"
+    "@ssnukala/sprinkle-crud6": "git+https://github.com/ssnukala/sprinkle-crud6.git#0.6.1"
   }
 }
 ```
 
-**Important Note:** NPM cannot install CRUD6 directly from Git because:
-- GitHub tarballs (e.g., `https://github.com/ssnukala/sprinkle-crud6/archive/refs/tags/0.6.1.tar.gz`) don't include package.json
-- NPM expects package.json to be present when installing from Git repositories
-- This is a limitation of how GitHub generates release tarballs
+**✅ Direct Git URL Installation Works!**
 
-**Workaround for CI/Testing:**
-The integration test workflow packages CRUD6 from the Composer vendor directory:
+As of CRUD6 v0.6.1, the `.gitattributes` file has been updated to include `package.json` in Git archives. This means npm can now install CRUD6 directly from the Git URL without any workarounds.
+
+**How it works:**
+1. npm fetches the repository from the Git URL
+2. Checks out tag 0.6.1
+3. package.json is now included in the Git archive
+4. npm installs the package with all dependencies
+
+**Integration Test Workflow:**
+The workflow is now simplified - no manual packaging needed:
 
 ```yaml
-- name: Package sprinkles for NPM
+- name: Package C6Admin sprinkle for NPM
   run: |
-    # Package CRUD6 sprinkle from vendor (installed via Composer)
-    cd userfrosting/vendor/ssnukala/sprinkle-crud6
+    # Package C6Admin sprinkle
+    cd sprinkle-c6admin
     npm pack
-    mv ssnukala-sprinkle-crud6-*.tgz ../../../../
+    mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
 
 - name: Install NPM dependencies
   run: |
     cd userfrosting
-    # Install CRUD6 package first
-    npm install ./ssnukala-sprinkle-crud6-*.tgz
-    # Install C6Admin package
+    npm update
+    # Install C6Admin package (CRUD6 will be installed automatically from Git URL)
     npm install ./ssnukala-sprinkle-c6admin-*.tgz
 ```
 

@@ -106,17 +106,9 @@ jobs:
           cd userfrosting
           composer install --no-interaction --prefer-dist
 
-      - name: Package sprinkles for NPM
+      - name: Package C6Admin sprinkle for NPM
         run: |
-          # Package CRUD6 sprinkle from vendor (installed via Composer)
-          # This is needed because CRUD6's Git repo doesn't include package.json in GitHub tarballs
-          # npm cannot install directly from Git, so we package it from vendor
-          cd userfrosting/vendor/ssnukala/sprinkle-crud6
-          npm pack
-          mv ssnukala-sprinkle-crud6-*.tgz ../../../
-          
           # Package C6Admin sprinkle
-          cd ../../../..
           cd sprinkle-c6admin
           npm pack
           mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
@@ -125,9 +117,7 @@ jobs:
         run: |
           cd userfrosting
           npm update
-          # Install CRUD6 first (satisfies C6Admin's dependency requirement)
-          npm install ./ssnukala-sprinkle-crud6-*.tgz
-          # Install C6Admin (npm will see CRUD6 dependency is already satisfied)
+          # Install C6Admin package (CRUD6 will be installed automatically from Git URL)
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Verify NPM packages installation

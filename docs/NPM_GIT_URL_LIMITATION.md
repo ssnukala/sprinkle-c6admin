@@ -1,8 +1,25 @@
-# Why Git URL Doesn't Work for NPM
+# ✅ RESOLVED: Git URL Now Works for NPM
 
-## The Problem
+## Update: Issue Resolved!
 
-We attempted to configure package.json to install CRUD6 directly from Git:
+**As of CRUD6 v0.6.1**, the `.gitattributes` file has been updated to include `package.json` in Git archives.
+
+**Current configuration works:**
+```json
+"dependencies": {
+    "@ssnukala/sprinkle-crud6": "git+https://github.com/ssnukala/sprinkle-crud6.git#0.6.1"
+}
+```
+
+**Result:** ✅ Installation succeeds! npm can now install CRUD6 directly from Git URL.
+
+---
+
+## Historical Context: Why It Previously Didn't Work
+
+### The Original Problem
+
+We initially attempted to configure package.json to install CRUD6 directly from Git:
 
 ```json
 "dependencies": {
@@ -10,22 +27,33 @@ We attempted to configure package.json to install CRUD6 directly from Git:
 }
 ```
 
-**Result:** Installation fails with error:
+**Original Result:** Installation failed with error:
 ```
 npm error ENOENT: no such file or directory, open '.../package.json'
 ```
 
-## Root Cause: .gitattributes
+### Root Cause: .gitattributes
 
-The CRUD6 repository contains a `.gitattributes` file that excludes certain files from Git archives:
+The CRUD6 repository originally contained a `.gitattributes` file that excluded certain files from Git archives:
 
 ```gitattributes
-# .gitattributes in ssnukala/sprinkle-crud6
-/package.json export-ignore
+# OLD .gitattributes in ssnukala/sprinkle-crud6 (before fix)
+/package.json export-ignore          ← This was removed
 /package-lock.json export-ignore
 /tsconfig.json export-ignore
 /vite.config.ts export-ignore
 # ... other NPM/frontend files
+```
+
+### The Fix
+
+**Updated .gitattributes (current):**
+```gitattributes
+# CURRENT .gitattributes in ssnukala/sprinkle-crud6
+# /package.json export-ignore        ← REMOVED - package.json now included
+/package-lock.json export-ignore
+/tsconfig.json export-ignore
+/vite.config.ts export-ignore
 ```
 
 ## How This Affects NPM
