@@ -51,7 +51,10 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
         // Try without .uk-card first for better compatibility
         console.log('🔍 Looking for username input field...');
         try {
-            await page.waitForSelector('input[data-test="username"]', { timeout: 30000, state: 'visible' });
+
+            await page.waitForSelector('.uk-card input[data-test="username"]', { timeout: 10000 });
+            
+            //await page.waitForSelector('input[data-test="username"]', { timeout: 30000, state: 'visible' });
             console.log('✅ Username input field found');
         } catch (error) {
             console.error('❌ Could not find username input field');
@@ -69,20 +72,17 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
             }
             throw error;
         }
-        
-        // Fill in credentials using data-test selectors
-        console.log('✍️  Filling in username...');
-        await page.fill('input[data-test="username"]', username);
-        console.log('✍️  Filling in password...');
-        await page.fill('input[data-test="password"]', password);
+
+        // Fill in credentials using data-test selectors (qualified with .uk-card)
+        await page.fill('.uk-card input[data-test="username"]', username);
+        await page.fill('.uk-card input[data-test="password"]', password);
         
         // Click the login button using data-test selector and wait for navigation
-        console.log('🖱️  Clicking login button...');
         await Promise.all([
             page.waitForNavigation({ timeout: 15000 }).catch(() => {
                 console.log('⚠️  No navigation detected after login, but continuing...');
             }),
-            page.click('button[data-test="submit"]')
+            page.click('.uk-card button[data-test="submit"]')
         ]);
         
         console.log('✅ Logged in successfully');
