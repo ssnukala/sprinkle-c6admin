@@ -74,29 +74,23 @@ The integration test workflow packages CRUD6 from the Composer vendor directory:
 
 ## Known Issues
 
-### Version Mismatch in package.json
+### ✅ RESOLVED: Version Mismatch in package.json
 
-**Issue:** The CRUD6 release 0.6.1 contains `package.json` with version "0.5.7" instead of "0.6.1".
+**Issue:** The CRUD6 release 0.6.1 initially contained `package.json` with version "0.5.7" instead of "0.6.1".
 
-**Evidence:**
+**Status:** ✅ **RESOLVED** - The CRUD6 package.json has been updated to version "0.6.1".
+
+**Verification:**
 ```bash
 $ git clone --depth 1 --branch 0.6.1 https://github.com/ssnukala/sprinkle-crud6.git
 $ cat sprinkle-crud6/package.json | grep version
-  "version": "0.5.7",
+  "version": "0.6.1",
 ```
 
-**Impact:**
-- NPM will report the package as version 0.5.7 when installed
-- No functional impact on code or features
-- Composer correctly uses the Git tag (0.6.1) for versioning
-
-**Recommendation:**
-The CRUD6 repository should update `package.json` to version "0.6.1" before creating future releases. This can be done by:
-
-1. Updating package.json version field
-2. Committing the change
-3. Creating a new git tag
-4. Publishing the release
+**Current State:**
+- ✅ NPM will now correctly report the package as version 0.6.1
+- ✅ Version is now consistent between Git tag and package.json
+- ✅ Both Composer and NPM use the correct version
 
 ### NPM Registry Availability
 

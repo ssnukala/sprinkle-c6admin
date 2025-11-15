@@ -97,13 +97,15 @@ c) **Updated NPM installation** (line 121-128):
 
 ## Known Issues
 
-### 1. Version Mismatch in CRUD6 package.json
-**Issue:** CRUD6 release 0.6.1 has package.json showing version "0.5.7"
+### 1. ✅ RESOLVED: Version Mismatch in CRUD6 package.json
+**Issue:** CRUD6 release 0.6.1 initially had package.json showing version "0.5.7"
+
+**Status:** ✅ **RESOLVED** - CRUD6 package.json has been updated to version "0.6.1"
 
 **Impact:** 
-- Minimal - NPM will report version 0.5.7
-- No functional problems
-- Should be fixed in CRUD6 repository for next release
+- ✅ NPM now correctly reports version 0.6.1
+- ✅ Version is consistent between Git tag and package.json
+- ✅ No issues remaining
 
 ### 2. NPM Registry Not Available
 **Issue:** CRUD6 not published to npmjs.com
