@@ -81,7 +81,7 @@ jobs:
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import CRUD6Routes from '@ssnukala\/sprinkle-crud6\/routes'" app/assets/router/index.ts
           # Add ...CRUD6Routes, ...LearnIntegrateRoutes after ...AccountRoutes
-          sed -i '/\.\.\.AccountRoutes,/a \            ...CRUD6Routes, ...C6AdminRoutes' app/assets/router/index.ts
+          sed -i '/\.\.\.AccountRoutes,/a \            ...CRUD6Routes, ...C6AdminRoutes,' app/assets/router/index.ts
           # displaying the file to verify changes
           cat app/assets/router/index.ts
 
