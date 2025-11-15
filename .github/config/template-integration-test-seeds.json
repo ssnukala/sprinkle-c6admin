@@ -1,0 +1,95 @@
+{
+  "description": "TEMPLATE: Integration test seeds configuration for your sprinkle",
+  "seeds": {
+    "account": {
+      "description": "Account sprinkle base seeds (required)",
+      "order": 1,
+      "seeds": [
+        {
+          "class": "UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultGroups",
+          "description": "Create default user groups",
+          "required": true
+        },
+        {
+          "class": "UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultPermissions",
+          "description": "Create default permissions",
+          "required": true
+        },
+        {
+          "class": "UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultRoles",
+          "description": "Create default roles",
+          "required": true
+        },
+        {
+          "class": "UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\UpdatePermissions",
+          "description": "Update permissions for existing roles",
+          "required": true
+        }
+      ]
+    },
+    "yoursprinkle": {
+      "description": "Your sprinkle seeds",
+      "order": 2,
+      "seeds": [
+        {
+          "class": "YourCompany\\YourSprinkle\\Database\\Seeds\\DefaultRoles",
+          "description": "Create your sprinkle roles",
+          "required": true,
+          "validation": {
+            "type": "role",
+            "slug": "your-admin",
+            "expected_count": 1
+          }
+        },
+        {
+          "class": "YourCompany\\YourSprinkle\\Database\\Seeds\\DefaultPermissions",
+          "description": "Create your sprinkle permissions and assign to roles",
+          "required": true,
+          "validation": {
+            "type": "permissions",
+            "slugs": [
+              "create_yourmodel",
+              "delete_yourmodel",
+              "update_yourmodel",
+              "view_yourmodel"
+            ],
+            "expected_count": 4,
+            "role_assignments": {
+              "your-admin": 4,
+              "site-admin": 4
+            }
+          }
+        },
+        {
+          "class": "YourCompany\\YourSprinkle\\Database\\Seeds\\TestData",
+          "description": "Create test data for your sprinkle",
+          "required": false,
+          "validation": {
+            "type": "custom",
+            "description": "Validate test data was created"
+          }
+        }
+      ]
+    }
+  },
+  "validation": {
+    "idempotency": {
+      "enabled": true,
+      "description": "Test that seeds can be run multiple times without duplicates",
+      "test_seeds": ["yoursprinkle"]
+    },
+    "relationships": {
+      "enabled": true,
+      "description": "Validate that permissions are assigned to correct roles"
+    }
+  },
+  "admin_user": {
+    "enabled": true,
+    "username": "admin",
+    "password": "admin123",
+    "email": "admin@example.com",
+    "firstName": "Admin",
+    "lastName": "User",
+    "description": "Create admin user for testing authenticated routes"
+  }
+}
