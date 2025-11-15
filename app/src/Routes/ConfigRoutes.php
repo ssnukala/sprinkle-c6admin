@@ -14,6 +14,7 @@ namespace UserFrosting\Sprinkle\C6Admin\Routes;
 
 use Slim\App;
 use UserFrosting\Routes\RouteDefinitionInterface;
+use UserFrosting\Sprinkle\Account\Authenticate\AuthGuard;
 use UserFrosting\Sprinkle\C6Admin\Controller\Config\CacheApiAction;
 use UserFrosting\Sprinkle\C6Admin\Controller\Config\SystemInfoApiAction;
 use UserFrosting\Sprinkle\Core\Middlewares\NoCache;
@@ -27,10 +28,12 @@ class ConfigRoutes implements RouteDefinitionInterface
     {
         $app->get('/api/c6/config/info', SystemInfoApiAction::class)
             ->setName('c6.api.config.info')
+            ->add(AuthGuard::class)
             ->add(NoCache::class);
 
         $app->delete('/api/c6/cache', CacheApiAction::class)
             ->setName('c6.api.cache.clear')
+            ->add(AuthGuard::class)
             ->add(NoCache::class);
     }
 }
