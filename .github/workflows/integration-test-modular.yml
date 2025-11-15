@@ -106,18 +106,25 @@ jobs:
           cd userfrosting
           composer install --no-interaction --prefer-dist
 
-      - name: Package C6Admin sprinkle for NPM
+      - name: Package sprinkles for NPM
         run: |
           # Package C6Admin sprinkle
           cd sprinkle-c6admin
           npm pack
           mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
+          
+          # Package CRUD6 sprinkle from vendor (installed via Composer)
+          cd ../userfrosting/vendor/ssnukala/sprinkle-crud6
+          npm pack
+          mv ssnukala-sprinkle-crud6-*.tgz ../../../../
 
       - name: Install NPM dependencies
         run: |
           cd userfrosting
           npm update
-          # Install C6Admin package (CRUD6 will be installed as a dependency from Git)
+          # Install CRUD6 package first (it's a dependency of C6Admin)
+          npm install ./ssnukala-sprinkle-crud6-*.tgz
+          # Install C6Admin package
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Verify NPM packages installation
@@ -331,7 +338,7 @@ jobs:
         run: |
           echo "✅ Integration test completed (Modular Approach)"
           echo "✅ PHP 8.1 with UserFrosting ^6.0-beta"
-          echo "✅ sprinkle-crud6 v0.6.1 installed from GitHub (Git dependency)"
+          echo "✅ sprinkle-crud6 v0.6.1 installed from GitHub (Composer VCS repository)"
           echo "✅ sprinkle-c6admin installed successfully"
           echo "✅ Database migrations ran successfully"
           echo "✅ Database seeding completed using modular configuration:"
