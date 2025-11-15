@@ -485,15 +485,17 @@ jobs:
             echo "✅ All C6Admin routes accessible"
           fi
 
-      - name: Take screenshots of C6Admin pages (with authentication)
+      - name: Take screenshots of C6Admin pages (modular - with authentication)
         run: |
           cd userfrosting
           
-          # Copy the authenticated screenshot script from sprinkle
-          cp ../sprinkle-c6admin/.github/scripts/take-authenticated-screenshots.js .
+          # Copy the modular screenshot script and config from sprinkle
+          cp ../sprinkle-c6admin/.github/scripts/take-screenshots-modular.js .
+          cp ../sprinkle-c6admin/.github/config/integration-test-paths.json .
           
-          # Run the script with admin credentials to capture all C6Admin pages
-          node take-authenticated-screenshots.js http://localhost:8080 admin admin123
+          # Run the modular script with the configuration file
+          # This will take screenshots of all pages marked with "screenshot": true in the config
+          node take-screenshots-modular.js integration-test-paths.json http://localhost:8080 admin admin123
           
           echo ""
           echo "========================================="
