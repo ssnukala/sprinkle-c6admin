@@ -14,6 +14,7 @@ namespace UserFrosting\Sprinkle\C6Admin\Routes;
 
 use Slim\App;
 use UserFrosting\Routes\RouteDefinitionInterface;
+use UserFrosting\Sprinkle\Account\Authenticate\AuthGuard;
 use UserFrosting\Sprinkle\C6Admin\Controller\Dashboard\DashboardApi;
 use UserFrosting\Sprinkle\Core\Middlewares\NoCache;
 
@@ -26,6 +27,7 @@ class DashboardRoutes implements RouteDefinitionInterface
     {
         $app->get('/api/c6/dashboard', DashboardApi::class)
             ->setName('c6.api.dashboard')
+            ->add(AuthGuard::class)
             ->add(NoCache::class);
     }
 }
