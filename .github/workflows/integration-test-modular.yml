@@ -108,23 +108,25 @@ jobs:
 
       - name: Package sprinkles for NPM
         run: |
+          # Package CRUD6 sprinkle from vendor (installed via Composer)
+          # This is needed because CRUD6 is not published to NPM registry
+          cd userfrosting/vendor/ssnukala/sprinkle-crud6
+          npm pack
+          mv ssnukala-sprinkle-crud6-*.tgz ../../../
+          
           # Package C6Admin sprinkle
+          cd ../../../..
           cd sprinkle-c6admin
           npm pack
           mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
-          
-          # Package CRUD6 sprinkle from vendor (installed via Composer)
-          cd ../userfrosting/vendor/ssnukala/sprinkle-crud6
-          npm pack
-          mv ssnukala-sprinkle-crud6-*.tgz ../../../../
 
       - name: Install NPM dependencies
         run: |
           cd userfrosting
           npm update
-          # Install CRUD6 package first (it's a dependency of C6Admin)
+          # Install CRUD6 first (it's a dependency of C6Admin, but not in NPM registry)
           npm install ./ssnukala-sprinkle-crud6-*.tgz
-          # Install C6Admin package
+          # Install C6Admin (npm will see CRUD6 is already satisfied)
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Verify NPM packages installation
