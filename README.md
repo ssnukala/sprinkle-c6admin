@@ -119,18 +119,58 @@ Access admin pages at these routes:
 
 ### Frontend Integration
 
-When integrating C6Admin routes into your application's router, nest them under a `c6/admin` parent route:
+C6Admin provides flexible route configuration options for integration into your UserFrosting 6 application:
+
+#### Option 1: Using createC6AdminRoutes() (Recommended)
 
 ```typescript
-import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
+import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'
 
 // In your router configuration (e.g., app/assets/router/index.ts)
 const routes = [
   // ... other routes
+  ...createC6AdminRoutes({
+    layoutComponent: () => import('../layouts/LayoutDashboard.vue')
+  })
+]
+```
+
+You can also customize the base path and title:
+
+```typescript
+...createC6AdminRoutes({
+  layoutComponent: () => import('../layouts/LayoutDashboard.vue'),
+  basePath: '/admin/c6',  // Custom base path
+  title: 'Admin Panel'    // Custom meta title
+})
+```
+
+#### Option 2: Using C6AdminChildRoutes
+
+If you prefer full control over the parent route configuration:
+
+```typescript
+import { C6AdminChildRoutes } from '@ssnukala/sprinkle-c6admin/routes'
+
+const routes = [
   {
-    path: 'c6/admin',
-    children: C6AdminRoutes
+    path: '/c6/admin',
+    component: () => import('../layouts/LayoutDashboard.vue'),
+    children: C6AdminChildRoutes,
+    meta: { title: 'C6ADMIN_PANEL' }
   }
+]
+```
+
+#### Option 3: Default Export (Legacy)
+
+For backward compatibility, you can still import the default export, though it won't include a layout component:
+
+```typescript
+import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
+
+const routes = [
+  ...C6AdminRoutes  // Note: No layout component by default
 ]
 ```
 
