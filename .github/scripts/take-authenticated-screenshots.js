@@ -43,20 +43,46 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
         // Step 2: Fill in login form
         console.log('🔐 Logging in...');
         
-        // Wait for the login form to be visible (UserFrosting 6 uses data-test attributes)
-        // Use .uk-card to target the main body login form, not the header dropdown
-        await page.waitForSelector('.uk-card input[data-test="username"]', { timeout: 10000 });
+        // Give Vue.js time to render the login form after page load
+        console.log('⏳ Waiting for login form to render...');
+        await page.waitForTimeout(3000);
         
-        // Fill in credentials using data-test selectors (qualified with .uk-card)
-        await page.fill('.uk-card input[data-test="username"]', username);
-        await page.fill('.uk-card input[data-test="password"]', password);
+        // Wait for the login form to be visible (UserFrosting 6 uses data-test attributes)
+        // Try without .uk-card first for better compatibility
+        console.log('🔍 Looking for username input field...');
+        try {
+            await page.waitForSelector('input[data-test="username"]', { timeout: 30000, state: 'visible' });
+            console.log('✅ Username input field found');
+        } catch (error) {
+            console.error('❌ Could not find username input field');
+            console.log('📝 Available inputs on page:');
+            const inputs = await page.$$('input');
+            for (let i = 0; i < inputs.length; i++) {
+                const attrs = await inputs[i].evaluate(el => ({
+                    type: el.type,
+                    name: el.name,
+                    id: el.id,
+                    'data-test': el.getAttribute('data-test'),
+                    class: el.className
+                }));
+                console.log(`  Input ${i + 1}:`, JSON.stringify(attrs));
+            }
+            throw error;
+        }
+        
+        // Fill in credentials using data-test selectors
+        console.log('✍️  Filling in username...');
+        await page.fill('input[data-test="username"]', username);
+        console.log('✍️  Filling in password...');
+        await page.fill('input[data-test="password"]', password);
         
         // Click the login button using data-test selector and wait for navigation
+        console.log('🖱️  Clicking login button...');
         await Promise.all([
             page.waitForNavigation({ timeout: 15000 }).catch(() => {
                 console.log('⚠️  No navigation detected after login, but continuing...');
             }),
-            page.click('.uk-card button[data-test="submit"]')
+            page.click('button[data-test="submit"]')
         ]);
         
         console.log('✅ Logged in successfully');
@@ -299,11 +325,20 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
         
         // Take a screenshot of the current page for debugging
         try {
-            const errorPage = await browser.newPage();
-            await errorPage.screenshot({ path: '/tmp/screenshot_error.png', fullPage: true });
-            console.log('📸 Error screenshot saved to /tmp/screenshot_error.png');
+            const pages = await browser.pages();
+            if (pages.length > 0) {
+                const currentPage = pages[0];
+                await currentPage.screenshot({ path: '/tmp/screenshot_error.png', fullPage: true });
+                console.log('📸 Error screenshot saved to /tmp/screenshot_error.png');
+                
+                // Log current URL and page title for debugging
+                const currentUrl = currentPage.url();
+                const title = await currentPage.title();
+                console.log(`📍 Error occurred on page: ${currentUrl}`);
+                console.log(`📄 Page title: ${title}`);
+            }
         } catch (e) {
-            // Ignore errors when taking error screenshot
+            console.error('⚠️  Could not take error screenshot:', e.message);
         }
         
         throw error;
