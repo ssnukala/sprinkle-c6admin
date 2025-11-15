@@ -41,7 +41,7 @@
     "dependencies": {
         "@userfrosting/sprinkle-account": "^6.0.0-beta",
         "@userfrosting/sprinkle-core": "^6.0.0-beta",
-        "@ssnukala/sprinkle-crud6": "^0.6.1"
+        "@ssnukala/sprinkle-crud6": "git+https://github.com/ssnukala/sprinkle-crud6.git#semver:^0.6.1"
     },
     "peerDependencies": {
         "axios": "^1.12.0",
