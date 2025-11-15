@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace UserFrosting\Sprinkle\C6Admin\Database\Seeds;
 
-use Illuminate\Database\Seeder;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
 use UserFrosting\Sprinkle\Account\Database\Models\Role;
 use UserFrosting\Sprinkle\Account\Database\Models\User;
@@ -24,7 +23,7 @@ use UserFrosting\Sprinkle\Core\Seeder\SeedInterface;
  * Creates test users for integration testing and development.
  * These users have different roles and permissions for testing C6Admin functionality.
  */
-class TestUsers extends Seeder implements SeedInterface
+class TestUsers implements SeedInterface
 {
     /**
      * {@inheritdoc}
