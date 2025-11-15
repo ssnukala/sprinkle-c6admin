@@ -73,16 +73,22 @@ jobs:
           echo "========================================="
           cat app/src/MyApp.php
 
-      - name: Configure router/index.ts
+      - name: Configure router/index.ts with createC6AdminRoutes factory
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to include CRUD6 and LearnIntegrate routes
-          # Add CRUD6Routes and LearnIntegrateRoutes imports after AdminRoutes import
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import CRUD6Routes from '@ssnukala\/sprinkle-crud6\/routes'" app/assets/router/index.ts
-          # Add ...CRUD6Routes, ...LearnIntegrateRoutes after ...AccountRoutes
-          sed -i '/\.\.\.AccountRoutes,/a \            ...CRUD6Routes, ...C6AdminRoutes,' app/assets/router/index.ts
-          # displaying the file to verify changes
+          # Configure app/assets/router/index.ts to use the new createC6AdminRoutes() factory
+          # This properly sets up the parent route with layout component
+          
+          # Add imports: createC6AdminRoutes function, CRUD6Routes, and LayoutDashboard
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'\nimport CRUD6Routes from '@ssnukala\/sprinkle-crud6\/routes'\nimport LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
+          
+          # Add C6Admin routes using the factory function with LayoutDashboard
+          # This creates the parent route (/c6/admin) with the layout component that provides the left sidebar
+          sed -i '/\.\.\.AccountRoutes,/a \            ...CRUD6Routes,\n            ...createC6AdminRoutes({\n                layoutComponent: LayoutDashboard\n            }),' app/assets/router/index.ts
+          
+          echo "========================================="
+          echo "Configured router/index.ts with createC6AdminRoutes"
+          echo "========================================="
           cat app/assets/router/index.ts
 
       - name: Configure main.ts with CRUD6 and C6Admin sprinkles
