@@ -50,98 +50,66 @@ jobs:
       - name: Configure Composer for beta packages and local sprinkles
         run: |
           cd userfrosting
-          # Add sprinkle-crud6 from GitHub (required dependency - must be installed before C6Admin)
+          # Keep sprinkle-admin and add C6Admin alongside it
+          # Add sprinkle-crud6 from GitHub (required dependency)
           composer config repositories.sprinkle-crud6 vcs https://github.com/ssnukala/sprinkle-crud6
-          composer require ssnukala/sprinkle-crud6:dev-main --no-update
-          # Add local C6Admin sprinkle path
+          # Add local paths to composer.json
           composer config repositories.local-c6admin path ../sprinkle-c6admin
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
           composer config minimum-stability dev
           composer config prefer-stable true
 
-      - name: Configure MyApp.php with both CRUD6 and C6Admin sprinkles
+      - name: Configure MyApp.php
         run: |
           cd userfrosting
-          # Configure MyApp.php to add CRUD6 and C6Admin sprinkles
-          # IMPORTANT: CRUD6 must come before C6Admin (dependency order)
+          # Configure MyApp.php to add CRUD6 and C6Admin sprinkles alongside Admin
           # Add CRUD6 and C6Admin imports
           sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\CRUD6\\CRUD6;\nuse UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
           # Add CRUD6::class and C6Admin::class after Admin::class in getSprinkles() array
           sed -i '/Admin::class,/a \            CRUD6::class,\n            C6Admin::class,' app/src/MyApp.php
-          echo "========================================="
-          echo "Configured MyApp.php with CRUD6 and C6Admin"
-          echo "========================================="
-          cat app/src/MyApp.php
 
-      - name: Configure router/index.ts with new createC6AdminRoutes factory
+      - name: Configure router/index.ts
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to use the new createC6AdminRoutes() factory
-          # Add imports: createC6AdminRoutes function and LayoutDashboard component
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'\nimport LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
-          # Add C6Admin routes using the new factory function (routes include /c6/admin parent path)
-          sed -i '/\.\.\.AdminRoutes,/a \            ...createC6AdminRoutes({\n                layoutComponent: LayoutDashboard\n            }),' app/assets/router/index.ts
-          echo "========================================="
-          echo "Configured router/index.ts with createC6AdminRoutes"
-          echo "========================================="
-          cat app/assets/router/index.ts
+          # Configure app/assets/router/index.ts to add C6Admin routes alongside Admin routes
+          # Add C6AdminRoutes import
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
+          # Add C6AdminRoutes nested under c6/admin path
+          sed -i '/\.\.\.AdminRoutes,/a \            {\n                path: '\''c6\/admin'\'',\n                children: C6AdminRoutes\n            },' app/assets/router/index.ts
 
-      - name: Configure main.ts with CRUD6 and C6Admin sprinkles
+      - name: Configure main.ts
         run: |
           cd userfrosting
-          # Configure app/assets/main.ts to include CRUD6 and C6Admin sprinkles (in correct order)
-          # Add imports: CRUD6Sprinkle and C6AdminSprinkle
-          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import CRUD6Sprinkle from '@ssnukala\/sprinkle-crud6'\nimport C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
-          # Add sprinkle registration (CRUD6 must come before C6Admin)
-          sed -i '/app\.use(AdminSprinkle)/a app.use(CRUD6Sprinkle)\napp.use(C6AdminSprinkle)' app/assets/main.ts
-          echo "========================================="
-          echo "Configured main.ts with CRUD6 and C6Admin"
-          echo "========================================="
-          cat app/assets/main.ts
+          # Configure app/assets/main.ts to add C6Admin sprinkle alongside Admin sprinkle
+          # Add C6AdminSprinkle import
+          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
+          # Add C6AdminSprinkle registration
+          sed -i '/app\.use(AdminSprinkle)/a app.use(C6AdminSprinkle)' app/assets/main.ts
 
       - name: Install PHP dependencies
         run: |
           cd userfrosting
           composer install --no-interaction --prefer-dist
 
-      - name: Package both sprinkles for NPM
+      - name: Package sprinkle-c6admin for NPM
         run: |
-          # Package C6Admin sprinkle
           cd sprinkle-c6admin
           npm pack
           mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
-          
-          # Package CRUD6 sprinkle (installed via composer)
-          cd ../userfrosting
-          if [ -d "vendor/ssnukala/sprinkle-crud6" ]; then
-            cd vendor/ssnukala/sprinkle-crud6
-            npm pack
-            mv ssnukala-sprinkle-crud6-*.tgz ../../../../
-            cd ../../../
-          fi
 
       - name: Install NPM dependencies
         run: |
           cd userfrosting
           npm update
-          # Install C6Admin package
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
-          # Install CRUD6 package if it exists
-          if [ -f ssnukala-sprinkle-crud6-*.tgz ]; then
-            npm install ./ssnukala-sprinkle-crud6-*.tgz
-          fi
 
-      - name: Verify NPM packages installation
+      - name: Verify NPM package installation
         run: |
           cd userfrosting
-          echo "Checking CRUD6 package..."
-          npm list @ssnukala/sprinkle-crud6 || echo "⚠️  CRUD6 package may not be listed"
-          test -f node_modules/@ssnukala/sprinkle-crud6/app/assets/index.ts && echo "✅ CRUD6 NPM package files accessible" || echo "⚠️ CRUD6 NPM package files not found"
-          
-          echo ""
-          echo "Checking C6Admin package..."
-          npm list @ssnukala/sprinkle-c6admin || echo "⚠️  C6Admin package may not be listed"
-          test -f node_modules/@ssnukala/sprinkle-c6admin/app/assets/index.ts && echo "✅ C6Admin NPM package files accessible" || echo "⚠️ C6Admin NPM package files not found"
+          # Verify the package is installed correctly
+          npm list @ssnukala/sprinkle-c6admin || echo "Package installed as local dependency"
+          # Check that the package files are accessible
+          test -f node_modules/@ssnukala/sprinkle-c6admin/app/assets/index.ts && echo "✅ NPM package files accessible" || echo "⚠️ NPM package files not found"
 
       - name: Create groups schema
         run: |
@@ -174,51 +142,26 @@ jobs:
       - name: Seed database
         run: |
           cd userfrosting
-          echo "========================================="
-          echo "Seeding Account sprinkle (base data)"
-          echo "========================================="
           # Seed Account sprinkle data first (required base data)
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultGroups --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultPermissions --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultRoles --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\UpdatePermissions --force
-          
-          echo ""
-          echo "========================================="
-          echo "Seeding CRUD6 sprinkle (required by C6Admin)"
-          echo "========================================="
-          # Seed CRUD6 sprinkle data (required by C6Admin)
+          # C6Admin uses CRUD6 permissions
           php bakery seed UserFrosting\\Sprinkle\\CRUD6\\Database\\Seeds\\DefaultRoles --force
           php bakery seed UserFrosting\\Sprinkle\\CRUD6\\Database\\Seeds\\DefaultPermissions --force
-          
-          echo ""
-          echo "========================================="
-          echo "Seeding C6Admin sprinkle (test data)"
-          echo "========================================="
-          # Seed C6Admin test data
-          php bakery seed UserFrosting\\Sprinkle\\C6Admin\\Database\\Seeds\\TestUsers --force
 
-      - name: Create admin user for testing
+      - name: Create admin user
         run: |
           cd userfrosting
           # Create admin user for testing
-          php bakery create:admin admin admin123 admin@example.com
-          echo "✅ Admin user created: admin / admin123"
-
-      - name: Verify test users created
-        run: |
-          cd userfrosting
-          echo "========================================="
-          echo "Verifying test users"
-          echo "========================================="
-          # Check that test users exist
-          mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT user_name, email, first_name, last_name FROM \`users\` WHERE user_name IN ('admin', 'testadmin', 'c6admin', 'testuser', 'testmoderator') ORDER BY user_name;"
-          
-          echo ""
-          echo "========================================="
-          echo "User count by role"
-          echo "========================================="
-          mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT r.name, COUNT(u.id) as user_count FROM \`roles\` r LEFT JOIN \`role_users\` ru ON r.id = ru.role_id LEFT JOIN \`users\` u ON ru.user_id = u.id GROUP BY r.id, r.name ORDER BY r.name;"
+          php bakery create:admin-user \
+            --username=admin \
+            --password=admin123 \
+            --email=admin@example.com \
+            --firstName=Admin \
+            --lastName=User
+          echo "✅ Admin user created successfully"
 
       - name: Test schema loading
         run: |
