@@ -161,7 +161,8 @@ class TestUsers implements SeedInterface
         
         // Summary statistics
         $totalUsers = User::count();
-        $totalRoleUsers = \DB::table('role_users')->count();
+        // Count all role_users assignments by summing roles for all users
+        $totalRoleUsers = User::withCount('roles')->get()->sum('roles_count');
         echo "   - Total users in database: {$totalUsers}\n";
         echo "   - Total role_users assignments: {$totalRoleUsers}\n";
     }
