@@ -73,17 +73,16 @@ jobs:
           echo "========================================="
           cat app/src/MyApp.php
 
-      - name: Configure router/index.ts with new createC6AdminRoutes factory
+      - name: Configure router/index.ts
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to use the new createC6AdminRoutes() factory
-          # Add imports: createC6AdminRoutes function and LayoutDashboard component
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'\nimport LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
-          # Add C6Admin routes using the new factory function (routes include /c6/admin parent path)
-          sed -i '/\.\.\.AdminRoutes,/a \            ...createC6AdminRoutes({\n                layoutComponent: LayoutDashboard\n            }),' app/assets/router/index.ts
-          echo "========================================="
-          echo "Configured router/index.ts with createC6AdminRoutes"
-          echo "========================================="
+          # Configure app/assets/router/index.ts to include CRUD6 and LearnIntegrate routes
+          # Add CRUD6Routes and LearnIntegrateRoutes imports after AdminRoutes import
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import CRUD6Routes from '@ssnukala\/sprinkle-crud6\/routes'" app/assets/router/index.ts
+          # Add ...CRUD6Routes, ...LearnIntegrateRoutes after ...AccountRoutes
+          sed -i '/\.\.\.AccountRoutes,/a \            ...CRUD6Routes, ...C6AdminRoutes' app/assets/router/index.ts
+          # displaying the file to verify changes
           cat app/assets/router/index.ts
 
       - name: Configure main.ts with CRUD6 and C6Admin sprinkles
@@ -203,8 +202,14 @@ jobs:
         run: |
           cd userfrosting
           # Create admin user for testing
-          php bakery create:admin admin admin123 admin@example.com
-          echo "✅ Admin user created: admin / admin123"
+          # Create admin user for testing
+          php bakery create:admin-user \
+            --username=admin \
+            --password=admin123 \
+            --email=admin@example.com \
+            --firstName=Admin \
+            --lastName=User
+          echo "✅ Admin user created successfully"
 
       - name: Verify test users created
         run: |
