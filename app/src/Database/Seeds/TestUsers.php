@@ -31,7 +31,11 @@ class TestUsers extends Seeder implements SeedInterface
      */
     public function run(): void
     {
-        // Get the default group (should exist from Account sprinkle seeds)
+        echo "========================================\n";
+        echo "Creating Test Users\n";
+        echo "========================================\n";
+        
+        // Get groups (should exist from Account and C6Admin TestGroups seeds)
         $defaultGroup = Group::where('slug', 'terran')->first();
         if (!$defaultGroup) {
             echo "Warning: Default group 'terran' not found. Creating it...\n";
@@ -41,6 +45,10 @@ class TestUsers extends Seeder implements SeedInterface
                 'description' => 'Default group for new users',
             ]);
         }
+        
+        $developersGroup = Group::where('slug', 'developers')->first();
+        $managersGroup = Group::where('slug', 'managers')->first();
+        $testersGroup = Group::where('slug', 'testers')->first();
 
         // Get roles
         $siteAdminRole = Role::where('slug', 'site-admin')->first();
@@ -57,6 +65,7 @@ class TestUsers extends Seeder implements SeedInterface
                 'password' => 'testpass123',
                 'flag_enabled' => true,
                 'flag_verified' => true,
+                'group' => $managersGroup ?? $defaultGroup,  // Assign to managers group
                 'roles' => [$siteAdminRole],
                 'description' => 'Test administrator with full site-admin permissions',
             ],
@@ -68,6 +77,7 @@ class TestUsers extends Seeder implements SeedInterface
                 'password' => 'testpass123',
                 'flag_enabled' => true,
                 'flag_verified' => true,
+                'group' => $developersGroup ?? $defaultGroup,  // Assign to developers group
                 'roles' => [$crud6AdminRole],
                 'description' => 'Test user with CRUD6/C6Admin permissions',
             ],
@@ -79,6 +89,7 @@ class TestUsers extends Seeder implements SeedInterface
                 'password' => 'testpass123',
                 'flag_enabled' => true,
                 'flag_verified' => true,
+                'group' => $defaultGroup,  // Assign to default group
                 'roles' => [$userRole],
                 'description' => 'Regular test user with basic permissions',
             ],
@@ -90,6 +101,7 @@ class TestUsers extends Seeder implements SeedInterface
                 'password' => 'testpass123',
                 'flag_enabled' => true,
                 'flag_verified' => true,
+                'group' => $testersGroup ?? $defaultGroup,  // Assign to testers group
                 'roles' => [$userRole, $crud6AdminRole],
                 'description' => 'Test moderator with user and CRUD6 admin permissions',
             ],
@@ -103,11 +115,13 @@ class TestUsers extends Seeder implements SeedInterface
                 continue;
             }
 
-            // Extract roles from user data
+            // Extract roles, group, and description from user data
             $roles = $userData['roles'] ?? [];
-            unset($userData['roles']);
+            $group = $userData['group'] ?? $defaultGroup;
+            $description = $userData['description'] ?? '';
+            unset($userData['roles'], $userData['group'], $userData['description']);
 
-            // Create user
+            // Create user with group_id assigned
             $user = User::create([
                 'user_name' => $userData['user_name'],
                 'first_name' => $userData['first_name'],
@@ -116,18 +130,40 @@ class TestUsers extends Seeder implements SeedInterface
                 'password' => $userData['password'],
                 'flag_enabled' => $userData['flag_enabled'],
                 'flag_verified' => $userData['flag_verified'],
-                'group_id' => $defaultGroup->id,
+                'group_id' => $group->id,  // Assign to specified group
             ]);
 
-            // Attach roles to user (filter out null roles)
+            echo "Created user: {$userData['user_name']} (ID: {$user->id})\n";
+            echo "  ✅ Assigned to group: {$group->name} (ID: {$group->id})\n";
+
+            // Attach roles to user via role_users pivot table (filter out null roles)
             $validRoles = array_filter($roles, fn($role) => $role !== null);
             if (!empty($validRoles)) {
-                $user->roles()->attach(array_map(fn($role) => $role->id, $validRoles));
+                $roleIds = array_map(fn($role) => $role->id, $validRoles);
+                $user->roles()->attach($roleIds);
+                
+                $roleNames = array_map(fn($role) => $role->name, $validRoles);
+                echo "  ✅ Assigned roles: " . implode(', ', $roleNames) . "\n";
+                echo "  ✅ Created " . count($roleIds) . " role_users record(s)\n";
+            } else {
+                echo "  ⚠️  No roles assigned\n";
             }
-
-            echo "Created test user: {$userData['user_name']} ({$userData['email']}) - {$userData['description']}\n";
+            
+            echo "  Description: {$description}\n";
+            echo "\n";
         }
 
+        echo "========================================\n";
+        echo "Test Users Seed Summary\n";
+        echo "========================================\n";
         echo "✅ Test users seed completed\n";
+        echo "   - Users assigned to appropriate groups with group_id\n";
+        echo "   - Role assignments created in role_users pivot table\n";
+        
+        // Summary statistics
+        $totalUsers = User::count();
+        $totalRoleUsers = \DB::table('role_users')->count();
+        echo "   - Total users in database: {$totalUsers}\n";
+        echo "   - Total role_users assignments: {$totalRoleUsers}\n";
     }
 }

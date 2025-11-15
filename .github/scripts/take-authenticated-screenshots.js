@@ -73,7 +73,7 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
         await page.waitForTimeout(2000);
         
         // Check if we're still on login page (would indicate auth failure)
-        const currentUrl = page.url();
+        let currentUrl = page.url();
         if (currentUrl.includes('/account/sign-in')) {
             console.warn('⚠️  Warning: Still on login page - authentication may have failed');
         } else {
@@ -91,16 +91,11 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
         console.log('');
         console.log('📸 Taking screenshot: /c6/admin/users');
         await page.goto(`${baseUrl}/c6/admin/users`, { waitUntil: 'networkidle', timeout: 30000 });
-        
-        // Wait for page content to load
         await page.waitForTimeout(2000);
         
-        // Check if we're still on login page
-        const currentUrl2 = page.url();
-        if (currentUrl2.includes('/account/sign-in')) {
-            console.warn('⚠️  Warning: Still on login page - authentication may have failed');
-        } else {
-            console.log(`✅ Page loaded: ${currentUrl2}`);
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
         }
         
         const usersScreenshotPath = '/tmp/screenshot_c6admin_users_list.png';
@@ -114,16 +109,11 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
         console.log('');
         console.log('📸 Taking screenshot: /c6/admin/users/1');
         await page.goto(`${baseUrl}/c6/admin/users/1`, { waitUntil: 'networkidle', timeout: 30000 });
-        
-        // Wait for page content to load
         await page.waitForTimeout(2000);
         
-        // Check if we're still on login page
-        const currentUrl3 = page.url();
-        if (currentUrl3.includes('/account/sign-in')) {
-            console.warn('⚠️  Warning: Still on login page - authentication may have failed');
-        } else {
-            console.log(`✅ Page loaded: ${currentUrl3}`);
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
         }
         
         const userDetailScreenshotPath = '/tmp/screenshot_c6admin_user_detail.png';
@@ -132,6 +122,168 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
             fullPage: true 
         });
         console.log(`✅ Screenshot saved: ${userDetailScreenshotPath}`);
+
+        // Step 6: Take screenshot of groups list page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/groups');
+        await page.goto(`${baseUrl}/c6/admin/groups`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const groupsScreenshotPath = '/tmp/screenshot_c6admin_groups_list.png';
+        await page.screenshot({ 
+            path: groupsScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${groupsScreenshotPath}`);
+
+        // Step 7: Take screenshot of single group page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/groups/1');
+        await page.goto(`${baseUrl}/c6/admin/groups/1`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const groupDetailScreenshotPath = '/tmp/screenshot_c6admin_group_detail.png';
+        await page.screenshot({ 
+            path: groupDetailScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${groupDetailScreenshotPath}`);
+
+        // Step 8: Take screenshot of roles list page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/roles');
+        await page.goto(`${baseUrl}/c6/admin/roles`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const rolesScreenshotPath = '/tmp/screenshot_c6admin_roles_list.png';
+        await page.screenshot({ 
+            path: rolesScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${rolesScreenshotPath}`);
+
+        // Step 9: Take screenshot of single role page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/roles/1');
+        await page.goto(`${baseUrl}/c6/admin/roles/1`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const roleDetailScreenshotPath = '/tmp/screenshot_c6admin_role_detail.png';
+        await page.screenshot({ 
+            path: roleDetailScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${roleDetailScreenshotPath}`);
+
+        // Step 10: Take screenshot of permissions list page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/permissions');
+        await page.goto(`${baseUrl}/c6/admin/permissions`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const permissionsScreenshotPath = '/tmp/screenshot_c6admin_permissions_list.png';
+        await page.screenshot({ 
+            path: permissionsScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${permissionsScreenshotPath}`);
+
+        // Step 11: Take screenshot of single permission page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/permissions/1');
+        await page.goto(`${baseUrl}/c6/admin/permissions/1`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const permissionDetailScreenshotPath = '/tmp/screenshot_c6admin_permission_detail.png';
+        await page.screenshot({ 
+            path: permissionDetailScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${permissionDetailScreenshotPath}`);
+
+        // Step 12: Take screenshot of activities page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/activities');
+        await page.goto(`${baseUrl}/c6/admin/activities`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const activitiesScreenshotPath = '/tmp/screenshot_c6admin_activities.png';
+        await page.screenshot({ 
+            path: activitiesScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${activitiesScreenshotPath}`);
+
+        // Step 13: Take screenshot of config info page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/config/info');
+        await page.goto(`${baseUrl}/c6/admin/config/info`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const configInfoScreenshotPath = '/tmp/screenshot_c6admin_config_info.png';
+        await page.screenshot({ 
+            path: configInfoScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${configInfoScreenshotPath}`);
+
+        // Step 14: Take screenshot of config cache page
+        console.log('');
+        console.log('📸 Taking screenshot: /c6/admin/config/cache');
+        await page.goto(`${baseUrl}/c6/admin/config/cache`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+        
+        currentUrl = page.url();
+        if (!currentUrl.includes('/account/sign-in')) {
+            console.log(`✅ Page loaded: ${currentUrl}`);
+        }
+        
+        const configCacheScreenshotPath = '/tmp/screenshot_c6admin_config_cache.png';
+        await page.screenshot({ 
+            path: configCacheScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`✅ Screenshot saved: ${configCacheScreenshotPath}`);
 
         console.log('');
         console.log('========================================');
