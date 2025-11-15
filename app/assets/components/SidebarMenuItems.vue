@@ -1,37 +1,37 @@
 <template>
     <UFSideBarItem
-        v-if="$checkAccess('uri_dashboard')"
-        :to="{ name: 'admin.dashboard' }"
+        v-if="$checkAccess('c6_uri_dashboard')"
+        :to="{ name: 'c6admin.dashboard' }"
         faIcon="gauge-high"
         :label="$t('DASHBOARD')" />
     <UFSideBarItem
-        v-if="$checkAccess('uri_users')"
-        :to="{ name: 'admin.users' }"
+        v-if="$checkAccess('c6_uri_users')"
+        :to="{ name: 'c6admin.users' }"
         faIcon="user"
         :label="$t('USER.PAGE')" />
     <UFSideBarItem
-        v-if="$checkAccess('uri_activities')"
-        :to="{ name: 'admin.activities' }"
+        v-if="$checkAccess('c6_uri_activities')"
+        :to="{ name: 'c6admin.activities' }"
         faIcon="list-check"
         :label="$t('ACTIVITY.PAGE')" />
     <UFSideBarItem
-        v-if="$checkAccess('uri_roles')"
-        :to="{ name: 'admin.roles' }"
+        v-if="$checkAccess('c6_uri_roles')"
+        :to="{ name: 'c6admin.roles' }"
         faIcon="address-card"
         :label="$t('ROLE.PAGE')" />
     <UFSideBarItem
-        v-if="$checkAccess('uri_permissions')"
-        :to="{ name: 'admin.permissions' }"
+        v-if="$checkAccess('c6_uri_permissions')"
+        :to="{ name: 'c6admin.permissions' }"
         faIcon="key"
         :label="$t('PERMISSION.PAGE')" />
     <UFSideBarItem
-        v-if="$checkAccess('uri_groups')"
-        :to="{ name: 'admin.groups' }"
+        v-if="$checkAccess('c6_uri_groups')"
+        :to="{ name: 'c6admin.groups' }"
         faIcon="users"
         :label="$t('GROUP.PAGE')" />
     <UFSideBarItem
-        v-if="$checkAccess('view_system_info') || $checkAccess('clear_cache')"
-        :to="{ name: 'admin.config' }"
+        v-if="$checkAccess('c6_view_system_info') || $checkAccess('c6_clear_cache')"
+        :to="{ name: 'c6admin.config' }"
         faIcon="gear"
         :label="$t('SITE_CONFIG')" />
 </template>
