@@ -174,6 +174,58 @@ const routes = [
 ]
 ```
 
+#### Sidebar Menu Integration
+
+C6Admin provides a `SidebarMenuItems` component that contains the admin menu items. There are two ways to use it:
+
+**Option 1: Global Component (Automatic)**
+
+When you install the C6Admin plugin in your Vue app, the component is automatically registered globally as `C6AdminSidebarMenuItems`:
+
+```typescript
+// In your main.ts or app initialization
+import C6AdminPlugin from '@ssnukala/sprinkle-c6admin'
+
+app.use(C6AdminPlugin)
+```
+
+Then in your layout (e.g., `LayoutDashboard.vue`):
+
+```vue
+<template>
+  <UFSideBar>
+    <C6AdminSidebarMenuItems />
+  </UFSideBar>
+</template>
+```
+
+**Option 2: Direct Import**
+
+Import the component directly in your layout:
+
+```vue
+<script setup lang="ts">
+import { SidebarMenuItems } from '@ssnukala/sprinkle-c6admin/components'
+</script>
+
+<template>
+  <UFSideBar>
+    <SidebarMenuItems />
+  </UFSideBar>
+</template>
+```
+
+The sidebar menu items include:
+- Dashboard
+- Users
+- Activities
+- Roles
+- Permissions
+- Groups
+- Configuration
+
+Each item is conditionally displayed based on user permissions (`c6_uri_*` permissions).
+
 ### API Endpoints
 
 **CRUD Operations (via CRUD6)**:
