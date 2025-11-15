@@ -19,6 +19,8 @@ use UserFrosting\Sprinkle\SprinkleRecipe;
 use UserFrosting\Sprinkle\C6Admin\Routes\ConfigRoutes;
 use UserFrosting\Sprinkle\C6Admin\Routes\DashboardRoutes;
 use UserFrosting\Sprinkle\C6Admin\Routes\UsersRoutes;
+use UserFrosting\Sprinkle\C6Admin\Database\Seeds\TestGroups;
+use UserFrosting\Sprinkle\C6Admin\Database\Seeds\TestUsers;
 
 /**
  * C6Admin Sprinkle - Admin schemas for CRUD6
@@ -76,4 +78,18 @@ class C6Admin implements SprinkleRecipe
     {
         return [];
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @codeCoverageIgnore
+     */
+    public function getSeeds(): array
+    {
+        return [
+            TestGroups::class,
+            TestUsers::class,
+        ];
+    }
+    
 }
