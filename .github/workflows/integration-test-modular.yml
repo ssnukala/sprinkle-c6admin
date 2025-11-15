@@ -2,15 +2,15 @@ name: Integration Test with UserFrosting 6 (Modular)
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   workflow_dispatch:
 
 jobs:
   integration-test:
     runs-on: ubuntu-latest
-    
+
     services:
       mysql:
         image: mysql:8.0
@@ -34,14 +34,14 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: "8.1"
           extensions: mbstring, xml, gd, pdo_mysql
           coverage: none
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Create UserFrosting project using composer create-project
         run: |
@@ -50,9 +50,6 @@ jobs:
       - name: Configure Composer for beta packages and local sprinkles
         run: |
           cd userfrosting
-          # Add sprinkle-crud6 from GitHub (required dependency - must be installed before C6Admin)
-          composer config repositories.sprinkle-crud6 vcs https://github.com/ssnukala/sprinkle-crud6
-          composer require ssnukala/sprinkle-crud6:dev-main --no-update
           # Add local C6Admin sprinkle path
           composer config repositories.local-c6admin path ../sprinkle-c6admin
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
@@ -109,15 +106,6 @@ jobs:
           cd sprinkle-c6admin
           npm pack
           mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
-          
-          # Package CRUD6 sprinkle (installed via composer)
-          cd ../userfrosting
-          if [ -d "vendor/ssnukala/sprinkle-crud6" ]; then
-            cd vendor/ssnukala/sprinkle-crud6
-            npm pack
-            mv ssnukala-sprinkle-crud6-*.tgz ../../../../
-            cd ../../../
-          fi
 
       - name: Install NPM dependencies
         run: |
@@ -125,10 +113,6 @@ jobs:
           npm update
           # Install C6Admin package
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
-          # Install CRUD6 package if it exists
-          if [ -f ssnukala-sprinkle-crud6-*.tgz ]; then
-            npm install ./ssnukala-sprinkle-crud6-*.tgz
-          fi
 
       - name: Verify NPM packages installation
         run: |
@@ -136,7 +120,7 @@ jobs:
           echo "Checking CRUD6 package..."
           npm list @ssnukala/sprinkle-crud6 || echo "⚠️  CRUD6 package may not be listed"
           test -f node_modules/@ssnukala/sprinkle-crud6/app/assets/index.ts && echo "✅ CRUD6 NPM package files accessible" || echo "⚠️ CRUD6 NPM package files not found"
-          
+
           echo ""
           echo "Checking C6Admin package..."
           npm list @ssnukala/sprinkle-c6admin || echo "⚠️  C6Admin package may not be listed"
@@ -170,7 +154,7 @@ jobs:
           # Copy modular seed configuration and script
           cp ../sprinkle-c6admin/.github/config/integration-test-seeds.json .
           cp ../sprinkle-c6admin/.github/scripts/run-seeds.php .
-          
+
           # Run seeds using modular configuration
           php run-seeds.php integration-test-seeds.json
 
@@ -191,7 +175,7 @@ jobs:
           cd userfrosting
           # Copy modular seed validation script
           cp ../sprinkle-c6admin/.github/scripts/check-seeds-modular.php .
-          
+
           # Validate seeds using modular configuration
           php check-seeds-modular.php integration-test-seeds.json
 
@@ -200,7 +184,7 @@ jobs:
           cd userfrosting
           # Copy modular idempotency test script
           cp ../sprinkle-c6admin/.github/scripts/test-seed-idempotency-modular.php .
-          
+
           # Run idempotency test using modular configuration
           php test-seed-idempotency-modular.php integration-test-seeds.json
 
@@ -253,7 +237,7 @@ jobs:
           SERVER_PID=$!
           echo $SERVER_PID > /tmp/server.pid
           sleep 10
-          
+
           # Verify server process is running (don't fail on HTTP errors - Vite dev server needed for frontend)
           curl -s http://localhost:8080 > /dev/null 2>&1 || true
           echo "✅ PHP server started on localhost:8080 (Vite dev server needed for frontend)"
@@ -269,7 +253,7 @@ jobs:
           echo $VITE_PID > /tmp/vite.pid
           sleep 10
           echo "✅ Vite server started"
-          
+
           # Now verify both servers are working together
           echo "Verifying application is accessible with both servers running..."
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
@@ -286,7 +270,7 @@ jobs:
           # Copy modular path testing configuration and script
           cp ../sprinkle-c6admin/.github/config/integration-test-paths.json .
           cp ../sprinkle-c6admin/.github/scripts/test-paths.php .
-          
+
           # Test unauthenticated API paths
           php test-paths.php integration-test-paths.json unauth api
 
@@ -301,17 +285,17 @@ jobs:
           cd userfrosting
           # Copy modular screenshot script
           cp ../sprinkle-c6admin/.github/scripts/take-screenshots-modular.js .
-          
+
           # Take screenshots using modular configuration (reads from integration-test-paths.json)
           node take-screenshots-modular.js integration-test-paths.json
-          
+
           echo ""
           echo "========================================="
           echo "Screenshot summary"
           echo "========================================="
           # List all screenshots
           ls -lh /tmp/screenshot_*.png 2>/dev/null || echo "No screenshots generated"
-          
+
           # Count screenshots
           SCREENSHOT_COUNT=$(ls -1 /tmp/screenshot_*.png 2>/dev/null | wc -l)
           echo ""
@@ -381,11 +365,11 @@ jobs:
           echo "   Direct link: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "   Look for 'Artifacts' section at the bottom of the page"
           echo "   Download 'integration-test-screenshots-c6admin' ZIP file"
-          
+
           # Add to GitHub Actions Summary with direct link
           cat >> $GITHUB_STEP_SUMMARY << EOF
           ## Integration Test Results ✅ (Modular Approach)
-          
+
           ### Test Coverage
           - ✅ Database migrations
           - ✅ **Modular database seeding** (configuration-driven)
@@ -396,57 +380,57 @@ jobs:
           - ✅ Schema loading (users, groups, roles, permissions, activities)
           - ✅ **Modular path testing** (API + frontend, auth + unauth)
           - ✅ **Modular screenshot capture** (configuration-driven)
-          
+
           ### 🎯 Modular Testing Framework
-          
+
           This integration test uses the **modular testing framework** from sprinkle-crud6:
-          
+
           **Configuration Files:**
           - \`integration-test-seeds.json\` - Defines what seeds to run and how to validate them
           - \`integration-test-paths.json\` - Defines API/frontend paths to test and screenshots to capture
-          
+
           **Reusable Scripts:**
           - \`run-seeds.php\` - Runs seeds based on JSON configuration
           - \`check-seeds-modular.php\` - Validates seed data based on JSON configuration
           - \`test-seed-idempotency-modular.php\` - Tests that seeds are idempotent
           - \`test-paths.php\` - Tests API and frontend paths based on JSON configuration
           - \`take-screenshots-modular.js\` - Captures screenshots based on JSON configuration
-          
+
           **Benefits:**
           - ✅ Configuration-driven - Update JSON files, not workflow code
           - ✅ Reusable - Same scripts work for all UserFrosting 6 sprinkles
           - ✅ Self-documenting - JSON structure explains what's being tested
           - ✅ Template-based - Easy to customize for different sprinkles
           - ✅ Consistent - Same testing approach across all sprinkles
-          
+
           ### Sprinkle Configuration
           **Dependencies:** Account → CRUD6 → C6Admin
           - ✅ CRUD6 sprinkle installed and configured
           - ✅ C6Admin sprinkle installed and configured
           - ✅ Both sprinkles registered in MyApp.php (correct order)
           - ✅ Both NPM packages installed and verified
-          
+
           ### 📸 View Screenshots
           Screenshots have been captured for all C6Admin pages and uploaded as artifacts.
-          
+
           **Direct link to this workflow run:**
           https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          
+
           **To view screenshots:**
           1. Scroll to the bottom of the workflow run page (link above)
           2. Look for the **Artifacts** section
           3. Click on **integration-test-screenshots-c6admin** to download
           4. Extract the ZIP file to view all screenshots
-          
+
           > **Note:** Screenshots are retained for 30 days
-          
+
           ---
-          
+
           ### Server Information
           - PHP Server: Started with \`php bakery serve\`
           - Vite Server: Started with \`php bakery assets:vite\`
           - Both servers were running during tests
-          
+
           ### Modular Configuration Files Location
           - Seeds: \`.github/config/integration-test-seeds.json\`
           - Paths: \`.github/config/integration-test-paths.json\`
