@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace UserFrosting\Sprinkle\C6Admin\Database\Seeds;
 
-use Illuminate\Database\Seeder;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
 use UserFrosting\Sprinkle\Core\Seeder\SeedInterface;
 
@@ -21,7 +20,7 @@ use UserFrosting\Sprinkle\Core\Seeder\SeedInterface;
  * 
  * Creates additional test groups for integration testing and development.
  */
-class TestGroups extends Seeder implements SeedInterface
+class TestGroups implements SeedInterface
 {
     /**
      * {@inheritdoc}
