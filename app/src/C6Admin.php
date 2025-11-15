@@ -16,6 +16,7 @@ use UserFrosting\Sprinkle\Account\Account;
 use UserFrosting\Sprinkle\Core\Core;
 use UserFrosting\Sprinkle\CRUD6\CRUD6;
 use UserFrosting\Sprinkle\SprinkleRecipe;
+use UserFrosting\Sprinkle\Core\Sprinkle\Recipe\SeedRecipe;
 use UserFrosting\Sprinkle\C6Admin\Routes\ConfigRoutes;
 use UserFrosting\Sprinkle\C6Admin\Routes\DashboardRoutes;
 use UserFrosting\Sprinkle\C6Admin\Routes\UsersRoutes;
@@ -29,7 +30,7 @@ use UserFrosting\Sprinkle\C6Admin\Database\Seeds\TestUsers;
  * that work with sprinkle-crud6. All CRUD operations are handled by CRUD6 at /api/crud6/{model}.
  * This sprinkle only provides non-CRUD admin functionality (Dashboard, Config).
  */
-class C6Admin implements SprinkleRecipe
+class C6Admin implements SprinkleRecipe, SeedRecipe
 {
     /**
      * {@inheritdoc}
