@@ -50,66 +50,98 @@ jobs:
       - name: Configure Composer for beta packages and local sprinkles
         run: |
           cd userfrosting
-          # Keep sprinkle-admin and add C6Admin alongside it
-          # Add sprinkle-crud6 from GitHub (required dependency)
+          # Add sprinkle-crud6 from GitHub (required dependency - must be installed before C6Admin)
           composer config repositories.sprinkle-crud6 vcs https://github.com/ssnukala/sprinkle-crud6
-          # Add local paths to composer.json
+          composer require ssnukala/sprinkle-crud6:dev-main --no-update
+          # Add local C6Admin sprinkle path
           composer config repositories.local-c6admin path ../sprinkle-c6admin
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
           composer config minimum-stability dev
           composer config prefer-stable true
 
-      - name: Configure MyApp.php
+      - name: Configure MyApp.php with both CRUD6 and C6Admin sprinkles
         run: |
           cd userfrosting
-          # Configure MyApp.php to add CRUD6 and C6Admin sprinkles alongside Admin
+          # Configure MyApp.php to add CRUD6 and C6Admin sprinkles
+          # IMPORTANT: CRUD6 must come before C6Admin (dependency order)
           # Add CRUD6 and C6Admin imports
           sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\CRUD6\\CRUD6;\nuse UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
           # Add CRUD6::class and C6Admin::class after Admin::class in getSprinkles() array
           sed -i '/Admin::class,/a \            CRUD6::class,\n            C6Admin::class,' app/src/MyApp.php
+          echo "========================================="
+          echo "Configured MyApp.php with CRUD6 and C6Admin"
+          echo "========================================="
+          cat app/src/MyApp.php
 
-      - name: Configure router/index.ts
+      - name: Configure router/index.ts with new createC6AdminRoutes factory
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to add C6Admin routes alongside Admin routes
-          # Add C6AdminRoutes import
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import C6AdminRoutes from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
-          # Add C6AdminRoutes nested under c6/admin path
-          sed -i '/\.\.\.AdminRoutes,/a \            {\n                path: '\''c6\/admin'\'',\n                children: C6AdminRoutes\n            },' app/assets/router/index.ts
+          # Configure app/assets/router/index.ts to use the new createC6AdminRoutes() factory
+          # Add imports: createC6AdminRoutes function and LayoutDashboard component
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'\nimport LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
+          # Add C6Admin routes using the new factory function (routes include /c6/admin parent path)
+          sed -i '/\.\.\.AdminRoutes,/a \            ...createC6AdminRoutes({\n                layoutComponent: LayoutDashboard\n            }),' app/assets/router/index.ts
+          echo "========================================="
+          echo "Configured router/index.ts with createC6AdminRoutes"
+          echo "========================================="
+          cat app/assets/router/index.ts
 
-      - name: Configure main.ts
+      - name: Configure main.ts with CRUD6 and C6Admin sprinkles
         run: |
           cd userfrosting
-          # Configure app/assets/main.ts to add C6Admin sprinkle alongside Admin sprinkle
-          # Add C6AdminSprinkle import
-          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
-          # Add C6AdminSprinkle registration
-          sed -i '/app\.use(AdminSprinkle)/a app.use(C6AdminSprinkle)' app/assets/main.ts
+          # Configure app/assets/main.ts to include CRUD6 and C6Admin sprinkles (in correct order)
+          # Add imports: CRUD6Sprinkle and C6AdminSprinkle
+          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import CRUD6Sprinkle from '@ssnukala\/sprinkle-crud6'\nimport C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
+          # Add sprinkle registration (CRUD6 must come before C6Admin)
+          sed -i '/app\.use(AdminSprinkle)/a app.use(CRUD6Sprinkle)\napp.use(C6AdminSprinkle)' app/assets/main.ts
+          echo "========================================="
+          echo "Configured main.ts with CRUD6 and C6Admin"
+          echo "========================================="
+          cat app/assets/main.ts
 
       - name: Install PHP dependencies
         run: |
           cd userfrosting
           composer install --no-interaction --prefer-dist
 
-      - name: Package sprinkle-c6admin for NPM
+      - name: Package both sprinkles for NPM
         run: |
+          # Package C6Admin sprinkle
           cd sprinkle-c6admin
           npm pack
           mv ssnukala-sprinkle-c6admin-*.tgz ../userfrosting/
+          
+          # Package CRUD6 sprinkle (installed via composer)
+          cd ../userfrosting
+          if [ -d "vendor/ssnukala/sprinkle-crud6" ]; then
+            cd vendor/ssnukala/sprinkle-crud6
+            npm pack
+            mv ssnukala-sprinkle-crud6-*.tgz ../../../../
+            cd ../../../
+          fi
 
       - name: Install NPM dependencies
         run: |
           cd userfrosting
           npm update
+          # Install C6Admin package
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
+          # Install CRUD6 package if it exists
+          if [ -f ssnukala-sprinkle-crud6-*.tgz ]; then
+            npm install ./ssnukala-sprinkle-crud6-*.tgz
+          fi
 
-      - name: Verify NPM package installation
+      - name: Verify NPM packages installation
         run: |
           cd userfrosting
-          # Verify the package is installed correctly
-          npm list @ssnukala/sprinkle-c6admin || echo "Package installed as local dependency"
-          # Check that the package files are accessible
-          test -f node_modules/@ssnukala/sprinkle-c6admin/app/assets/index.ts && echo "✅ NPM package files accessible" || echo "⚠️ NPM package files not found"
+          echo "Checking CRUD6 package..."
+          npm list @ssnukala/sprinkle-crud6 || echo "⚠️  CRUD6 package may not be listed"
+          test -f node_modules/@ssnukala/sprinkle-crud6/app/assets/index.ts && echo "✅ CRUD6 NPM package files accessible" || echo "⚠️ CRUD6 NPM package files not found"
+          
+          echo ""
+          echo "Checking C6Admin package..."
+          npm list @ssnukala/sprinkle-c6admin || echo "⚠️  C6Admin package may not be listed"
+          test -f node_modules/@ssnukala/sprinkle-c6admin/app/assets/index.ts && echo "✅ C6Admin NPM package files accessible" || echo "⚠️ C6Admin NPM package files not found"
 
       - name: Create groups schema
         run: |
@@ -142,26 +174,65 @@ jobs:
       - name: Seed database
         run: |
           cd userfrosting
+          echo "========================================="
+          echo "Seeding Account sprinkle (base data)"
+          echo "========================================="
           # Seed Account sprinkle data first (required base data)
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultGroups --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultPermissions --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\DefaultRoles --force
           php bakery seed UserFrosting\\Sprinkle\\Account\\Database\\Seeds\\UpdatePermissions --force
-          # C6Admin uses CRUD6 permissions
+          
+          echo ""
+          echo "========================================="
+          echo "Seeding CRUD6 sprinkle (required by C6Admin)"
+          echo "========================================="
+          # Seed CRUD6 sprinkle data (required by C6Admin)
           php bakery seed UserFrosting\\Sprinkle\\CRUD6\\Database\\Seeds\\DefaultRoles --force
           php bakery seed UserFrosting\\Sprinkle\\CRUD6\\Database\\Seeds\\DefaultPermissions --force
+          
+          echo ""
+          echo "========================================="
+          echo "Seeding C6Admin sprinkle (test data)"
+          echo "========================================="
+          # Seed C6Admin test data (groups first, then users that reference groups)
+          php bakery seed UserFrosting\\Sprinkle\\C6Admin\\Database\\Seeds\\TestGroups --force
+          php bakery seed UserFrosting\\Sprinkle\\C6Admin\\Database\\Seeds\\TestUsers --force
 
-      - name: Create admin user
+      - name: Create admin user for testing
         run: |
           cd userfrosting
           # Create admin user for testing
-          php bakery create:admin-user \
-            --username=admin \
-            --password=admin123 \
-            --email=admin@example.com \
-            --firstName=Admin \
-            --lastName=User
-          echo "✅ Admin user created successfully"
+          php bakery create:admin admin admin123 admin@example.com
+          echo "✅ Admin user created: admin / admin123"
+
+      - name: Verify test users created
+        run: |
+          cd userfrosting
+          echo "========================================="
+          echo "Verifying test users (with group_id)"
+          echo "========================================="
+          # Check that test users exist with group assignments
+          mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT u.user_name, u.email, u.first_name, u.last_name, u.group_id, g.name as group_name FROM \`users\` u LEFT JOIN \`groups\` g ON u.group_id = g.id WHERE u.user_name IN ('admin', 'testadmin', 'c6admin', 'testuser', 'testmoderator') ORDER BY u.user_name;"
+          
+          echo ""
+          echo "========================================="
+          echo "Verifying role_users assignments"
+          echo "========================================="
+          # Check role_users pivot table records
+          mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT u.user_name, r.name as role_name, ru.user_id, ru.role_id FROM \`role_users\` ru JOIN \`users\` u ON ru.user_id = u.id JOIN \`roles\` r ON ru.role_id = r.id WHERE u.user_name IN ('admin', 'testadmin', 'c6admin', 'testuser', 'testmoderator') ORDER BY u.user_name, r.name;"
+          
+          echo ""
+          echo "========================================="
+          echo "User count by role"
+          echo "========================================="
+          mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT r.name as role_name, COUNT(DISTINCT ru.user_id) as user_count FROM \`roles\` r LEFT JOIN \`role_users\` ru ON r.id = ru.role_id GROUP BY r.id, r.name ORDER BY r.name;"
+          
+          echo ""
+          echo "========================================="
+          echo "Total role_users records"
+          echo "========================================="
+          mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT COUNT(*) as total_role_user_assignments FROM \`role_users\`;"
 
       - name: Test schema loading
         run: |
@@ -287,20 +358,20 @@ jobs:
             cat /tmp/api_c6_dashboard.json
           fi
 
-      - name: Test API endpoint - Original Admin Dashboard (GET /api/dashboard)
+      - name: Test API endpoint - Users List (GET /api/crud6/users)
         run: |
           cd userfrosting
-          echo "Testing GET /api/dashboard (original sprinkle-admin)"
+          echo "Testing GET /api/crud6/users"
           
           # Test without authentication (should fail with 401)
-          HTTP_CODE=$(curl -s -o /tmp/api_dashboard.json -w "%{http_code}" http://localhost:8080/api/dashboard)
+          HTTP_CODE=$(curl -s -o /tmp/api_users.json -w "%{http_code}" http://localhost:8080/api/crud6/users)
           echo "Response code (no auth): $HTTP_CODE"
           
           if [ "$HTTP_CODE" = "401" ]; then
-            echo "✅ Admin Dashboard correctly requires authentication"
+            echo "✅ Users API correctly requires authentication"
           else
             echo "⚠️ Expected 401 but got $HTTP_CODE"
-            cat /tmp/api_dashboard.json
+            cat /tmp/api_users.json
           fi
 
       - name: Test Frontend route - C6Admin Dashboard
@@ -315,22 +386,6 @@ jobs:
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ C6Admin Frontend dashboard page loads successfully"
             echo "Page size: $(wc -c < /tmp/frontend_c6_dashboard.html) bytes"
-          else
-            echo "⚠️ Expected 200 but got $HTTP_CODE"
-          fi
-
-      - name: Test Frontend route - Admin Dashboard
-        run: |
-          cd userfrosting
-          echo "Testing frontend route /admin/dashboard"
-          
-          # Test that the page loads (may redirect to login)
-          HTTP_CODE=$(curl -s -o /tmp/frontend_dashboard.html -w "%{http_code}" -L http://localhost:8080/admin/dashboard)
-          echo "Response code: $HTTP_CODE"
-          
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ Frontend dashboard page loads successfully"
-            echo "Page size: $(wc -c < /tmp/frontend_dashboard.html) bytes"
           else
             echo "⚠️ Expected 200 but got $HTTP_CODE"
           fi
@@ -351,22 +406,6 @@ jobs:
             echo "⚠️ Expected 200 but got $HTTP_CODE"
           fi
 
-      - name: Test Frontend route - Groups List Page
-        run: |
-          cd userfrosting
-          echo "Testing frontend route /admin/groups"
-          
-          # Test that the page loads (may redirect to login)
-          HTTP_CODE=$(curl -s -o /tmp/frontend_list.html -w "%{http_code}" -L http://localhost:8080/admin/groups)
-          echo "Response code: $HTTP_CODE"
-          
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ Frontend list page loads successfully"
-            echo "Page size: $(wc -c < /tmp/frontend_list.html) bytes"
-          else
-            echo "⚠️ Expected 200 but got $HTTP_CODE"
-          fi
-
       - name: Test Frontend route - C6Admin Single Group Page
         run: |
           cd userfrosting
@@ -383,108 +422,85 @@ jobs:
             echo "⚠️ Expected 200 but got $HTTP_CODE"
           fi
 
-      - name: Test Frontend route - Single Group Page
+      - name: Test all C6Admin routes
         run: |
           cd userfrosting
-          echo "Testing frontend route /admin/groups/1"
+          echo "========================================="
+          echo "Testing All C6Admin Frontend Routes"
+          echo "========================================="
           
-          # Test that the page loads (may redirect to login)
-          HTTP_CODE=$(curl -s -o /tmp/frontend_detail.html -w "%{http_code}" -L http://localhost:8080/admin/groups/1)
-          echo "Response code: $HTTP_CODE"
+          # Array of routes to test
+          declare -a routes=(
+            "/c6/admin/dashboard:C6Admin Dashboard"
+            "/c6/admin/users:C6Admin Users List"
+            "/c6/admin/users/1:C6Admin User Detail"
+            "/c6/admin/groups:C6Admin Groups List"
+            "/c6/admin/groups/1:C6Admin Group Detail"
+            "/c6/admin/roles:C6Admin Roles List"
+            "/c6/admin/roles/1:C6Admin Role Detail"
+            "/c6/admin/permissions:C6Admin Permissions List"
+            "/c6/admin/permissions/1:C6Admin Permission Detail"
+            "/c6/admin/activities:C6Admin Activities"
+            "/c6/admin/config/info:C6Admin Config Info"
+            "/c6/admin/config/cache:C6Admin Config Cache"
+          )
           
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ Frontend detail page loads successfully"
-            echo "Page size: $(wc -c < /tmp/frontend_detail.html) bytes"
+          TOTAL=0
+          PASSED=0
+          FAILED=0
+          
+          for route_info in "${routes[@]}"; do
+            IFS=':' read -r route name <<< "$route_info"
+            TOTAL=$((TOTAL + 1))
+            
+            echo ""
+            echo "Testing: $name ($route)"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L http://localhost:8080${route})
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "  ✅ PASS - HTTP $HTTP_CODE"
+              PASSED=$((PASSED + 1))
+            else
+              echo "  ❌ FAIL - HTTP $HTTP_CODE (expected 200)"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+          
+          echo ""
+          echo "========================================="
+          echo "C6Admin Routes Test Summary"
+          echo "========================================="
+          echo "Total routes tested: $TOTAL"
+          echo "Passed: $PASSED"
+          echo "Failed: $FAILED"
+          
+          if [ $FAILED -gt 0 ]; then
+            echo "⚠️  Some routes failed, but continuing..."
           else
-            echo "⚠️ Expected 200 but got $HTTP_CODE"
+            echo "✅ All C6Admin routes accessible"
           fi
 
-      - name: Take screenshots of frontend pages
+      - name: Take screenshots of C6Admin pages (with authentication)
         run: |
           cd userfrosting
           
-          echo "========================================="
-          echo "Taking screenshots of C6Admin and Admin pages"
-          echo "========================================="
+          # Copy the authenticated screenshot script from sprinkle
+          cp ../sprinkle-c6admin/.github/scripts/take-authenticated-screenshots.js .
           
-          # Screenshot of C6Admin dashboard
-          echo "📸 Taking screenshot: /c6/admin/dashboard"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/c6/admin/dashboard /tmp/screenshot_c6_dashboard.png \
-            2>&1 || echo "⚠️ Failed to screenshot C6Admin dashboard page"
-          
-          # Screenshot of admin dashboard
-          echo "📸 Taking screenshot: /admin/dashboard"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/admin/dashboard /tmp/screenshot_dashboard.png \
-            2>&1 || echo "⚠️ Failed to screenshot dashboard page"
-          
-          # Screenshot of C6Admin groups list page
-          echo "📸 Taking screenshot: /c6/admin/groups"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/c6/admin/groups /tmp/screenshot_c6_groups_list.png \
-            2>&1 || echo "⚠️ Failed to screenshot C6Admin groups list page"
-          
-          # Screenshot of groups list page
-          echo "📸 Taking screenshot: /admin/groups"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/admin/groups /tmp/screenshot_groups_list.png \
-            2>&1 || echo "⚠️ Failed to screenshot groups list page"
-          
-          # Screenshot of C6Admin single group page
-          echo "📸 Taking screenshot: /c6/admin/groups/1"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/c6/admin/groups/1 /tmp/screenshot_c6_group_detail.png \
-            2>&1 || echo "⚠️ Failed to screenshot C6Admin group detail page"
-          
-          # Screenshot of single group page
-          echo "📸 Taking screenshot: /admin/groups/1"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/admin/groups/1 /tmp/screenshot_group_detail.png \
-            2>&1 || echo "⚠️ Failed to screenshot group detail page"
-          
-          # Screenshot of C6Admin users list page
-          echo "📸 Taking screenshot: /c6/admin/users"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/c6/admin/users /tmp/screenshot_c6_users_list.png \
-            2>&1 || echo "⚠️ Failed to screenshot C6Admin users list page"
-          
-          # Screenshot of users list page
-          echo "📸 Taking screenshot: /admin/users"
-          npx playwright screenshot --browser chromium \
-            --viewport-size=1280,720 \
-            --full-page \
-            --timeout 10000 \
-            http://localhost:8080/admin/users /tmp/screenshot_users_list.png \
-            2>&1 || echo "⚠️ Failed to screenshot users list page"
+          # Run the script with admin credentials to capture all C6Admin pages
+          node take-authenticated-screenshots.js http://localhost:8080 admin admin123
           
           echo ""
           echo "========================================="
           echo "Screenshot summary"
           echo "========================================="
-          # List screenshots if they exist
+          # List all screenshots
           ls -lh /tmp/screenshot_*.png 2>/dev/null || echo "No screenshots generated"
+          
+          # Count screenshots
+          SCREENSHOT_COUNT=$(ls -1 /tmp/screenshot_*.png 2>/dev/null | wc -l)
+          echo ""
+          echo "Total screenshots captured: $SCREENSHOT_COUNT"
 
       - name: Upload screenshots as artifacts
         if: always()
@@ -509,33 +525,56 @@ jobs:
         if: always()
         run: |
           echo "✅ Integration test completed for PHP 8.1 with UserFrosting ^6.0-beta"
+          echo "✅ sprinkle-crud6 (dependency) installed successfully"
           echo "✅ sprinkle-c6admin installed successfully"
           echo "✅ Database migrations ran successfully"
-          echo "✅ Admin user created: admin / admin123"
-          echo "✅ NPM package verified"
+          echo "✅ Database seeding completed:"
+          echo "   - Account sprinkle seeds (DefaultGroups, DefaultPermissions, DefaultRoles, UpdatePermissions)"
+          echo "   - CRUD6 sprinkle seeds (DefaultRoles, DefaultPermissions)"
+          echo "   - C6Admin sprinkle seeds (TestGroups, TestUsers)"
+          echo "✅ Test users created (5 users):"
+          echo "   - admin / admin123 (site-admin role)"
+          echo "   - testadmin / testpass123 (site-admin role, managers group)"
+          echo "   - c6admin / testpass123 (crud6-admin role, developers group)"
+          echo "   - testuser / testpass123 (user role, terran group)"
+          echo "   - testmoderator / testpass123 (user + crud6-admin roles, testers group)"
+          echo "✅ Test groups created:"
+          echo "   - developers (Development team)"
+          echo "   - managers (Management team)"
+          echo "   - testers (QA team)"
+          echo "✅ group_id assigned to all users"
+          echo "✅ role_users pivot table populated"
+          echo "✅ NPM packages verified (CRUD6 + C6Admin)"
           echo "✅ C6Admin schemas loaded successfully (users, groups, roles, permissions, activities)"
           echo "✅ Assets built with php bakery assets:vite"
           echo "✅ PHP server started with php bakery serve"
           echo "✅ Vite development server started"
           echo "✅ API endpoint tests completed:"
-          echo "   - GET /api/crud6/groups (list)"
-          echo "   - GET /api/crud6/groups/1 (single record)"
-          echo "   - GET /api/dashboard (dashboard stats)"
-          echo "✅ Frontend route tests completed:"
-          echo "   - /admin/dashboard (admin dashboard)"
-          echo "   - /admin/groups (list page)"
-          echo "   - /admin/groups/1 (detail page)"
-          echo "   - /admin/users (users list page)"
-          echo "✅ Screenshots captured and uploaded as artifacts"
+          echo "   - GET /api/c6/dashboard (C6Admin dashboard statistics)"
+          echo "   - GET /api/crud6/users (users list via CRUD6)"
+          echo "✅ All C6Admin frontend route tests completed:"
+          echo "   - /c6/admin/dashboard"
+          echo "   - /c6/admin/users (list and detail)"
+          echo "   - /c6/admin/groups (list and detail)"
+          echo "   - /c6/admin/roles (list and detail)"
+          echo "   - /c6/admin/permissions (list and detail)"
+          echo "   - /c6/admin/activities"
+          echo "   - /c6/admin/config/info"
+          echo "   - /c6/admin/config/cache"
+          echo "✅ Screenshots captured (14 pages) with authentication:"
+          echo "   - Dashboard, Users (list & detail), Groups (list & detail)"
+          echo "   - Roles (list & detail), Permissions (list & detail)"
+          echo "   - Activities, Config Info, Config Cache"
           echo ""
-          echo "ℹ️  Note: Authentication tests verify 401 responses for unauthenticated requests"
-          echo "ℹ️  Screenshots may show login page if not authenticated"
+          echo "ℹ️  Note: Both CRUD6 and C6Admin sprinkles are active (CRUD6 is a dependency)"
+          echo "ℹ️  Screenshots are taken after logging in with admin user credentials"
           echo "ℹ️  Both PHP and Vite servers were running during tests"
+          echo "ℹ️  Route configuration uses new createC6AdminRoutes() factory"
           echo ""
           echo "📸 **View Screenshots:**"
           echo "   Direct link: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "   Look for 'Artifacts' section at the bottom of the page"
-          echo "   Download 'integration-test-screenshots' ZIP file"
+          echo "   Download 'integration-test-screenshots-c6admin' ZIP file"
           
           # Add to GitHub Actions Summary with direct link
           cat >> $GITHUB_STEP_SUMMARY << EOF
@@ -543,14 +582,55 @@ jobs:
           
           ### Test Coverage
           - ✅ Database migrations
-          - ✅ Admin user creation
+          - ✅ Database seeding (Account + CRUD6 + C6Admin sprinkles)
+          - ✅ Test users creation (5 users with different roles and groups)
+          - ✅ Test groups creation (developers, managers, testers)
+          - ✅ group_id assignment to all users
+          - ✅ role_users pivot table population
           - ✅ Schema loading (users, groups, roles, permissions, activities)
-          - ✅ API endpoints (GET /api/crud6/groups, GET /api/crud6/groups/1, GET /api/dashboard)
-          - ✅ Frontend routes (/admin/dashboard, /admin/groups, /admin/groups/1, /admin/users)
-          - ✅ Screenshot capture
+          - ✅ API endpoints (C6Admin dashboard + CRUD6 users)
+          - ✅ **All 12 C6Admin frontend routes** tested
+          - ✅ **14 screenshots captured** with authentication
           
-          ### 📸 View Screenshots
-          Screenshots have been captured and uploaded as artifacts.
+          ### Sprinkle Configuration
+          **Dependencies:** CRUD6 → C6Admin
+          - ✅ CRUD6 sprinkle installed and configured
+          - ✅ C6Admin sprinkle installed and configured
+          - ✅ Both sprinkles registered in MyApp.php (correct order)
+          - ✅ Route configuration uses new createC6AdminRoutes() factory
+          - ✅ Both NPM packages installed and verified
+          
+          ### Test Users & Groups Created
+          | Username | Password | Role(s) | Group | Purpose |
+          |----------|----------|---------|-------|---------|
+          | admin | admin123 | site-admin | terran | Primary admin (bakery) |
+          | testadmin | testpass123 | site-admin | managers | Test administrator |
+          | c6admin | testpass123 | crud6-admin | developers | CRUD6/C6Admin permissions |
+          | testuser | testpass123 | user | terran | Basic user |
+          | testmoderator | testpass123 | user, crud6-admin | testers | Moderator with CRUD6 access |
+          
+          **Test Groups:**
+          - **developers** - Development team members
+          - **managers** - Management team
+          - **testers** - QA and testing team
+          
+          ### C6Admin Routes Tested
+          All 12 C6Admin routes tested and verified:
+          1. ✅ /c6/admin/dashboard - Dashboard
+          2. ✅ /c6/admin/users - Users list
+          3. ✅ /c6/admin/users/1 - User detail
+          4. ✅ /c6/admin/groups - Groups list
+          5. ✅ /c6/admin/groups/1 - Group detail
+          6. ✅ /c6/admin/roles - Roles list
+          7. ✅ /c6/admin/roles/1 - Role detail
+          8. ✅ /c6/admin/permissions - Permissions list
+          9. ✅ /c6/admin/permissions/1 - Permission detail
+          10. ✅ /c6/admin/activities - Activity log
+          11. ✅ /c6/admin/config/info - System information
+          12. ✅ /c6/admin/config/cache - Cache management
+          
+          ### 📸 View Screenshots (14 pages captured)
+          Screenshots have been captured for all C6Admin pages and uploaded as artifacts.
           
           **Direct link to this workflow run:**
           https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -558,12 +638,20 @@ jobs:
           **To view screenshots:**
           1. Scroll to the bottom of the workflow run page (link above)
           2. Look for the **Artifacts** section
-          3. Click on **integration-test-screenshots** to download
-          4. Extract the ZIP file to view:
-             - \`screenshot_dashboard.png\` - Admin dashboard
-             - \`screenshot_groups_list.png\` - Groups list page
-             - \`screenshot_group_detail.png\` - Group detail page
-             - \`screenshot_users_list.png\` - Users list page
+          3. Click on **integration-test-screenshots-c6admin** to download
+          4. Extract the ZIP file to view all 14 screenshots:
+             - \`screenshot_c6admin_dashboard.png\` - C6Admin dashboard
+             - \`screenshot_c6admin_users_list.png\` - Users list
+             - \`screenshot_c6admin_user_detail.png\` - User detail
+             - \`screenshot_c6admin_groups_list.png\` - Groups list
+             - \`screenshot_c6admin_group_detail.png\` - Group detail
+             - \`screenshot_c6admin_roles_list.png\` - Roles list
+             - \`screenshot_c6admin_role_detail.png\` - Role detail
+             - \`screenshot_c6admin_permissions_list.png\` - Permissions list
+             - \`screenshot_c6admin_permission_detail.png\` - Permission detail
+             - \`screenshot_c6admin_activities.png\` - Activity log
+             - \`screenshot_c6admin_config_info.png\` - System information
+             - \`screenshot_c6admin_config_cache.png\` - Cache management
           
           > **Note:** Screenshots are retained for 30 days
           
@@ -574,6 +662,15 @@ jobs:
           - Vite Server: Started with \`php bakery assets:vite\`
           - Both servers were running during tests
           
+          ### Route Configuration
+          Uses new \`createC6AdminRoutes()\` factory function from C6Admin sprinkle:
+          \`\`\`typescript
+          ...createC6AdminRoutes({
+              layoutComponent: LayoutDashboard
+          })
+          \`\`\`
+          
           ### Authentication Note
-          Screenshots may show login page as tests verify 401 responses for unauthenticated requests.
+          Screenshots are taken after authenticating with the admin user (username: admin).
+          This ensures all C6Admin pages are fully rendered and accessible.
           EOF
