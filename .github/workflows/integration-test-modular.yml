@@ -56,6 +56,12 @@ jobs:
           composer config minimum-stability dev
           composer config prefer-stable true
 
+      - name: Configure Composer authentication for GitHub
+        run: |
+          cd userfrosting
+          # Configure GitHub token for accessing private/public repos
+          composer config github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
+
       - name: Configure MyApp.php with both CRUD6 and C6Admin sprinkles
         run: |
           cd userfrosting
@@ -100,7 +106,7 @@ jobs:
           cd userfrosting
           composer install --no-interaction --prefer-dist
 
-      - name: Package both sprinkles for NPM
+      - name: Package C6Admin sprinkle for NPM
         run: |
           # Package C6Admin sprinkle
           cd sprinkle-c6admin
@@ -111,7 +117,7 @@ jobs:
         run: |
           cd userfrosting
           npm update
-          # Install C6Admin package
+          # Install C6Admin package (CRUD6 will be installed automatically from Git URL)
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
       - name: Verify NPM packages installation
@@ -325,7 +331,7 @@ jobs:
         run: |
           echo "✅ Integration test completed (Modular Approach)"
           echo "✅ PHP 8.1 with UserFrosting ^6.0-beta"
-          echo "✅ sprinkle-crud6 (dependency) installed successfully"
+          echo "✅ sprinkle-crud6 v0.6.1 installed from GitHub (Composer VCS repository)"
           echo "✅ sprinkle-c6admin installed successfully"
           echo "✅ Database migrations ran successfully"
           echo "✅ Database seeding completed using modular configuration:"
@@ -404,11 +410,12 @@ jobs:
           - ✅ Consistent - Same testing approach across all sprinkles
 
           ### Sprinkle Configuration
-          **Dependencies:** Account → CRUD6 → C6Admin
-          - ✅ CRUD6 sprinkle installed and configured
+          **Dependencies:** Account → CRUD6 (v0.6.1 from Git) → C6Admin
+          - ✅ CRUD6 sprinkle v0.6.1 installed from GitHub repository
           - ✅ C6Admin sprinkle installed and configured
           - ✅ Both sprinkles registered in MyApp.php (correct order)
-          - ✅ Both NPM packages installed and verified
+          - ✅ CRUD6 NPM package installed from Git URL
+          - ✅ C6Admin NPM package installed locally
 
           ### 📸 View Screenshots
           Screenshots have been captured for all C6Admin pages and uploaded as artifacts.

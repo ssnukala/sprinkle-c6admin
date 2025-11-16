@@ -21,6 +21,13 @@
             "homepage": "https://srinivasnukala.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ssnukala/sprinkle-crud6.git",
+            "no-api": true
+        }
+    ],
     "require": {
         "php": "^8.1",
         "userfrosting/framework": "^6.0",
