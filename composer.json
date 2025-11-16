@@ -63,5 +63,12 @@
         "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
         "phpcs:fix": "php-cs-fixer fix --diff --verbose",
         "phpstan": "phpstan analyze app/src --level 8"
+    },
+    "repositories": {
+        "sprinkle-crud6": {
+            "type": "vcs",
+            "url": "git@github.com:ssnukala/sprinkle-crud6.git",
+            "no-api": false
+        }
     }
 }
