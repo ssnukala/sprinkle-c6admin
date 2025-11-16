@@ -52,6 +52,8 @@ jobs:
           cd userfrosting
           # Add local C6Admin sprinkle path
           composer config repositories.local-c6admin path ../sprinkle-c6admin
+          # Add sprinkle-crud6 repository (required dependency of C6Admin)
+          composer config repositories.sprinkle-crud6 git https://github.com/ssnukala/sprinkle-crud6.git
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
           composer config minimum-stability dev
           composer config prefer-stable true
