@@ -38,11 +38,38 @@ Complete admin interface for UserFrosting 6, powered by [sprinkle-crud6](https:/
 
 ## Installation
 
+### Step 1: Configure Composer Repositories
+
+Since sprinkle-crud6 is not yet published on Packagist, you need to add its repository to your project's `composer.json`:
+
+```bash
+composer config repositories.sprinkle-crud6 git https://github.com/ssnukala/sprinkle-crud6.git
+```
+
+Or manually add to your `composer.json`:
+
+```json
+{
+    "repositories": {
+        "sprinkle-crud6": {
+            "type": "git",
+            "url": "https://github.com/ssnukala/sprinkle-crud6.git"
+        }
+    }
+}
+```
+
+### Step 2: Require C6Admin
+
 Add to your UserFrosting 6 project:
 
 ```bash
 composer require ssnukala/sprinkle-c6admin
 ```
+
+This will automatically install sprinkle-crud6 as a dependency.
+
+### Step 3: Register Sprinkles
 
 Then register the sprinkle in your main application sprinkle class:
 
