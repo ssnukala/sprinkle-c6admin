@@ -101,24 +101,62 @@ export function createC6AdminRoutes(options: C6AdminRoutesOptions = {}): RouteRe
         title = 'C6ADMIN_PANEL'
     } = options
 
-    return [
-        {
-            path: basePath,
-            component: layoutComponent,
-            children: C6AdminChildRoutes,
-            meta: {
-                title
-            }
+    const route: RouteRecordRaw = {
+        path: basePath,
+        children: C6AdminChildRoutes,
+        meta: {
+            auth: {},  // Require authentication for all C6Admin routes
+            title
         }
-    ]
+    }
+
+    // Only set component if layoutComponent is provided
+    if (layoutComponent) {
+        route.component = layoutComponent
+    }
+
+    return [route]
 }
 
 /**
- * Default export for backward compatibility
- * Note: This will not include a layout component by default.
- * Use createC6AdminRoutes() for full functionality.
+ * Default export matching sprinkle-admin pattern
+ * 
+ * Exports FLAT child routes without a parent wrapper, intended to be used as
+ * children of a layout route configured in the consuming application.
+ * 
+ * **Usage in UserFrosting 6 Application:**
+ * 
+ * The consuming application should create a parent route with a layout component:
+ * ```typescript
+ * import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
+ * import LayoutDashboard from './layouts/LayoutDashboard.vue'
+ * 
+ * const routes = [
+ *   {
+ *     path: '/c6/admin',
+ *     component: () => import('./layouts/LayoutDashboard.vue'),
+ *     children: C6AdminRoutes,  // <-- Use as children of layout route
+ *     meta: { auth: {}, title: 'C6ADMIN_PANEL' }
+ *   }
+ * ]
+ * ```
+ * 
+ * **Convenience Helper:**
+ * 
+ * For simpler integration, use `createC6AdminRoutes()` which creates the parent route automatically:
+ * ```typescript
+ * import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'
+ * 
+ * const routes = [
+ *   ...createC6AdminRoutes({
+ *     layoutComponent: () => import('./layouts/LayoutDashboard.vue')
+ *   })
+ * ]
+ * ```
+ * 
+ * This matches the pattern used by @userfrosting/sprinkle-admin.
  */
-const C6AdminRoutes: RouteRecordRaw[] = createC6AdminRoutes()
+const C6AdminRoutes: RouteRecordRaw[] = C6AdminChildRoutes
 
 export default C6AdminRoutes
 

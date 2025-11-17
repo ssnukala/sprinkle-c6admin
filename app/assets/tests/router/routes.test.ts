@@ -16,19 +16,16 @@ import C6AdminRoutes, { C6AdminChildRoutes, createC6AdminRoutes } from '../../ro
  */
 describe('routes.test.ts', () => {
     describe('Default Export (C6AdminRoutes)', () => {
-        test('should have parent route wrapper', () => {
-            // Should export array with single parent route
-            expect(C6AdminRoutes.length).toBe(1)
+        test('should export flat child routes (matching sprinkle-admin pattern)', () => {
+            // Should export flat array of child routes, not wrapped in parent
+            expect(C6AdminRoutes.length).toBe(8) // 7 route modules + 1 redirect
             
-            // Parent route should have path '/c6/admin'
-            expect(C6AdminRoutes[0].path).toBe('/c6/admin')
+            // Should be the same as C6AdminChildRoutes
+            expect(C6AdminRoutes).toBe(C6AdminChildRoutes)
             
-            // Parent route should have meta title
-            expect(C6AdminRoutes[0].meta?.title).toBe('C6ADMIN_PANEL')
-            
-            // Parent route should have children
-            expect(C6AdminRoutes[0].children).toBeDefined()
-            expect(Array.isArray(C6AdminRoutes[0].children)).toBe(true)
+            // First item should be redirect
+            expect(C6AdminRoutes[0].path).toBe('')
+            expect(C6AdminRoutes[0].redirect).toBeDefined()
         })
     })
 
@@ -39,6 +36,7 @@ describe('routes.test.ts', () => {
             expect(routes.length).toBe(1)
             expect(routes[0].path).toBe('/c6/admin')
             expect(routes[0].meta?.title).toBe('C6ADMIN_PANEL')
+            expect(routes[0].meta?.auth).toEqual({}) // Auth required by default
             expect(routes[0].children).toBe(C6AdminChildRoutes)
         })
 
@@ -78,6 +76,7 @@ describe('routes.test.ts', () => {
             expect(routes[0].path).toBe('/my-admin')
             expect(routes[0].component).toBe(mockLayout)
             expect(routes[0].meta?.title).toBe('My Admin Panel')
+            expect(routes[0].meta?.auth).toEqual({}) // Auth required
             expect(routes[0].children).toBe(C6AdminChildRoutes)
         })
     })
