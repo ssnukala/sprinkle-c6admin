@@ -105,6 +105,7 @@ export function createC6AdminRoutes(options: C6AdminRoutesOptions = {}): RouteRe
         path: basePath,
         children: C6AdminChildRoutes,
         meta: {
+            auth: {},  // Require authentication for all C6Admin routes
             title
         }
     }
@@ -118,35 +119,44 @@ export function createC6AdminRoutes(options: C6AdminRoutesOptions = {}): RouteRe
 }
 
 /**
- * Default export for backward compatibility and simple integration
+ * Default export matching sprinkle-admin pattern
  * 
- * This export creates C6Admin routes WITHOUT a layout component on the parent route.
- * This is the correct pattern for integrating into a UserFrosting 6 application
- * that already has a layout/dashboard component.
+ * Exports FLAT child routes without a parent wrapper, intended to be used as
+ * children of a layout route configured in the consuming application.
  * 
- * The routes can be spread directly into your router configuration:
+ * **Usage in UserFrosting 6 Application:**
+ * 
+ * The consuming application should create a parent route with a layout component:
  * ```typescript
  * import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
+ * import LayoutDashboard from './layouts/LayoutDashboard.vue'
  * 
  * const routes = [
- *   ...AdminRoutes,
- *   ...C6AdminRoutes,  // <-- No layout component needed
- *   // other routes
+ *   {
+ *     path: '/c6/admin',
+ *     component: () => import('./layouts/LayoutDashboard.vue'),
+ *     children: C6AdminRoutes,  // <-- Use as children of layout route
+ *     meta: { auth: {}, title: 'C6ADMIN_PANEL' }
+ *   }
  * ]
  * ```
  * 
- * If you need to wrap routes in a specific layout component, use createC6AdminRoutes():
+ * **Convenience Helper:**
+ * 
+ * For simpler integration, use `createC6AdminRoutes()` which creates the parent route automatically:
  * ```typescript
  * import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'
  * 
  * const routes = [
  *   ...createC6AdminRoutes({
- *     layoutComponent: () => import('./layouts/MyLayout.vue')
+ *     layoutComponent: () => import('./layouts/LayoutDashboard.vue')
  *   })
  * ]
  * ```
+ * 
+ * This matches the pattern used by @userfrosting/sprinkle-admin.
  */
-const C6AdminRoutes: RouteRecordRaw[] = createC6AdminRoutes()
+const C6AdminRoutes: RouteRecordRaw[] = C6AdminChildRoutes
 
 export default C6AdminRoutes
 
