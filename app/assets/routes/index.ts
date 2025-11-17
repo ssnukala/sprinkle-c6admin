@@ -101,22 +101,50 @@ export function createC6AdminRoutes(options: C6AdminRoutesOptions = {}): RouteRe
         title = 'C6ADMIN_PANEL'
     } = options
 
-    return [
-        {
-            path: basePath,
-            component: layoutComponent,
-            children: C6AdminChildRoutes,
-            meta: {
-                title
-            }
+    const route: RouteRecordRaw = {
+        path: basePath,
+        children: C6AdminChildRoutes,
+        meta: {
+            title
         }
-    ]
+    }
+
+    // Only set component if layoutComponent is provided
+    if (layoutComponent) {
+        route.component = layoutComponent
+    }
+
+    return [route]
 }
 
 /**
- * Default export for backward compatibility
- * Note: This will not include a layout component by default.
- * Use createC6AdminRoutes() for full functionality.
+ * Default export for backward compatibility and simple integration
+ * 
+ * This export creates C6Admin routes WITHOUT a layout component on the parent route.
+ * This is the correct pattern for integrating into a UserFrosting 6 application
+ * that already has a layout/dashboard component.
+ * 
+ * The routes can be spread directly into your router configuration:
+ * ```typescript
+ * import C6AdminRoutes from '@ssnukala/sprinkle-c6admin/routes'
+ * 
+ * const routes = [
+ *   ...AdminRoutes,
+ *   ...C6AdminRoutes,  // <-- No layout component needed
+ *   // other routes
+ * ]
+ * ```
+ * 
+ * If you need to wrap routes in a specific layout component, use createC6AdminRoutes():
+ * ```typescript
+ * import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'
+ * 
+ * const routes = [
+ *   ...createC6AdminRoutes({
+ *     layoutComponent: () => import('./layouts/MyLayout.vue')
+ *   })
+ * ]
+ * ```
  */
 const C6AdminRoutes: RouteRecordRaw[] = createC6AdminRoutes()
 
