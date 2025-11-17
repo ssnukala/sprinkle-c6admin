@@ -85,9 +85,10 @@ jobs:
           # Import createC6AdminRoutes function and LayoutDashboard component
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
-          # Add C6Admin routes after AdminRoutes
-          # Find the spread of AdminRoutes and add C6Admin routes after the closing of that route block
-          sed -i '/\.\.\.AdminRoutes/,/^        },/{ /^        },/a\        // C6Admin routes with their own layout\n        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard }), }' app/assets/router/index.ts
+          # Add C6Admin routes after the AdminRoutes section
+          # Use awk to find the closing brace after title: 'ADMIN_PANEL' and add C6Admin routes
+          awk '/title: .ADMIN_PANEL./ {found=1} found && /^        },/ && !done {print; print "        // C6Admin routes with their own layout"; print "        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard }),"; done=1; next} {print}' app/assets/router/index.ts > app/assets/router/index.ts.tmp
+          mv app/assets/router/index.ts.tmp app/assets/router/index.ts
           echo "========================================="
           echo "Configured router/index.ts with C6Admin routes"
           echo "========================================="
