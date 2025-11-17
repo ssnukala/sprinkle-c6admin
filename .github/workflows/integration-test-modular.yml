@@ -81,17 +81,15 @@ jobs:
       - name: Configure router/index.ts
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to include CRUD6 and C6Admin routes
-          # Import createC6AdminRoutes function to properly configure with layout
+          # Configure app/assets/router/index.ts to include C6Admin routes
+          # Import createC6AdminRoutes function and LayoutDashboard component
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import CRUD6Routes from '@ssnukala\/sprinkle-crud6\/routes'" app/assets/router/index.ts
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
-          # Add CRUD6Routes after AccountRoutes
-          sed -i '/\.\.\.AccountRoutes,/a \            ...CRUD6Routes,' app/assets/router/index.ts
-          # Add C6Admin routes with layout component using createC6AdminRoutes()
-          sed -i '/\.\.\.CRUD6Routes,/a \            ...createC6AdminRoutes({ layoutComponent: LayoutDashboard }),' app/assets/router/index.ts
+          # Add C6Admin routes after AdminRoutes
+          # Find the spread of AdminRoutes and add C6Admin routes after the closing of that route block
+          sed -i '/\.\.\.AdminRoutes/,/^        },/{ /^        },/a\        // C6Admin routes with their own layout\n        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard }), }' app/assets/router/index.ts
           echo "========================================="
-          echo "Configured router/index.ts with CRUD6 and C6Admin"
+          echo "Configured router/index.ts with C6Admin routes"
           echo "========================================="
           cat app/assets/router/index.ts
 
