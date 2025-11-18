@@ -81,17 +81,20 @@ jobs:
       - name: Configure router/index.ts
         run: |
           cd userfrosting
-          # Configure app/assets/router/index.ts to include C6Admin routes
+          # Configure app/assets/router/index.ts to include CRUD6 and C6Admin routes
           
-          # Step 1: Add import statements for createC6AdminRoutes and LayoutDashboard
+          # Step 1: Add import statements for CRUD6Routes, createC6AdminRoutes and LayoutDashboard
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import CRUD6Routes from '@ssnukala\/sprinkle-crud6\/routes'" app/assets/router/index.ts
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
           sed -i "/import { createRouter, createWebHistory } from 'vue-router'/a import LayoutDashboard from '../layouts/LayoutDashboard.vue'" app/assets/router/index.ts
           
-          # Step 2: Find the last ] in the file and insert C6Admin routes before it
+          # Step 2: Find the last ] in the file and insert CRUD6 and C6Admin routes before it
           LAST_BRACKET_LINE=$(grep -n '\]' app/assets/router/index.ts | tail -1 | cut -d: -f1)
           echo "Found last ] at line: $LAST_BRACKET_LINE"
           
           sed -i "${LAST_BRACKET_LINE}i\\        ,\\
+          // CRUD6 generic routes (required for CRUD6 components)\\
+          ...CRUD6Routes,\\
           // C6Admin routes with their own layout\\
           ...createC6AdminRoutes({ layoutComponent: LayoutDashboard })" app/assets/router/index.ts
           
@@ -99,6 +102,14 @@ jobs:
           echo "========================================="
           echo "Validating router/index.ts modifications"
           echo "========================================="
+          
+          if ! grep -q "import CRUD6Routes from '@ssnukala/sprinkle-crud6/routes'" app/assets/router/index.ts; then
+            echo "❌ ERROR: CRUD6Routes import statement not found in router/index.ts"
+            echo "File content:"
+            cat app/assets/router/index.ts
+            exit 1
+          fi
+          echo "✅ CRUD6Routes import statement verified"
           
           if ! grep -q "import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'" app/assets/router/index.ts; then
             echo "❌ ERROR: createC6AdminRoutes import statement not found in router/index.ts"
@@ -116,6 +127,14 @@ jobs:
           fi
           echo "✅ LayoutDashboard import statement verified"
           
+          if ! grep -q "...CRUD6Routes" app/assets/router/index.ts; then
+            echo "❌ ERROR: CRUD6 routes not found in router/index.ts"
+            echo "File content:"
+            cat app/assets/router/index.ts
+            exit 1
+          fi
+          echo "✅ CRUD6 routes verified"
+          
           if ! grep -q "createC6AdminRoutes({ layoutComponent: LayoutDashboard })" app/assets/router/index.ts; then
             echo "❌ ERROR: C6Admin routes not found in router/index.ts"
             echo "File content:"
@@ -127,7 +146,7 @@ jobs:
           echo "========================================="
           echo "✅ All validations passed!"
           echo "========================================="
-          echo "Configured router/index.ts with C6Admin routes:"
+          echo "Configured router/index.ts with CRUD6 and C6Admin routes:"
           cat app/assets/router/index.ts
 
       - name: Configure main.ts with CRUD6 and C6Admin sprinkles
