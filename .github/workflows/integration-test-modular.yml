@@ -196,16 +196,6 @@ jobs:
           cd userfrosting
           php bakery migrate --force
 
-      - name: Seed database (Modular)
-        run: |
-          cd userfrosting
-          # Copy modular seed configuration and script
-          cp ../sprinkle-c6admin/.github/config/integration-test-seeds.json .
-          cp ../sprinkle-c6admin/.github/scripts/run-seeds.php .
-
-          # Run seeds using modular configuration
-          php run-seeds.php integration-test-seeds.json
-
       - name: Create admin user for testing
         run: |
           cd userfrosting
@@ -218,6 +208,16 @@ jobs:
             --lastName=User
           echo "✅ Admin user created successfully"
           mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT * FROM \`users\` LIMIT 10;"
+
+      - name: Seed database (Modular)
+        run: |
+          cd userfrosting
+          # Copy modular seed configuration and script
+          cp ../sprinkle-c6admin/.github/config/integration-test-seeds.json .
+          cp ../sprinkle-c6admin/.github/scripts/run-seeds.php .
+
+          # Run seeds using modular configuration
+          php run-seeds.php integration-test-seeds.json
 
       - name: Validate seed data (Modular)
         run: |
