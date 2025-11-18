@@ -2,9 +2,14 @@
 
 ## Overview
 
-This document describes the screenshots that are automatically generated when the integration test workflow runs the user detail button testing script (`test-user-detail-buttons.js`).
+This document describes the screenshots that are automatically generated when the integration test workflow runs the **fully automated** user detail button testing script (`test-user-detail-buttons.js`).
 
-The button testing script tests all interactive buttons on the user detail page (`/c6/admin/users/1`) and captures screenshots at each stage of interaction.
+The button testing script **fully tests functionality** by:
+- **Filling and submitting forms** (Edit, Password Reset)
+- **Verifying actions complete** (Disable/Enable status change)
+- **Capturing screenshots at every stage** (before, modal, filled, after)
+
+This provides complete **functional testing automation**, not just clicking buttons.
 
 ## Workflow Step
 
@@ -12,9 +17,10 @@ The GitHub Actions workflow includes a step called **"Test user detail page butt
 
 1. Copies the `test-user-detail-buttons.js` script to the test environment
 2. Runs the script with: `node test-user-detail-buttons.js http://localhost:8080 admin admin123 1`
-3. Captures screenshots of all button interactions
-4. Generates a JSON file with test results
-5. Uploads all artifacts
+3. **Fills and submits forms** to test actual functionality
+4. Captures screenshots of all button interactions (before, modal, filled, after)
+5. Generates a JSON file with detailed test results
+6. Uploads all artifacts
 
 ## Screenshots Generated
 
@@ -48,12 +54,17 @@ For each button tested, the script captures three screenshots:
 
 **Modal**: `/tmp/screenshot_button_Edit_modal.png` or `/tmp/screenshot_button_View_modal.png`
 - Shows the modal/dialog that appears after clicking the button
-- Captures the edit form or view dialog
+- Captures the edit form with original user data
 - Only generated if a modal appears
 
+**Filled**: `/tmp/screenshot_button_Edit_filled.png` ✨ **NEW**
+- Shows the form after filling in test data
+- Captures modified first name and last name fields
+- Demonstrates form automation in action
+
 **After**: `/tmp/screenshot_button_Edit_after.png` or `/tmp/screenshot_button_View_after.png`
-- Shows the page state after closing the modal or returning from navigation
-- Confirms the page returned to normal state
+- Shows the page state after submitting the form
+- Confirms the changes were saved successfully
 
 #### 2. Reset Password Button
 
@@ -62,11 +73,17 @@ For each button tested, the script captures three screenshots:
 
 **Modal**: `/tmp/screenshot_button_Reset_Password_modal.png`
 - Shows the password reset modal/dialog
-- Captures the password reset form
+- Captures the empty password reset form
 - Only generated if a modal appears
 
+**Filled**: `/tmp/screenshot_button_Reset_Password_filled.png` ✨ **NEW**
+- Shows the form after filling in test password
+- Captures both password and confirmation fields filled
+- Demonstrates password form automation
+
 **After**: `/tmp/screenshot_button_Reset_Password_after.png`
-- Shows the page state after canceling the password reset
+- Shows the page state after submitting the password reset
+- Confirms the password was updated successfully
 
 #### 3. Disable/Enable Button
 
@@ -79,8 +96,9 @@ For each button tested, the script captures three screenshots:
 - Only generated if a modal appears
 
 **After**: `/tmp/screenshot_button_Disable_after.png` or `/tmp/screenshot_button_Enable_after.png`
-- Shows the page state after the status change
-- May show the button text changed (e.g., "Disable" → "Enable")
+- Shows the page state after the status change was confirmed
+- **Verifies** the button text changed (e.g., "Disable" → "Enable")
+- Demonstrates functional verification of status toggle
 
 #### 4. Delete Button
 
@@ -113,7 +131,7 @@ The script also generates a JSON file with detailed test results:
       "elementType": "button",
       "index": 0,
       "success": true,
-      "message": "Button clicked, modal/dialog appeared",
+      "message": "Edit form submitted successfully",
       "screenshotPath": "/tmp/screenshot_button_Edit_before.png",
       "timestamp": "2024-11-18T17:30:15.000Z"
     },
@@ -122,7 +140,7 @@ The script also generates a JSON file with detailed test results:
       "elementType": "button",
       "index": 2,
       "success": true,
-      "message": "Button clicked, modal/dialog appeared",
+      "message": "Password reset form submitted successfully",
       "screenshotPath": "/tmp/screenshot_button_Reset_Password_before.png",
       "timestamp": "2024-11-18T17:30:20.000Z"
     },
@@ -131,7 +149,7 @@ The script also generates a JSON file with detailed test results:
       "elementType": "button",
       "index": 4,
       "success": true,
-      "message": "Button clicked, no visible change detected",
+      "message": "User disabled successfully (button changed from \"Disable\" to \"Enable\")",
       "screenshotPath": "/tmp/screenshot_button_Disable_before.png",
       "timestamp": "2024-11-18T17:30:25.000Z"
     },
@@ -171,8 +189,9 @@ Contains screenshots of all C6Admin pages:
 
 Contains all button interaction screenshots:
 - Initial and final page states
-- Before/modal/after screenshots for each button
-- Typical count: 10-15 screenshots depending on buttons found
+- Before/modal/filled/after screenshots for each button
+- **Filled form screenshots** showing test data entered
+- Typical count: 12-18 screenshots depending on buttons found (more screenshots due to filled form captures)
 
 ### 3. user-detail-button-test-results
 
@@ -203,23 +222,25 @@ All screenshots and test results are retained for **30 days** after the workflow
 
 ## Expected Screenshot Examples
 
-### Edit Button Interaction
+### Edit Button Interaction (Full Form Testing)
 
 1. **Before**: Shows user detail page with "Edit" button visible
-2. **Modal**: Shows edit form modal with user fields (username, email, first name, last name, etc.)
-3. **After**: Shows user detail page after closing the modal (back to original state)
+2. **Modal**: Shows edit form modal with original user fields (username, email, first name, last name, etc.)
+3. **Filled**: Shows edit form with modified test data (first name and last name changed) ✨ **NEW**
+4. **After**: Shows user detail page after submitting the form with updated data
 
-### Reset Password Interaction
+### Reset Password Interaction (Full Form Testing)
 
 1. **Before**: Shows user detail page with "Reset Password" button visible
-2. **Modal**: Shows password reset modal with password fields
-3. **After**: Shows user detail page after canceling password reset
+2. **Modal**: Shows password reset modal with empty password fields
+3. **Filled**: Shows password reset form with test password filled in both fields ✨ **NEW**
+4. **After**: Shows user detail page after submitting the password reset
 
-### Disable/Enable Interaction
+### Disable/Enable Interaction (Status Verification)
 
 1. **Before**: Shows user detail page with current status (active/disabled) and corresponding button
-2. **Modal**: May show confirmation dialog (if implemented)
-3. **After**: Shows user detail page with updated status and button text
+2. **Modal**: Shows confirmation dialog (if implemented)
+3. **After**: Shows user detail page with **verified** updated status and button text changed ✨ **ENHANCED**
 
 ### Delete Interaction
 
