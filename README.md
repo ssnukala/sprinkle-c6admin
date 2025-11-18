@@ -146,16 +146,23 @@ Access admin pages at these routes:
 
 ### Frontend Integration
 
-C6Admin provides flexible route configuration options for integration into your UserFrosting 6 application:
+C6Admin provides flexible route configuration options for integration into your UserFrosting 6 application.
 
-#### Option 1: Using createC6AdminRoutes() (Recommended)
+**Important**: Since C6Admin uses CRUD6 components, you must also register CRUD6 routes in your router.
+
+#### Option 1: Using createCRUD6Routes() + createC6AdminRoutes() (Recommended)
 
 ```typescript
+import { createCRUD6Routes } from '@ssnukala/sprinkle-crud6/routes'
 import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'
 
 // In your router configuration (e.g., app/assets/router/index.ts)
 const routes = [
   // ... other routes
+  // IMPORTANT: Register CRUD6 routes FIRST (dependency order)
+  ...createCRUD6Routes({
+    layoutComponent: () => import('../layouts/LayoutDashboard.vue')
+  }),
   ...createC6AdminRoutes({
     layoutComponent: () => import('../layouts/LayoutDashboard.vue')
   })
@@ -165,10 +172,15 @@ const routes = [
 You can also customize the base path and title:
 
 ```typescript
+...createCRUD6Routes({
+  layoutComponent: () => import('../layouts/LayoutDashboard.vue'),
+  basePath: '/crud6',         // Custom base path for CRUD6 routes
+  title: 'CRUD Operations'    // Custom meta title
+}),
 ...createC6AdminRoutes({
   layoutComponent: () => import('../layouts/LayoutDashboard.vue'),
-  basePath: '/admin/c6',  // Custom base path
-  title: 'Admin Panel'    // Custom meta title
+  basePath: '/admin/c6',      // Custom base path
+  title: 'Admin Panel'        // Custom meta title
 })
 ```
 
@@ -215,9 +227,12 @@ When you install the C6Admin plugin in your Vue app, the component is automatica
 
 ```typescript
 // In your main.ts or app initialization
-import C6AdminPlugin from '@ssnukala/sprinkle-c6admin'
+import CRUD6Sprinkle from '@ssnukala/sprinkle-crud6'
+import C6AdminSprinkle from '@ssnukala/sprinkle-c6admin'
 
-app.use(C6AdminPlugin)
+// IMPORTANT: Register CRUD6Sprinkle FIRST (dependency order)
+app.use(CRUD6Sprinkle)
+app.use(C6AdminSprinkle)
 ```
 
 Then in your layout (e.g., `LayoutDashboard.vue`):
