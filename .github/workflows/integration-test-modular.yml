@@ -85,36 +85,19 @@ jobs:
           # Import createC6AdminRoutes function and LayoutDashboard component
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
-          # Add C6Admin routes at the end of routes array (before closing ])
-          # Use awk to find the closing ] of the routes array and insert C6Admin routes before it
-          awk '
-          /^    \]$/ && !done {
-            print "        ,"
-            print "        // C6Admin routes with their own layout"
+
+          # Add C6Admin routes before the last ] in the file
+          # Use tac to reverse file, insert after first ], then reverse back
+          tac app/assets/router/index.ts | \
+          awk 'NR==1 && /^\]$/ {
+            print
             print "        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard })"
-            done=1
-          }
-          { print }
-          ' app/assets/router/index.ts > app/assets/router/index.ts.tmp
-
-          # Verify the tmp file was created successfully
-          if [ ! -f app/assets/router/index.ts.tmp ]; then
-            echo "❌ Error: Failed to create router/index.ts.tmp"
-            exit 1
-          fi
-
-          # Check if the C6Admin routes were added
-          if grep -q "createC6AdminRoutes" app/assets/router/index.ts.tmp; then
-            echo "✅ C6Admin routes added successfully"
-            mv app/assets/router/index.ts.tmp app/assets/router/index.ts
-          else
-            echo "⚠️  Warning: C6Admin routes may not have been added correctly"
-            echo "Attempting alternative method..."
-            # Alternative: Add at the end of the routes array, before the closing bracket
-            sed -i '/^    \]/i\        ,\n        // C6Admin routes with their own layout\n        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard })' app/assets/router/index.ts
-            rm -f app/assets/router/index.ts.tmp
-          fi
-
+            print "        // C6Admin routes with their own layout"
+            print "        ,"
+            next
+          } {print}' | \
+          tac > app/assets/router/index.ts.tmp && \
+          mv app/assets/router/index.ts.tmp app/assets/router/index.ts
           echo "========================================="
           echo "Configured router/index.ts with C6Admin routes"
           echo "========================================="
