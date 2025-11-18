@@ -1,0 +1,46 @@
+# Ignore git files
+.git
+.gitignore
+.github
+
+# Ignore documentation
+docs/
+*.md
+!README.md
+
+# Ignore dependencies (will be installed in container)
+node_modules/
+vendor/
+
+# Ignore test files
+app/tests/
+*.test.ts
+*.test.js
+
+# Ignore build artifacts
+dist/
+build/
+.vite/
+
+# Ignore cache files
+.cache/
+*.log
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Ignore temporary files
+tmp/
+temp/
+*.tmp
+
+# Ignore environment files
+.env
+.env.*
+!.env.example

@@ -1,0 +1,33 @@
+# Docker Compose configuration for local development
+# This is optional and can be used for testing the sprinkle locally
+
+version: '3.8'
+
+services:
+  # Vue.js development server with Vite
+  vite:
+    build:
+      context: .
+      dockerfile: docker/vue/Dockerfile
+    container_name: c6admin-vite
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount source code for hot reloading
+      - ./app/assets:/app/app/assets
+      - ./package.json:/app/package.json
+      - ./vite.config.ts:/app/vite.config.ts
+      - ./tsconfig.json:/app/tsconfig.json
+      # Exclude node_modules to prevent conflicts
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_HOST=0.0.0.0
+      - VITE_PORT=5173
+    command: ["npx", "vite", "dev", "--host", "--force"]
+    networks:
+      - c6admin-network
+
+networks:
+  c6admin-network:
+    driver: bridge
