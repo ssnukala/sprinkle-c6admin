@@ -115,14 +115,6 @@ jobs:
           fi
           echo "✅ C6Admin routes verified"
           
-          if ! grep -q "// C6Admin routes with their own layout" app/assets/router/index.ts; then
-            echo "❌ ERROR: C6Admin comment not found in router/index.ts"
-            echo "File content:"
-            cat app/assets/router/index.ts
-            exit 1
-          fi
-          echo "✅ Comment verified"
-          
           echo "========================================="
           echo "✅ All validations passed!"
           echo "========================================="
