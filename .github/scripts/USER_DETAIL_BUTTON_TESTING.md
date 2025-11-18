@@ -4,13 +4,13 @@ This directory contains scripts for **full automation testing** of button functi
 
 ## Overview
 
-The user detail page in C6Admin (powered by CRUD6) contains various action buttons. This script provides **complete form automation and functional testing**:
+The user detail page in C6Admin (powered by CRUD6) contains various action buttons. This script provides **complete form automation and functional testing with database verification**:
 - **Edit/View**: Fills and submits the user edit form with test data
-- **Reset Password**: Fills and submits the password reset form with a test password
+- **Reset Password**: Fills and submits the password reset form, then **verifies the password was updated in the database** by logging in with the new password in a separate browser context (testing on a non-admin user to avoid session conflicts)
 - **Disable/Enable**: Toggles the user's active status and verifies the change
 - **Delete**: Opens confirmation dialog but cancels to preserve test data
 
-These scripts don't just click buttons - they **fully test the functionality** by filling forms, submitting data, and verifying results.
+These scripts don't just click buttons - they **fully test the functionality** by filling forms, submitting data, verifying database changes in separate contexts, and restoring state.
 
 ## Scripts
 
@@ -22,10 +22,12 @@ A dedicated script for **comprehensive functional testing** of buttons on the us
 - Automatically discovers all buttons on the page
 - **FULLY TESTS** each button by:
   - **Edit**: Modifies first name and last name, submits the form
-  - **Password**: Fills in new password fields and submits
+  - **Password**: Fills in new password fields, submits, and verifies in database using a separate browser context
   - **Disable/Enable**: Clicks button, confirms action, verifies status change
   - **Delete**: Opens confirmation but cancels (preserves test data)
-- Captures screenshots at each stage (before, modal, filled form, after)
+- Captures screenshots at each stage (before, modal, filled form, verified, after)
+- **Database verification**: Opens separate browser context to verify password change without affecting admin session
+- **Tests non-admin users**: Tests password changes on user ID 2+ to avoid disrupting admin login
 - Detects modals, dialogs, and navigation changes
 - Generates a detailed JSON report of all test results
 
@@ -86,17 +88,28 @@ User ID to test: 1
    ✅ Edit form submitted successfully
    📸 After screenshot: /tmp/screenshot_button_Edit_after.png
 
-🔘 Testing Password button with form submission: "Reset Password"
+🔘 Testing Password button with form submission and database verification: "Reset Password"
    📸 Before screenshot: /tmp/screenshot_button_Reset_Password_before.png
+   ℹ️  Found username on page: testadmin
    🖱️  Clicking Password Reset button...
    ℹ️  Password reset form modal detected
    📸 Modal screenshot: /tmp/screenshot_button_Reset_Password_modal.png
    ✏️  Filling password reset form...
+   🔑 Using test password for verification
    ✅ Filled password field 1
    ✅ Filled password field 2 (confirmation)
    📸 Form filled screenshot: /tmp/screenshot_button_Reset_Password_filled.png
    🖱️  Clicking Submit button: "Update Password"
    ✅ Password reset form submitted successfully
+   🔍 Verifying password change in database...
+   ℹ️  Testing password for user: testadmin
+   🔐 Opening new browser context to verify password...
+   🔐 Attempting login with NEW password to verify database update...
+   ✅ Successfully logged in with NEW password - password verified in database!
+   📸 Password verified screenshot: /tmp/screenshot_button_Reset_Password_verified.png
+   🔄 Restoring original password for user testadmin...
+   ✏️  Filled default password to restore: password123
+   ✅ Password restored to default: password123
    📸 After screenshot: /tmp/screenshot_button_Reset_Password_after.png
 
 🔘 Testing Disable/Enable button with status verification: "Disable"
@@ -119,7 +132,7 @@ Successful tests: 4
 Failed tests: 0
 ========================================
 ✅ Edit: Edit form submitted successfully
-✅ Reset Password: Password reset form submitted successfully
+✅ Reset Password: Password reset form submitted and verified in database
 ✅ Disable: User disabled successfully (button changed from "Disable" to "Enable")
 ✅ Delete: Button clicked, modal/dialog appeared
 

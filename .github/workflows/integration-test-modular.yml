@@ -430,8 +430,9 @@ jobs:
           echo "Testing User Detail Page Buttons"
           echo "========================================="
 
-          # Run button testing script for user ID 1
-          node test-user-detail-buttons.js http://localhost:8080 admin admin123 1 2>&1 | tee /tmp/button-test.log
+          # Run button testing script for user ID 2 (test user, not admin)
+          # This allows password testing without affecting the admin login
+          node test-user-detail-buttons.js http://localhost:8080 admin admin123 2 2>&1 | tee /tmp/button-test.log
 
           # Check exit code
           BUTTON_TEST_EXIT_CODE=${PIPESTATUS[0]}
@@ -522,7 +523,7 @@ jobs:
           echo "   - All C6Admin pages captured (dashboard, users, groups, roles, permissions, activities, config)"
           echo "✅ Button testing completed on user detail page:"
           echo "   - Script: test-user-detail-buttons.js"
-          echo "   - Tested page: /c6/admin/users/1"
+          echo "   - Tested page: /c6/admin/users/2 (test user, not admin)"
           echo "   - Buttons tested: Edit/View, Reset Password, Disable/Enable, Delete"
           echo "   - Screenshots captured for each button interaction (before, modal, after)"
           echo "   - Test results saved in JSON format"

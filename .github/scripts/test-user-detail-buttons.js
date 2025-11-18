@@ -186,8 +186,8 @@ async function testUserDetailButtons(baseUrl, username, password, userId = '1') 
         
         if (passwordButton) {
             console.log('');
-            console.log(`🔘 Testing Password button with form submission: "${passwordButton.text}"`);
-            testResults.tests.push(await testPasswordButton(page, 'button', passwordButton.index, passwordButton.text, userId));
+            console.log(`🔘 Testing Password button with form submission and database verification: "${passwordButton.text}"`);
+            testResults.tests.push(await testPasswordButton(page, 'button', passwordButton.index, passwordButton.text, userId, baseUrl, username, password));
         } else {
             console.log('   ⚠️  No Reset/Change Password button found');
         }
@@ -434,8 +434,9 @@ async function testEditButton(page, elementType, index, buttonText, userId) {
 
 /**
  * Test the Password Reset button by filling and submitting the password form
+ * and verifying the password was updated in the database
  */
-async function testPasswordButton(page, elementType, index, buttonText, userId) {
+async function testPasswordButton(page, elementType, index, buttonText, userId, baseUrl, adminUsername, adminPassword) {
     const result = {
         buttonText,
         elementType,
@@ -443,10 +444,29 @@ async function testPasswordButton(page, elementType, index, buttonText, userId) 
         success: false,
         message: '',
         screenshotPath: null,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        passwordVerified: false
     };
 
     try {
+        // First, get the username of the user we're testing (from the page)
+        let testUsername = null;
+        try {
+            // Try to find username on the page - look for common patterns
+            const usernameElement = await page.$('text=/Username:/i');
+            if (usernameElement) {
+                const parent = await usernameElement.evaluateHandle(el => el.parentElement);
+                const text = await parent.textContent();
+                const match = text.match(/Username:\s*(\S+)/i);
+                if (match) {
+                    testUsername = match[1];
+                    console.log(`   ℹ️  Found username on page: ${testUsername}`);
+                }
+            }
+        } catch (e) {
+            console.log(`   ⚠️  Could not extract username from page: ${e.message}`);
+        }
+
         // Take screenshot before clicking
         const beforeScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_before.png`;
         await page.screenshot({ 
@@ -487,6 +507,7 @@ async function testPasswordButton(page, elementType, index, buttonText, userId) 
             console.log(`   ✏️  Filling password reset form...`);
             
             const testPassword = `TestPass123!${Date.now()}`;
+            console.log(`   🔑 Using test password for verification`);
             
             // Look for password fields
             const passwordInputs = await page.$$('input[type="password"], input[name*="password" i], input[id*="password" i]');
@@ -525,10 +546,119 @@ async function testPasswordButton(page, elementType, index, buttonText, userId) 
                 }
             }
 
-            if (submitted) {
-                result.message = 'Password reset form submitted successfully';
+            if (submitted && testUsername) {
+                console.log(`   ✅ Password reset form submitted successfully`);
+                
+                // Now verify the password was actually changed in the database
+                console.log(`   🔍 Verifying password change in database...`);
+                console.log(`   ℹ️  Testing password for user: ${testUsername}`);
+                
+                // Open a new incognito context to test login without affecting current session
+                console.log(`   🔐 Opening new browser context to verify password...`);
+                const verifyContext = await page.context().browser().newContext({
+                    viewport: { width: 1280, height: 720 },
+                    ignoreHTTPSErrors: true
+                });
+                const verifyPage = await verifyContext.newPage();
+                
+                try {
+                    // Try to log in with the NEW password
+                    console.log(`   🔐 Attempting login with NEW password to verify database update...`);
+                    await verifyPage.goto(`${baseUrl}/account/sign-in`, { waitUntil: 'networkidle', timeout: 30000 });
+                    await verifyPage.waitForTimeout(2000);
+                    
+                    await verifyPage.waitForSelector('.uk-card input[data-test="username"]', { timeout: 5000 });
+                    await verifyPage.fill('.uk-card input[data-test="username"]', testUsername);
+                    await verifyPage.fill('.uk-card input[data-test="password"]', testPassword);
+                    
+                    await Promise.all([
+                        verifyPage.waitForNavigation({ timeout: 10000 }).catch(() => {
+                            console.log(`   ⚠️  No navigation after login attempt`);
+                        }),
+                        verifyPage.click('.uk-card button[data-test="submit"]')
+                    ]);
+                    
+                    await verifyPage.waitForTimeout(2000);
+                    
+                    // Check if we're logged in (not on sign-in page anymore)
+                    const verifyUrl = verifyPage.url();
+                    if (!verifyUrl.includes('/account/sign-in')) {
+                        console.log(`   ✅ Successfully logged in with NEW password - password verified in database!`);
+                        result.passwordVerified = true;
+                        
+                        // Take verification screenshot
+                        const verifiedScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_verified.png`;
+                        await verifyPage.screenshot({ 
+                            path: verifiedScreenshotPath, 
+                            fullPage: true 
+                        });
+                        console.log(`   📸 Password verified screenshot: ${verifiedScreenshotPath}`);
+                        
+                        result.message = 'Password reset form submitted and verified in database';
+                        result.success = true;
+                    } else {
+                        console.log(`   ❌ Login with NEW password failed - password may not have been updated in database`);
+                        result.message = 'Password reset form submitted but database verification failed';
+                        result.success = false;
+                    }
+                } catch (error) {
+                    console.log(`   ❌ Error during password verification: ${error.message}`);
+                    result.message = `Password form submitted but verification error: ${error.message}`;
+                    result.success = false;
+                } finally {
+                    await verifyContext.close();
+                }
+                
+                // Now restore the original password (since we're still logged in as admin in the main session)
+                if (result.passwordVerified) {
+                    console.log(`   🔄 Restoring original password for user ${testUsername}...`);
+                    
+                    // We should already be on the user detail page, but refresh to be sure
+                    await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+                    await page.waitForTimeout(2000);
+                    
+                    // Click password button again
+                    const restoreButtons = await page.$$('button');
+                    let passwordButtonFound = false;
+                    for (const btn of restoreButtons) {
+                        const btnText = await btn.textContent();
+                        if (btnText && (btnText.toLowerCase().includes('password') || btnText.toLowerCase().includes('reset'))) {
+                            await btn.click();
+                            await page.waitForTimeout(2000);
+                            passwordButtonFound = true;
+                            break;
+                        }
+                    }
+                    
+                    if (passwordButtonFound) {
+                        // Fill in a default password (we don't know the original, so use a standard test password)
+                        const defaultPassword = 'password123';
+                        const restorePasswordInputs = await page.$$('input[type="password"]');
+                        if (restorePasswordInputs.length > 0) {
+                            await restorePasswordInputs[0].fill(defaultPassword);
+                            if (restorePasswordInputs.length > 1) {
+                                await restorePasswordInputs[1].fill(defaultPassword);
+                            }
+                            console.log(`   ✏️  Filled default password to restore: ${defaultPassword}`);
+                            
+                            // Submit to restore
+                            const restoreSubmitButtons = await page.$$('button');
+                            for (const btn of restoreSubmitButtons) {
+                                const text = await btn.textContent();
+                                if (text && (text.toLowerCase().includes('save') || text.toLowerCase().includes('submit') || text.toLowerCase().includes('update'))) {
+                                    await btn.click();
+                                    await page.waitForTimeout(2000);
+                                    console.log(`   ✅ Password restored to default: ${defaultPassword}`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (submitted && !testUsername) {
+                result.message = 'Password reset form submitted but could not extract username for verification';
                 result.success = true;
-                console.log(`   ✅ ${result.message}`);
+                console.log(`   ⚠️  ${result.message}`);
             } else {
                 // If no submit button found, close the modal
                 console.log(`   ⚠️  Submit button not found, closing modal`);
