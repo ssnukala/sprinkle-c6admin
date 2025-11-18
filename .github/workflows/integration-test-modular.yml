@@ -217,6 +217,7 @@ jobs:
             --firstName=Admin \
             --lastName=User
           echo "✅ Admin user created successfully"
+          mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT * FROM \`users\` LIMIT 10;"
 
       - name: Validate seed data (Modular)
         run: |
