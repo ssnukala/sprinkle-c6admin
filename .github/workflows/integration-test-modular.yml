@@ -87,8 +87,37 @@ jobs:
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
           # Add C6Admin routes after the AdminRoutes section
           # Use awk to find the closing brace after title: 'ADMIN_PANEL' and add C6Admin routes
-          awk '/title: .ADMIN_PANEL./ {found=1} found && /^        },/ && !done {print; print "        // C6Admin routes with their own layout"; print "        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard }),"; done=1; next} {print}' app/assets/router/index.ts > app/assets/router/index.ts.tmp
-          mv app/assets/router/index.ts.tmp app/assets/router/index.ts
+          # The pattern looks for ADMIN_PANEL, then finds the next closing brace with matching indentation
+          awk '
+          /title: .ADMIN_PANEL./ { found=1 }
+          found && /^        },/ && !done {
+            print
+            print "        // C6Admin routes with their own layout"
+            print "        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard }),"
+            done=1
+            next
+          }
+          { print }
+          ' app/assets/router/index.ts > app/assets/router/index.ts.tmp
+          
+          # Verify the tmp file was created successfully
+          if [ ! -f app/assets/router/index.ts.tmp ]; then
+            echo "❌ Error: Failed to create router/index.ts.tmp"
+            exit 1
+          fi
+          
+          # Check if the C6Admin routes were added
+          if grep -q "createC6AdminRoutes" app/assets/router/index.ts.tmp; then
+            echo "✅ C6Admin routes added successfully"
+            mv app/assets/router/index.ts.tmp app/assets/router/index.ts
+          else
+            echo "⚠️  Warning: C6Admin routes may not have been added correctly"
+            echo "Attempting alternative method..."
+            # Alternative: Add at the end of the children array, before the closing bracket
+            sed -i '/^    \]/i\        // C6Admin routes with their own layout\n        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard }),' app/assets/router/index.ts
+            rm -f app/assets/router/index.ts.tmp
+          fi
+          
           echo "========================================="
           echo "Configured router/index.ts with C6Admin routes"
           echo "========================================="
@@ -259,12 +288,37 @@ jobs:
           cd userfrosting
           # Use npm update to fix any package issues
           npm update
+          
+          echo "========================================="
+          echo "Starting Vite development server"
+          echo "========================================="
+          
           # Start Vite server in background using bakery command (follows UF6 standards)
-          php bakery assets:vite &
+          # Redirect output to log file for debugging
+          php bakery assets:vite > /tmp/vite.log 2>&1 &
           VITE_PID=$!
           echo $VITE_PID > /tmp/vite.pid
+          echo "Vite server PID: $VITE_PID"
+          
+          # Wait for Vite to start
+          echo "Waiting for Vite server to initialize..."
           sleep 10
-          echo "✅ Vite server started"
+          
+          # Check if Vite process is still running
+          if ps -p $VITE_PID > /dev/null; then
+            echo "✅ Vite server process is running (PID: $VITE_PID)"
+          else
+            echo "❌ Vite server process died!"
+            echo "Vite log output:"
+            cat /tmp/vite.log || echo "No log file found"
+            exit 1
+          fi
+          
+          # Show first few lines of Vite output
+          echo ""
+          echo "Vite server output (first 20 lines):"
+          head -20 /tmp/vite.log || echo "No log output yet"
+          echo ""
 
           # Now verify both servers are working together
           echo "Verifying application is accessible with both servers running..."
@@ -274,6 +328,17 @@ jobs:
             echo "✅ Application is accessible"
           else
             echo "⚠️ Application returned HTTP $HTTP_CODE (may require authentication)"
+          fi
+          
+          # Test Vite server directly (typically runs on port 5173)
+          echo ""
+          echo "Testing Vite server directly..."
+          VITE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5173 2>&1 || echo "failed")
+          if [ "$VITE_RESPONSE" = "200" ] || [ "$VITE_RESPONSE" = "302" ]; then
+            echo "✅ Vite server responding on port 5173"
+          else
+            echo "⚠️ Vite server not responding on port 5173 (response: $VITE_RESPONSE)"
+            echo "This may be expected if Vite is integrated into PHP server"
           fi
 
       - name: Test API paths - Unauthenticated (Modular)
@@ -298,8 +363,18 @@ jobs:
           # Copy modular screenshot script
           cp ../sprinkle-c6admin/.github/scripts/take-screenshots-modular.js .
 
+          echo "========================================="
+          echo "Taking screenshots with enhanced debugging"
+          echo "========================================="
+          
           # Take screenshots using modular configuration (reads from integration-test-paths.json)
-          node take-screenshots-modular.js integration-test-paths.json
+          # Run with verbose output
+          node take-screenshots-modular.js integration-test-paths.json 2>&1 | tee /tmp/screenshot.log
+          
+          # Check exit code
+          SCREENSHOT_EXIT_CODE=${PIPESTATUS[0]}
+          echo ""
+          echo "Screenshot script exit code: $SCREENSHOT_EXIT_CODE"
 
           echo ""
           echo "========================================="
@@ -312,6 +387,20 @@ jobs:
           SCREENSHOT_COUNT=$(ls -1 /tmp/screenshot_*.png 2>/dev/null | wc -l)
           echo ""
           echo "Total screenshots captured: $SCREENSHOT_COUNT"
+          
+          # If screenshot script failed, show Vite logs
+          if [ $SCREENSHOT_EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "========================================="
+            echo "⚠️ Screenshot script failed - showing server logs"
+            echo "========================================="
+            echo ""
+            echo "Vite server log:"
+            tail -50 /tmp/vite.log || echo "No Vite log available"
+            echo ""
+            echo "PHP server may have output (checking running processes):"
+            ps aux | grep -E "(php|vite|node)" | grep -v grep || echo "No relevant processes found"
+          fi
 
       - name: Upload screenshots as artifacts
         if: always()

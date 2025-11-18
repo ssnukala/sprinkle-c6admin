@@ -80,27 +80,49 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
 
         // Step 1: Navigate to login page and authenticate
         console.log('📍 Navigating to login page...');
+        console.log(`   URL: ${baseUrl}/account/sign-in`);
+        
+        // Enable console logging from the page for debugging
+        page.on('console', msg => {
+            const type = msg.type();
+            if (type === 'error' || type === 'warning') {
+                console.log(`   [Browser ${type.toUpperCase()}]:`, msg.text());
+            }
+        });
+        
+        // Log page errors
+        page.on('pageerror', error => {
+            console.error(`   [Browser Error]:`, error.message);
+        });
+        
         await page.goto(`${baseUrl}/account/sign-in`, { waitUntil: 'networkidle', timeout: 30000 });
         console.log('✅ Login page loaded');
+        console.log(`   Current URL: ${page.url()}`);
 
         console.log('🔐 Logging in...');
         
         // Wait for the login form to be visible
+        console.log('   Waiting for username input field...');
         await page.waitForSelector('.uk-card input[data-test="username"]', { timeout: 10000 });
+        console.log('   ✅ Username field found');
         
         // Fill in credentials
+        console.log(`   Filling username: ${username}`);
         await page.fill('.uk-card input[data-test="username"]', username);
+        console.log('   Filling password: ********');
         await page.fill('.uk-card input[data-test="password"]', password);
         
         // Click the login button and wait for navigation
+        console.log('   Clicking login button...');
         await Promise.all([
             page.waitForNavigation({ timeout: 15000 }).catch(() => {
-                console.log('⚠️  No navigation detected after login, but continuing...');
+                console.log('   ⚠️  No navigation detected after login, but continuing...');
             }),
             page.click('.uk-card button[data-test="submit"]')
         ]);
         
         console.log('✅ Logged in successfully');
+        console.log(`   Current URL after login: ${page.url()}`);
         
         // Give session a moment to stabilize
         await page.waitForTimeout(2000);
@@ -116,18 +138,32 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
             console.log(`   Description: ${screenshot.description}`);
 
             try {
+                console.log(`   Navigating to: ${baseUrl}${screenshot.path}`);
                 await page.goto(`${baseUrl}${screenshot.path}`, { waitUntil: 'networkidle', timeout: 30000 });
                 
                 // Wait for page content to load
+                console.log('   Waiting for page to stabilize...');
                 await page.waitForTimeout(2000);
                 
                 // Check if we're still on login page (would indicate auth failure)
                 const currentUrl = page.url();
+                console.log(`   Current URL: ${currentUrl}`);
+                
                 if (currentUrl.includes('/account/sign-in')) {
                     console.warn(`   ⚠️  Warning: Still on login page - authentication may have failed`);
+                    console.warn(`   Expected path: ${screenshot.path}`);
+                    console.warn(`   Actual URL: ${currentUrl}`);
+                    
+                    // Take a debug screenshot
+                    const debugPath = `/tmp/screenshot_${screenshot.screenshot_name}_debug.png`;
+                    await page.screenshot({ 
+                        path: debugPath, 
+                        fullPage: true 
+                    });
+                    console.warn(`   📸 Debug screenshot saved: ${debugPath}`);
                     failCount++;
                 } else {
-                    console.log(`   ✅ Page loaded: ${currentUrl}`);
+                    console.log(`   ✅ Page loaded successfully`);
                     
                     const screenshotPath = `/tmp/screenshot_${screenshot.screenshot_name}.png`;
                     await page.screenshot({ 
@@ -139,6 +175,17 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
                 }
             } catch (error) {
                 console.error(`   ❌ Failed: ${error.message}`);
+                console.error(`   Stack: ${error.stack}`);
+                
+                // Try to get page content for debugging
+                try {
+                    const pageContent = await page.content();
+                    console.error(`   Page title: ${await page.title()}`);
+                    console.error(`   Page URL: ${page.url()}`);
+                } catch (e) {
+                    console.error(`   Could not retrieve page details: ${e.message}`);
+                }
+                
                 failCount++;
             }
         }
