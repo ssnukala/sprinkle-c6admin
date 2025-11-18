@@ -70,9 +70,9 @@ jobs:
           # Configure MyApp.php to add CRUD6 and C6Admin sprinkles
           # IMPORTANT: CRUD6 must come before C6Admin (dependency order)
           # Add CRUD6 and C6Admin imports
-          sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\CRUD6\\CRUD6;\nuse UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
+          sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
           # Add CRUD6::class and C6Admin::class after Admin::class in getSprinkles() array
-          sed -i '/Admin::class,/a \            CRUD6::class,\n            C6Admin::class,' app/src/MyApp.php
+          sed -i '/Admin::class,/a \             C6Admin::class,' app/src/MyApp.php
           echo "========================================="
           echo "Configured MyApp.php with CRUD6 and C6Admin"
           echo "========================================="
@@ -98,10 +98,10 @@ jobs:
         run: |
           cd userfrosting
           # Configure app/assets/main.ts to include CRUD6 and C6Admin sprinkles (in correct order)
-          # Add imports: CRUD6Sprinkle and C6AdminSprinkle
-          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import CRUD6Sprinkle from '@ssnukala\/sprinkle-crud6'\nimport C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
+          # Add imports: C6AdminSprinkle
+          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
           # Add sprinkle registration (CRUD6 must come before C6Admin)
-          sed -i '/app\.use(AdminSprinkle)/a app.use(CRUD6Sprinkle)\napp.use(C6AdminSprinkle)' app/assets/main.ts
+          sed -i '/app\.use(AdminSprinkle)/a app.use(C6AdminSprinkle)' app/assets/main.ts
           echo "========================================="
           echo "Configured main.ts with CRUD6 and C6Admin"
           echo "========================================="
