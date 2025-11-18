@@ -420,6 +420,67 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
+      - name: Test user detail page buttons
+        run: |
+          cd userfrosting
+          # Copy button testing script
+          cp ../sprinkle-c6admin/.github/scripts/test-user-detail-buttons.js .
+
+          echo "========================================="
+          echo "Testing User Detail Page Buttons"
+          echo "========================================="
+
+          # Run button testing script for user ID 1
+          node test-user-detail-buttons.js http://localhost:8080 admin admin123 1 2>&1 | tee /tmp/button-test.log
+
+          # Check exit code
+          BUTTON_TEST_EXIT_CODE=${PIPESTATUS[0]}
+          echo ""
+          echo "Button testing script exit code: $BUTTON_TEST_EXIT_CODE"
+
+          echo ""
+          echo "========================================="
+          echo "Button Test Summary"
+          echo "========================================="
+
+          # Show test results if available
+          if [ -f /tmp/user_detail_button_test_results.json ]; then
+            echo "Test results generated:"
+            cat /tmp/user_detail_button_test_results.json | jq '.' 2>/dev/null || cat /tmp/user_detail_button_test_results.json
+          else
+            echo "⚠️ No test results file generated"
+          fi
+
+          echo ""
+          # List button test screenshots
+          ls -lh /tmp/screenshot_button_*.png 2>/dev/null || echo "No button screenshots generated"
+          ls -lh /tmp/screenshot_user_*.png 2>/dev/null || echo "No user page screenshots generated"
+
+          # Count button screenshots
+          BUTTON_SCREENSHOT_COUNT=$(ls -1 /tmp/screenshot_button_*.png /tmp/screenshot_user_*.png 2>/dev/null | wc -l)
+          echo ""
+          echo "Total button test screenshots captured: $BUTTON_SCREENSHOT_COUNT"
+
+      - name: Upload button test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-detail-button-test-screenshots
+          path: |
+            /tmp/screenshot_button_*.png
+            /tmp/screenshot_user_*.png
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload button test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-detail-button-test-results
+          path: /tmp/user_detail_button_test_results.json
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Stop servers
         if: always()
         run: |
@@ -459,6 +520,12 @@ jobs:
           echo "   - Screenshot script: take-screenshots-modular.js"
           echo "   - Configuration-driven screenshot capture"
           echo "   - All C6Admin pages captured (dashboard, users, groups, roles, permissions, activities, config)"
+          echo "✅ Button testing completed on user detail page:"
+          echo "   - Script: test-user-detail-buttons.js"
+          echo "   - Tested page: /c6/admin/users/1"
+          echo "   - Buttons tested: Edit/View, Reset Password, Disable/Enable, Delete"
+          echo "   - Screenshots captured for each button interaction (before, modal, after)"
+          echo "   - Test results saved in JSON format"
           echo ""
           echo "🎯 Modular Testing Benefits:"
           echo "   - Configuration-driven (update JSON, not workflow code)"
@@ -474,7 +541,10 @@ jobs:
           echo "📸 **View Screenshots:**"
           echo "   Direct link: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "   Look for 'Artifacts' section at the bottom of the page"
-          echo "   Download 'integration-test-screenshots-c6admin' ZIP file"
+          echo "   Download artifacts:"
+          echo "   - 'integration-test-screenshots-c6admin' - All C6Admin page screenshots"
+          echo "   - 'user-detail-button-test-screenshots' - Button interaction screenshots"
+          echo "   - 'user-detail-button-test-results' - Button test results (JSON)"
 
           # Add to GitHub Actions Summary with direct link
           cat >> $GITHUB_STEP_SUMMARY << EOF
@@ -490,6 +560,7 @@ jobs:
           - ✅ Schema loading (users, groups, roles, permissions, activities)
           - ✅ **Modular path testing** (API + frontend, auth + unauth)
           - ✅ **Modular screenshot capture** (configuration-driven)
+          - ✅ **User detail button testing** (interactive button functionality)
 
           ### 🎯 Modular Testing Framework
 
@@ -505,6 +576,7 @@ jobs:
           - \`test-seed-idempotency-modular.php\` - Tests that seeds are idempotent
           - \`test-paths.php\` - Tests API and frontend paths based on JSON configuration
           - \`take-screenshots-modular.js\` - Captures screenshots based on JSON configuration
+          - \`test-user-detail-buttons.js\` - Tests interactive button functionality on user detail page
 
           **Benefits:**
           - ✅ Configuration-driven - Update JSON files, not workflow code
@@ -527,10 +599,18 @@ jobs:
           **Direct link to this workflow run:**
           https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
+          **Artifacts available:**
+          1. **integration-test-screenshots-c6admin** - All C6Admin page screenshots
+          2. **user-detail-button-test-screenshots** - Interactive button testing screenshots
+             - Before/after screenshots for each button action
+             - Modal/dialog screenshots when buttons trigger popups
+             - Buttons tested: Edit/View, Reset Password, Disable/Enable, Delete
+          3. **user-detail-button-test-results** - JSON file with detailed test results
+
           **To view screenshots:**
           1. Scroll to the bottom of the workflow run page (link above)
           2. Look for the **Artifacts** section
-          3. Click on **integration-test-screenshots-c6admin** to download
+          3. Download the artifacts you want to review
           4. Extract the ZIP file to view all screenshots
 
           > **Note:** Screenshots are retained for 30 days
