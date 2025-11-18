@@ -82,22 +82,14 @@ jobs:
         run: |
           cd userfrosting
           # Configure app/assets/router/index.ts to include C6Admin routes
-          # Import createC6AdminRoutes function and LayoutDashboard component
+          # Import createC6AdminRoutes function
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import LayoutDashboard from '@userfrosting\/theme-pink-cupcake\/layouts\/LayoutDashboard.vue'" app/assets/router/index.ts
 
-          # Add C6Admin routes before the last ] in the file
-          # Use tac to reverse file, insert after first ], then reverse back
-          tac app/assets/router/index.ts | \
-          awk 'NR==1 && /^\]$/ {
-            print
-            print "        ...createC6AdminRoutes({ layoutComponent: LayoutDashboard })"
-            print "        // C6Admin routes with their own layout"
-            print "        ,"
-            next
-          } {print}' | \
-          tac > app/assets/router/index.ts.tmp && \
-          mv app/assets/router/index.ts.tmp app/assets/router/index.ts
+          # Add C6Admin routes before the closing ] of the routes array
+          # Find the last ] with 4 spaces indentation (routes array closing bracket)
+          # Use sed to insert before it with proper formatting
+          sed -i '/^    \]$/i\        ,\n        // C6Admin routes with their own layout\n        ...createC6AdminRoutes({ layoutComponent: () => import("../layouts/LayoutDashboard.vue") })' app/assets/router/index.ts
+          
           echo "========================================="
           echo "Configured router/index.ts with C6Admin routes"
           echo "========================================="
