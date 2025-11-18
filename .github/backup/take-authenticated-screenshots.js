@@ -7,6 +7,12 @@
  * 1. Navigate to the login page
  * 2. Log in with admin credentials
  * 3. Take screenshots of C6Admin pages
+ * 4. Test button functionality on the user detail page (/c6/admin/users/1)
+ *    - Edit/View button
+ *    - Reset Password button
+ *    - Disable/Enable button
+ *    - Delete button
+ * 5. Take before/after screenshots of button interactions
  * 
  * Usage: node take-authenticated-screenshots.js <base_url> <username> <password>
  * Example: node take-authenticated-screenshots.js http://localhost:8080 admin admin123
@@ -148,6 +154,139 @@ async function takeAuthenticatedScreenshots(baseUrl, username, password) {
             fullPage: true 
         });
         console.log(`✅ Screenshot saved: ${userDetailScreenshotPath}`);
+
+        // Step 5a: Test buttons on user detail page
+        console.log('');
+        console.log('🧪 Testing buttons on user detail page: /c6/admin/users/1');
+        
+        // Discover all buttons on the page
+        const buttons = await page.$$('button');
+        console.log(`   Found ${buttons.length} button elements`);
+        
+        // Collect visible button information
+        const buttonInfo = [];
+        for (let i = 0; i < buttons.length; i++) {
+            const button = buttons[i];
+            const info = await button.evaluate(el => ({
+                text: el.textContent?.trim() || '',
+                id: el.id || null,
+                class: el.className || '',
+                'data-test': el.getAttribute('data-test') || null,
+                disabled: el.disabled,
+                visible: !el.hidden && el.offsetParent !== null
+            }));
+            
+            if (info.visible && info.text) {
+                buttonInfo.push({ index: i, ...info });
+                console.log(`   Button ${i + 1}: "${info.text}"`);
+            }
+        }
+        
+        // Test specific action buttons
+        const actionButtons = [
+            { keywords: ['edit', 'view'], name: 'Edit/View' },
+            { keywords: ['password', 'reset'], name: 'Password Reset' },
+            { keywords: ['disable', 'enable'], name: 'Disable/Enable' },
+            { keywords: ['delete', 'remove'], name: 'Delete' }
+        ];
+        
+        for (const action of actionButtons) {
+            const button = buttonInfo.find(b => 
+                action.keywords.some(keyword => b.text.toLowerCase().includes(keyword))
+            );
+            
+            if (button) {
+                console.log('');
+                console.log(`   🔘 Testing ${action.name} button: "${button.text}"`);
+                
+                // Take screenshot before clicking
+                const beforeScreenshot = `/tmp/screenshot_user_detail_${action.name.replace(/[^a-z0-9]/gi, '_')}_before.png`;
+                await page.screenshot({ 
+                    path: beforeScreenshot, 
+                    fullPage: true 
+                });
+                console.log(`      📸 Before: ${beforeScreenshot}`);
+                
+                try {
+                    // Get fresh button reference and click
+                    const freshButtons = await page.$$('button');
+                    const targetButton = freshButtons[button.index];
+                    
+                    if (targetButton) {
+                        await targetButton.click();
+                        await page.waitForTimeout(2000);
+                        
+                        // Check for modals or dialogs
+                        const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
+                        if (modals.length > 0) {
+                            console.log(`      ✅ Modal/dialog appeared after clicking`);
+                            
+                            // Take screenshot of modal
+                            const modalScreenshot = `/tmp/screenshot_user_detail_${action.name.replace(/[^a-z0-9]/gi, '_')}_modal.png`;
+                            await page.screenshot({ 
+                                path: modalScreenshot, 
+                                fullPage: true 
+                            });
+                            console.log(`      📸 Modal: ${modalScreenshot}`);
+                            
+                            // Close the modal if it's not a delete action
+                            if (!action.keywords.includes('delete')) {
+                                const cancelButtons = await page.$$('button');
+                                for (const btn of cancelButtons) {
+                                    const text = await btn.textContent();
+                                    if (text && (text.toLowerCase().includes('cancel') || text.toLowerCase().includes('close'))) {
+                                        await btn.click();
+                                        await page.waitForTimeout(1000);
+                                        break;
+                                    }
+                                }
+                            } else {
+                                // For delete, cancel to preserve test data
+                                console.log(`      ⚠️  Cancelling delete action to preserve test data`);
+                                const cancelButtons = await page.$$('button');
+                                for (const btn of cancelButtons) {
+                                    const text = await btn.textContent();
+                                    if (text && text.toLowerCase().includes('cancel')) {
+                                        await btn.click();
+                                        await page.waitForTimeout(1000);
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            // Check if URL changed
+                            const newUrl = page.url();
+                            if (!newUrl.includes('/users/1')) {
+                                console.log(`      ✅ Navigated to: ${newUrl}`);
+                                // Navigate back
+                                await page.goto(`${baseUrl}/c6/admin/users/1`, { waitUntil: 'networkidle', timeout: 30000 });
+                                await page.waitForTimeout(2000);
+                            } else {
+                                console.log(`      ✅ Button clicked, page updated`);
+                            }
+                        }
+                        
+                        // Take screenshot after action
+                        const afterScreenshot = `/tmp/screenshot_user_detail_${action.name.replace(/[^a-z0-9]/gi, '_')}_after.png`;
+                        await page.screenshot({ 
+                            path: afterScreenshot, 
+                            fullPage: true 
+                        });
+                        console.log(`      📸 After: ${afterScreenshot}`);
+                        
+                    } else {
+                        console.log(`      ❌ Button not found at index ${button.index}`);
+                    }
+                } catch (error) {
+                    console.log(`      ❌ Error testing button: ${error.message}`);
+                }
+            } else {
+                console.log(`   ⚠️  ${action.name} button not found`);
+            }
+        }
+        
+        console.log('');
+        console.log('✅ Button testing completed on user detail page');
 
         // Step 6: Take screenshot of groups list page
         console.log('');
