@@ -146,7 +146,9 @@ Access admin pages at these routes:
 
 ### Frontend Integration
 
-C6Admin provides flexible route configuration options for integration into your UserFrosting 6 application:
+C6Admin provides flexible route configuration options for integration into your UserFrosting 6 application.
+
+**Note**: C6Admin automatically includes CRUD6 routes, as C6Admin uses CRUD6 components that depend on these routes for navigation. You do not need to import or register CRUD6 routes separately.
 
 #### Option 1: Using createC6AdminRoutes() (Recommended)
 
@@ -156,6 +158,8 @@ import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'
 // In your router configuration (e.g., app/assets/router/index.ts)
 const routes = [
   // ... other routes
+  
+  // C6Admin routes (includes CRUD6 routes automatically)
   ...createC6AdminRoutes({
     layoutComponent: () => import('../layouts/LayoutDashboard.vue')
   })
@@ -165,11 +169,15 @@ const routes = [
 You can also customize the base path and title:
 
 ```typescript
-...createC6AdminRoutes({
-  layoutComponent: () => import('../layouts/LayoutDashboard.vue'),
-  basePath: '/admin/c6',  // Custom base path
-  title: 'Admin Panel'    // Custom meta title
-})
+import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'
+
+const routes = [
+  ...createC6AdminRoutes({
+    layoutComponent: () => import('../layouts/LayoutDashboard.vue'),
+    basePath: '/admin/c6',  // Custom base path
+    title: 'Admin Panel'    // Custom meta title
+  })
+]
 ```
 
 #### Option 2: Using C6AdminChildRoutes
@@ -180,6 +188,7 @@ If you prefer full control over the parent route configuration:
 import { C6AdminChildRoutes } from '@ssnukala/sprinkle-c6admin/routes'
 
 const routes = [
+  // C6Admin routes with custom parent configuration (includes CRUD6 routes)
   {
     path: '/c6/admin',
     component: () => import('../layouts/LayoutDashboard.vue'),
@@ -204,6 +213,10 @@ const routes = [
 ```
 
 If you use this option, the dashboard and other pages will render but **without the left sidebar navigation**. Use `createC6AdminRoutes()` with a `layoutComponent` instead.
+
+**CRUD6 Routes Included Automatically:**
+
+As of C6Admin v1.0.0, CRUD6 routes are automatically included when you import C6Admin routes. C6Admin uses CRUD6's generic components (`CRUD6ListPage`, `CRUD6DynamicPage`, `SprunjeTable`) which create `RouterLink` elements to routes like `crud6.view` and `crud6.list`. The CRUD6 routes are now bundled within C6AdminChildRoutes, so you don't need to import or register them separately.
 
 #### Sidebar Menu Integration
 

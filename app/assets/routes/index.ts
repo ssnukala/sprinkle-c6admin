@@ -5,6 +5,7 @@ import AdminGroupsRoutes from './GroupsRoutes'
 import AdminPermissionsRoutes from './PermissionsRoutes'
 import AdminRolesRoutes from './RolesRoutes'
 import AdminUsersRoutes from './UserRoutes'
+import CRUD6Routes from '@ssnukala/sprinkle-crud6/routes'
 import type { RouteRecordRaw, Component } from 'vue-router'
 
 /**
@@ -19,7 +20,9 @@ export const C6AdminChildRoutes: RouteRecordRaw[] = [
     ...AdminPermissionsRoutes,
     ...AdminRolesRoutes,
     ...AdminUsersRoutes,
-    ...AdminConfigRoutes
+    ...AdminConfigRoutes,
+    ...CRUD6Routes,
+    
 ]
 
 /**
@@ -167,5 +170,6 @@ export {
     AdminPermissionsRoutes,
     AdminRolesRoutes,
     AdminUsersRoutes,
-    AdminConfigRoutes
+    AdminConfigRoutes,
+    CRUD6Routes    
 }
