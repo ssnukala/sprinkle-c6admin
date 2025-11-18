@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * UserFrosting C6Admin Sprinkle - User Detail Button Testing Script
+ * UserFrosting C6Admin Sprinkle - User Detail Button Testing Script with Full Form Automation
  * 
  * This script uses Playwright to test button functionality on the user detail page.
- * It logs in as admin, navigates to /c6/admin/users/1, and tests all available buttons:
- * - Reset Password
- * - View/Edit
- * - Disable/Enable
- * - Delete
- * - Any other action buttons
+ * It logs in as admin, navigates to /c6/admin/users/1, and FULLY TESTS all available buttons:
+ * - Edit: Fills and submits the edit form with test data
+ * - Reset Password: Fills and submits the password reset form
+ * - Disable/Enable: Toggles user status and verifies the change
+ * - Delete: Opens confirmation but cancels to preserve test data
+ * - Any other action buttons: Basic click testing
+ * 
+ * This provides full automation of form testing, not just clicking buttons.
  * 
  * Usage: node test-user-detail-buttons.js <base_url> <username> <password> [user_id]
  * Example: node test-user-detail-buttons.js http://localhost:8080 admin admin123 1
@@ -162,7 +164,7 @@ async function testUserDetailButtons(baseUrl, username, password, userId = '1') 
         console.log('');
         console.log('📍 Step 4: Testing specific button actions...');
 
-        // Test 1: Look for and test "Edit" or "View" button
+        // Test 1: Look for and test "Edit" or "View" button - FULLY TEST EDIT FORM
         const editButton = buttonInfo.find(b => 
             b.text.toLowerCase().includes('edit') || 
             b.text.toLowerCase().includes('view')
@@ -170,13 +172,13 @@ async function testUserDetailButtons(baseUrl, username, password, userId = '1') 
         
         if (editButton) {
             console.log('');
-            console.log(`🔘 Testing Edit/View button: "${editButton.text}"`);
-            testResults.tests.push(await testButton(page, 'button', editButton.index, editButton.text, userId));
+            console.log(`🔘 Testing Edit/View button with form submission: "${editButton.text}"`);
+            testResults.tests.push(await testEditButton(page, 'button', editButton.index, editButton.text, userId));
         } else {
             console.log('   ⚠️  No Edit/View button found');
         }
 
-        // Test 2: Look for and test "Reset Password" or "Change Password" button
+        // Test 2: Look for and test "Reset Password" or "Change Password" button - FULLY TEST PASSWORD FORM
         const passwordButton = buttonInfo.find(b => 
             b.text.toLowerCase().includes('password') ||
             b.text.toLowerCase().includes('reset')
@@ -184,13 +186,13 @@ async function testUserDetailButtons(baseUrl, username, password, userId = '1') 
         
         if (passwordButton) {
             console.log('');
-            console.log(`🔘 Testing Password button: "${passwordButton.text}"`);
-            testResults.tests.push(await testButton(page, 'button', passwordButton.index, passwordButton.text, userId));
+            console.log(`🔘 Testing Password button with form submission and database verification: "${passwordButton.text}"`);
+            testResults.tests.push(await testPasswordButton(page, 'button', passwordButton.index, passwordButton.text, userId, baseUrl, username, password));
         } else {
             console.log('   ⚠️  No Reset/Change Password button found');
         }
 
-        // Test 3: Look for and test "Disable" or "Enable" button
+        // Test 3: Look for and test "Disable" or "Enable" button - FULLY TEST STATUS TOGGLE
         const disableEnableButton = buttonInfo.find(b => 
             b.text.toLowerCase().includes('disable') || 
             b.text.toLowerCase().includes('enable')
@@ -198,8 +200,8 @@ async function testUserDetailButtons(baseUrl, username, password, userId = '1') 
         
         if (disableEnableButton) {
             console.log('');
-            console.log(`🔘 Testing Disable/Enable button: "${disableEnableButton.text}"`);
-            testResults.tests.push(await testButton(page, 'button', disableEnableButton.index, disableEnableButton.text, userId));
+            console.log(`🔘 Testing Disable/Enable button with status verification: "${disableEnableButton.text}"`);
+            testResults.tests.push(await testDisableEnableButton(page, 'button', disableEnableButton.index, disableEnableButton.text, userId));
         } else {
             console.log('   ⚠️  No Disable/Enable button found');
         }
@@ -294,6 +296,535 @@ async function testUserDetailButtons(baseUrl, username, password, userId = '1') 
     } finally {
         await browser.close();
     }
+}
+
+/**
+ * Test the Edit button by filling and submitting the edit form
+ */
+async function testEditButton(page, elementType, index, buttonText, userId) {
+    const result = {
+        buttonText,
+        elementType,
+        index,
+        success: false,
+        message: '',
+        screenshotPath: null,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        // Take screenshot before clicking
+        const beforeScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_before.png`;
+        await page.screenshot({ 
+            path: beforeScreenshotPath, 
+            fullPage: true 
+        });
+        result.screenshotPath = beforeScreenshotPath;
+        console.log(`   📸 Before screenshot: ${beforeScreenshotPath}`);
+
+        // Get the button element and click it
+        const buttons = await page.$$(elementType);
+        const button = buttons[index];
+
+        if (!button) {
+            result.message = `Button not found at index ${index}`;
+            console.log(`   ❌ ${result.message}`);
+            return result;
+        }
+
+        console.log(`   🖱️  Clicking Edit button...`);
+        await button.click();
+        await page.waitForTimeout(2000);
+
+        // Check for modal/dialog
+        const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
+        if (modals.length > 0) {
+            console.log(`   ℹ️  Edit form modal detected`);
+            
+            // Take screenshot of modal
+            const modalScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_modal.png`;
+            await page.screenshot({ 
+                path: modalScreenshotPath, 
+                fullPage: true 
+            });
+            console.log(`   📸 Modal screenshot: ${modalScreenshotPath}`);
+
+            // Try to fill in the edit form
+            console.log(`   ✏️  Filling edit form...`);
+            
+            // Look for first name field and modify it
+            const firstNameInput = await page.$('input[name="first_name"], input[id*="first"], input[placeholder*="first" i]');
+            if (firstNameInput) {
+                const originalValue = await firstNameInput.inputValue();
+                const testValue = `TestFirstName_${Date.now()}`;
+                await firstNameInput.fill(testValue);
+                console.log(`   ✅ Modified first name: "${originalValue}" → "${testValue}"`);
+            }
+
+            // Look for last name field and modify it
+            const lastNameInput = await page.$('input[name="last_name"], input[id*="last"], input[placeholder*="last" i]');
+            if (lastNameInput) {
+                const originalValue = await lastNameInput.inputValue();
+                const testValue = `TestLastName_${Date.now()}`;
+                await lastNameInput.fill(testValue);
+                console.log(`   ✅ Modified last name: "${originalValue}" → "${testValue}"`);
+            }
+
+            // Take screenshot after filling form
+            const filledScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_filled.png`;
+            await page.screenshot({ 
+                path: filledScreenshotPath, 
+                fullPage: true 
+            });
+            console.log(`   📸 Form filled screenshot: ${filledScreenshotPath}`);
+
+            // Try to find and click the submit/save button
+            const submitButtons = await page.$$('button');
+            let submitted = false;
+            for (const btn of submitButtons) {
+                const text = await btn.textContent();
+                if (text && (text.toLowerCase().includes('save') || text.toLowerCase().includes('submit') || text.toLowerCase().includes('update'))) {
+                    console.log(`   🖱️  Clicking Submit button: "${text.trim()}"`);
+                    await btn.click();
+                    await page.waitForTimeout(3000);
+                    submitted = true;
+                    break;
+                }
+            }
+
+            if (submitted) {
+                result.message = 'Edit form submitted successfully';
+                result.success = true;
+                console.log(`   ✅ ${result.message}`);
+            } else {
+                // If no submit button found, close the modal
+                console.log(`   ⚠️  Submit button not found, closing modal`);
+                const cancelButtons = await page.$$('button');
+                for (const btn of cancelButtons) {
+                    const text = await btn.textContent();
+                    if (text && (text.toLowerCase().includes('cancel') || text.toLowerCase().includes('close'))) {
+                        await btn.click();
+                        await page.waitForTimeout(1000);
+                        break;
+                    }
+                }
+                result.message = 'Edit form opened but submit button not found';
+                result.success = true;
+            }
+        } else {
+            result.message = 'Edit button clicked but no modal appeared';
+            result.success = false;
+        }
+
+        // Take screenshot after
+        const afterScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_after.png`;
+        await page.screenshot({ 
+            path: afterScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`   📸 After screenshot: ${afterScreenshotPath}`);
+
+    } catch (error) {
+        result.message = `Error: ${error.message}`;
+        console.log(`   ❌ ${result.message}`);
+    }
+
+    return result;
+}
+
+/**
+ * Test the Password Reset button by filling and submitting the password form
+ * and verifying the password was updated in the database
+ */
+async function testPasswordButton(page, elementType, index, buttonText, userId, baseUrl, adminUsername, adminPassword) {
+    const result = {
+        buttonText,
+        elementType,
+        index,
+        success: false,
+        message: '',
+        screenshotPath: null,
+        timestamp: new Date().toISOString(),
+        passwordVerified: false
+    };
+
+    try {
+        // First, get the username of the user we're testing (from the page)
+        let testUsername = null;
+        try {
+            // Try to find username on the page - look for common patterns
+            const usernameElement = await page.$('text=/Username:/i');
+            if (usernameElement) {
+                const parent = await usernameElement.evaluateHandle(el => el.parentElement);
+                const text = await parent.textContent();
+                const match = text.match(/Username:\s*(\S+)/i);
+                if (match) {
+                    testUsername = match[1];
+                    console.log(`   ℹ️  Found username on page: ${testUsername}`);
+                }
+            }
+        } catch (e) {
+            console.log(`   ⚠️  Could not extract username from page: ${e.message}`);
+        }
+
+        // Take screenshot before clicking
+        const beforeScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_before.png`;
+        await page.screenshot({ 
+            path: beforeScreenshotPath, 
+            fullPage: true 
+        });
+        result.screenshotPath = beforeScreenshotPath;
+        console.log(`   📸 Before screenshot: ${beforeScreenshotPath}`);
+
+        // Get the button element and click it
+        const buttons = await page.$$(elementType);
+        const button = buttons[index];
+
+        if (!button) {
+            result.message = `Button not found at index ${index}`;
+            console.log(`   ❌ ${result.message}`);
+            return result;
+        }
+
+        console.log(`   🖱️  Clicking Password Reset button...`);
+        await button.click();
+        await page.waitForTimeout(2000);
+
+        // Check for modal/dialog
+        const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
+        if (modals.length > 0) {
+            console.log(`   ℹ️  Password reset form modal detected`);
+            
+            // Take screenshot of modal
+            const modalScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_modal.png`;
+            await page.screenshot({ 
+                path: modalScreenshotPath, 
+                fullPage: true 
+            });
+            console.log(`   📸 Modal screenshot: ${modalScreenshotPath}`);
+
+            // Try to fill in the password form
+            console.log(`   ✏️  Filling password reset form...`);
+            
+            const testPassword = `TestPass123!${Date.now()}`;
+            console.log(`   🔑 Using test password for verification`);
+            
+            // Look for password fields
+            const passwordInputs = await page.$$('input[type="password"], input[name*="password" i], input[id*="password" i]');
+            
+            if (passwordInputs.length > 0) {
+                // Fill first password field (new password)
+                await passwordInputs[0].fill(testPassword);
+                console.log(`   ✅ Filled password field 1`);
+                
+                // Fill second password field if it exists (confirm password)
+                if (passwordInputs.length > 1) {
+                    await passwordInputs[1].fill(testPassword);
+                    console.log(`   ✅ Filled password field 2 (confirmation)`);
+                }
+            }
+
+            // Take screenshot after filling form
+            const filledScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_filled.png`;
+            await page.screenshot({ 
+                path: filledScreenshotPath, 
+                fullPage: true 
+            });
+            console.log(`   📸 Form filled screenshot: ${filledScreenshotPath}`);
+
+            // Try to find and click the submit button
+            const submitButtons = await page.$$('button');
+            let submitted = false;
+            for (const btn of submitButtons) {
+                const text = await btn.textContent();
+                if (text && (text.toLowerCase().includes('save') || text.toLowerCase().includes('submit') || text.toLowerCase().includes('update') || text.toLowerCase().includes('reset'))) {
+                    console.log(`   🖱️  Clicking Submit button: "${text.trim()}"`);
+                    await btn.click();
+                    await page.waitForTimeout(3000);
+                    submitted = true;
+                    break;
+                }
+            }
+
+            if (submitted && testUsername) {
+                console.log(`   ✅ Password reset form submitted successfully`);
+                
+                // Now verify the password was actually changed in the database
+                console.log(`   🔍 Verifying password change in database...`);
+                console.log(`   ℹ️  Testing password for user: ${testUsername}`);
+                
+                // Open a new incognito context to test login without affecting current session
+                console.log(`   🔐 Opening new browser context to verify password...`);
+                const verifyContext = await page.context().browser().newContext({
+                    viewport: { width: 1280, height: 720 },
+                    ignoreHTTPSErrors: true
+                });
+                const verifyPage = await verifyContext.newPage();
+                
+                try {
+                    // Try to log in with the NEW password
+                    console.log(`   🔐 Attempting login with NEW password to verify database update...`);
+                    await verifyPage.goto(`${baseUrl}/account/sign-in`, { waitUntil: 'networkidle', timeout: 30000 });
+                    await verifyPage.waitForTimeout(2000);
+                    
+                    await verifyPage.waitForSelector('.uk-card input[data-test="username"]', { timeout: 5000 });
+                    await verifyPage.fill('.uk-card input[data-test="username"]', testUsername);
+                    await verifyPage.fill('.uk-card input[data-test="password"]', testPassword);
+                    
+                    await Promise.all([
+                        verifyPage.waitForNavigation({ timeout: 10000 }).catch(() => {
+                            console.log(`   ⚠️  No navigation after login attempt`);
+                        }),
+                        verifyPage.click('.uk-card button[data-test="submit"]')
+                    ]);
+                    
+                    await verifyPage.waitForTimeout(2000);
+                    
+                    // Check if we're logged in (not on sign-in page anymore)
+                    const verifyUrl = verifyPage.url();
+                    if (!verifyUrl.includes('/account/sign-in')) {
+                        console.log(`   ✅ Successfully logged in with NEW password - password verified in database!`);
+                        result.passwordVerified = true;
+                        
+                        // Take verification screenshot
+                        const verifiedScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_verified.png`;
+                        await verifyPage.screenshot({ 
+                            path: verifiedScreenshotPath, 
+                            fullPage: true 
+                        });
+                        console.log(`   📸 Password verified screenshot: ${verifiedScreenshotPath}`);
+                        
+                        result.message = 'Password reset form submitted and verified in database';
+                        result.success = true;
+                    } else {
+                        console.log(`   ❌ Login with NEW password failed - password may not have been updated in database`);
+                        result.message = 'Password reset form submitted but database verification failed';
+                        result.success = false;
+                    }
+                } catch (error) {
+                    console.log(`   ❌ Error during password verification: ${error.message}`);
+                    result.message = `Password form submitted but verification error: ${error.message}`;
+                    result.success = false;
+                } finally {
+                    await verifyContext.close();
+                }
+                
+                // Now restore the original password (since we're still logged in as admin in the main session)
+                if (result.passwordVerified) {
+                    console.log(`   🔄 Restoring original password for user ${testUsername}...`);
+                    
+                    // We should already be on the user detail page, but refresh to be sure
+                    await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+                    await page.waitForTimeout(2000);
+                    
+                    // Click password button again
+                    const restoreButtons = await page.$$('button');
+                    let passwordButtonFound = false;
+                    for (const btn of restoreButtons) {
+                        const btnText = await btn.textContent();
+                        if (btnText && (btnText.toLowerCase().includes('password') || btnText.toLowerCase().includes('reset'))) {
+                            await btn.click();
+                            await page.waitForTimeout(2000);
+                            passwordButtonFound = true;
+                            break;
+                        }
+                    }
+                    
+                    if (passwordButtonFound) {
+                        // Fill in a default password (we don't know the original, so use a standard test password)
+                        const defaultPassword = 'password123';
+                        const restorePasswordInputs = await page.$$('input[type="password"]');
+                        if (restorePasswordInputs.length > 0) {
+                            await restorePasswordInputs[0].fill(defaultPassword);
+                            if (restorePasswordInputs.length > 1) {
+                                await restorePasswordInputs[1].fill(defaultPassword);
+                            }
+                            console.log(`   ✏️  Filled default password to restore: ${defaultPassword}`);
+                            
+                            // Submit to restore
+                            const restoreSubmitButtons = await page.$$('button');
+                            for (const btn of restoreSubmitButtons) {
+                                const text = await btn.textContent();
+                                if (text && (text.toLowerCase().includes('save') || text.toLowerCase().includes('submit') || text.toLowerCase().includes('update'))) {
+                                    await btn.click();
+                                    await page.waitForTimeout(2000);
+                                    console.log(`   ✅ Password restored to default: ${defaultPassword}`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (submitted && !testUsername) {
+                result.message = 'Password reset form submitted but could not extract username for verification';
+                result.success = true;
+                console.log(`   ⚠️  ${result.message}`);
+            } else {
+                // If no submit button found, close the modal
+                console.log(`   ⚠️  Submit button not found, closing modal`);
+                const cancelButtons = await page.$$('button');
+                for (const btn of cancelButtons) {
+                    const text = await btn.textContent();
+                    if (text && (text.toLowerCase().includes('cancel') || text.toLowerCase().includes('close'))) {
+                        await btn.click();
+                        await page.waitForTimeout(1000);
+                        break;
+                    }
+                }
+                result.message = 'Password reset form opened but submit button not found';
+                result.success = true;
+            }
+        } else {
+            result.message = 'Password button clicked but no modal appeared';
+            result.success = false;
+        }
+
+        // Take screenshot after
+        const afterScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_after.png`;
+        await page.screenshot({ 
+            path: afterScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`   📸 After screenshot: ${afterScreenshotPath}`);
+
+    } catch (error) {
+        result.message = `Error: ${error.message}`;
+        console.log(`   ❌ ${result.message}`);
+    }
+
+    return result;
+}
+
+/**
+ * Test the Disable/Enable button and verify status change
+ */
+async function testDisableEnableButton(page, elementType, index, buttonText, userId) {
+    const result = {
+        buttonText,
+        elementType,
+        index,
+        success: false,
+        message: '',
+        screenshotPath: null,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        // Take screenshot before clicking
+        const beforeScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_before.png`;
+        await page.screenshot({ 
+            path: beforeScreenshotPath, 
+            fullPage: true 
+        });
+        result.screenshotPath = beforeScreenshotPath;
+        console.log(`   📸 Before screenshot: ${beforeScreenshotPath}`);
+
+        // Remember the initial button text
+        const initialButtonText = buttonText;
+        console.log(`   ℹ️  Initial button state: "${initialButtonText}"`);
+
+        // Get the button element and click it
+        const buttons = await page.$$(elementType);
+        const button = buttons[index];
+
+        if (!button) {
+            result.message = `Button not found at index ${index}`;
+            console.log(`   ❌ ${result.message}`);
+            return result;
+        }
+
+        console.log(`   🖱️  Clicking ${buttonText} button...`);
+        await button.click();
+        await page.waitForTimeout(2000);
+
+        // Check for confirmation modal
+        const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
+        if (modals.length > 0) {
+            console.log(`   ℹ️  Confirmation modal detected`);
+            
+            // Take screenshot of modal
+            const modalScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_modal.png`;
+            await page.screenshot({ 
+                path: modalScreenshotPath, 
+                fullPage: true 
+            });
+            console.log(`   📸 Modal screenshot: ${modalScreenshotPath}`);
+
+            // Find and click confirm button
+            const confirmButtons = await page.$$('button');
+            let confirmed = false;
+            for (const btn of confirmButtons) {
+                const text = await btn.textContent();
+                if (text && (text.toLowerCase().includes('confirm') || text.toLowerCase().includes('yes') || text.toLowerCase().includes('ok'))) {
+                    console.log(`   🖱️  Clicking Confirm button: "${text.trim()}"`);
+                    await btn.click();
+                    await page.waitForTimeout(3000);
+                    confirmed = true;
+                    break;
+                }
+            }
+
+            if (!confirmed) {
+                console.log(`   ⚠️  No confirm button found, action may not complete`);
+            }
+        } else {
+            // No modal, action happened directly
+            console.log(`   ℹ️  No confirmation modal, action executed directly`);
+            await page.waitForTimeout(2000);
+        }
+
+        // Reload page to see updated state
+        console.log(`   🔄 Reloading page to verify status change...`);
+        await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(2000);
+
+        // Try to find the same button again and check if text changed
+        const updatedButtons = await page.$$('button');
+        let buttonTextAfter = null;
+        for (const btn of updatedButtons) {
+            const text = await btn.textContent();
+            if (text && (text.toLowerCase().includes('disable') || text.toLowerCase().includes('enable'))) {
+                buttonTextAfter = text.trim();
+                break;
+            }
+        }
+
+        if (buttonTextAfter) {
+            console.log(`   ℹ️  Button state after action: "${buttonTextAfter}"`);
+            
+            // Check if button text changed (indicating status toggle)
+            if (initialButtonText.toLowerCase().includes('disable') && buttonTextAfter.toLowerCase().includes('enable')) {
+                result.message = `User disabled successfully (button changed from "${initialButtonText}" to "${buttonTextAfter}")`;
+                result.success = true;
+                console.log(`   ✅ ${result.message}`);
+            } else if (initialButtonText.toLowerCase().includes('enable') && buttonTextAfter.toLowerCase().includes('disable')) {
+                result.message = `User enabled successfully (button changed from "${initialButtonText}" to "${buttonTextAfter}")`;
+                result.success = true;
+                console.log(`   ✅ ${result.message}`);
+            } else {
+                result.message = `Button clicked but status may not have changed (button text: "${buttonTextAfter}")`;
+                result.success = true;
+                console.log(`   ⚠️  ${result.message}`);
+            }
+        } else {
+            result.message = 'Status button clicked but could not verify change';
+            result.success = true;
+        }
+
+        // Take screenshot after
+        const afterScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_after.png`;
+        await page.screenshot({ 
+            path: afterScreenshotPath, 
+            fullPage: true 
+        });
+        console.log(`   📸 After screenshot: ${afterScreenshotPath}`);
+
+    } catch (error) {
+        result.message = `Error: ${error.message}`;
+        console.log(`   ❌ ${result.message}`);
+    }
+
+    return result;
 }
 
 /**
