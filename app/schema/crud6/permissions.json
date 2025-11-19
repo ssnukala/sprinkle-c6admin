@@ -46,18 +46,6 @@
             "title": "PERMISSION.USERS"
         }
     ],
-    "details": [
-        {
-            "model": "users",
-            "list_fields": ["user_name", "first_name", "last_name", "email"],
-            "title": "PERMISSION.USERS"
-        },
-        {
-            "model": "roles",
-            "list_fields": ["name", "slug", "description"],
-            "title": "ROLE.2"
-        }
-    ],
     "fields": {
         "id": {
             "type": "integer",

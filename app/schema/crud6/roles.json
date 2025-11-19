@@ -48,18 +48,6 @@
             }
         }
     ],
-    "details": [
-        {
-            "model": "users",
-            "list_fields": ["user_name", "first_name", "last_name", "email", "flag_enabled"],
-            "title": "ROLE.USERS"
-        },
-        {
-            "model": "permissions",
-            "list_fields": ["slug", "name", "description"],
-            "title": "ROLE.PERMISSIONS"
-        }
-    ],
     "fields": {
         "id": {
             "type": "integer",
