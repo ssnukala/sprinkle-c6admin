@@ -1,16 +1,24 @@
 # Role and Permission Detail Page Errors - Analysis and Resolution
 
 **Date:** 2025-11-19  
+**Resolution Date:** 2025-11-19  
+**Status:** ✅ **RESOLVED** - Implemented in [sprinkle-crud6 PR #187](https://github.com/ssnukala/sprinkle-crud6/pull/187)  
 **GitHub Actions Run:** [#19486530369](https://github.com/ssnukala/sprinkle-c6admin/actions/runs/19486530369/job/55769907883)  
 **Issue:** PHP 500 errors on role and permission detail pages
 
 ---
 
+## Resolution
+
+The CRUD6 team has successfully implemented support for the `details` section feature in [PR #187](https://github.com/ssnukala/sprinkle-crud6/pull/187). The API endpoints now properly load relationship data as documented in the requirements below.
+
+---
+
 ## Executive Summary
 
-C6Admin detail pages for roles (`/c6/admin/roles/1`) and permissions (`/c6/admin/permissions/1`) are returning HTTP 500 errors. The root cause is that CRUD6 API endpoints (`/api/crud6/roles/{id}` and `/api/crud6/permissions/{id}`) do not currently support loading relationship data required by the `details` section in the JSON schemas.
+C6Admin detail pages for roles (`/c6/admin/roles/1`) and permissions (`/c6/admin/permissions/1`) were returning HTTP 500 errors. The root cause was that CRUD6 API endpoints (`/api/crud6/roles/{id}` and `/api/crud6/permissions/{id}`) did not support loading relationship data required by the `details` section in the JSON schemas.
 
-**Impact:** Users cannot view role or permission details, including associated users and permissions/roles.
+**Impact:** ~~Users cannot view role or permission details, including associated users and permissions/roles.~~ **NOW RESOLVED**
 
 ---
 

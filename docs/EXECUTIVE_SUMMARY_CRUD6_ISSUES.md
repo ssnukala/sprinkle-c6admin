@@ -1,15 +1,23 @@
 # Executive Summary: CRUD6 Issues Blocking C6Admin Detail Pages
 
 **Date:** 2025-11-19  
-**Priority:** HIGH - Blocking core functionality  
+**Resolution Date:** 2025-11-19  
+**Status:** ✅ **RESOLVED** - Implemented in [sprinkle-crud6 PR #187](https://github.com/ssnukala/sprinkle-crud6/pull/187)  
+**Priority:** ~~HIGH - Blocking core functionality~~ **RESOLVED**  
 **Affected Pages:** Role details, Permission details  
 **GitHub Actions Run:** [#19486530369](https://github.com/ssnukala/sprinkle-c6admin/actions/runs/19486530369/job/55769907883)
 
 ---
 
-## Issues Summary
+## Resolution
 
-### Critical Errors (HTTP 500)
+The CRUD6 team has successfully implemented support for the `details` section feature in [PR #187](https://github.com/ssnukala/sprinkle-crud6/pull/187). Role and permission detail pages now properly load relationship data (users, permissions, roles) as documented in the requirements below.
+
+---
+
+## Issues Summary (RESOLVED)
+
+### Critical Errors (HTTP 500) - NOW FIXED
 
 1. **Role Detail Page Failure**
    - **Endpoint:** `GET /api/crud6/roles/1`

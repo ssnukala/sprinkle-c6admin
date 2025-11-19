@@ -2,9 +2,9 @@
 
 This folder contains all repository-specific documentation for the sprinkle-c6admin project.
 
-## 🔥 Current Issues (2025-11-19)
+## ✅ Resolved Issues
 
-### Role and Permission Detail Pages - 500 Errors
+### Role and Permission Detail Pages - 500 Errors (RESOLVED)
 
 **Quick Links:**
 - **Start Here:** [EXECUTIVE_SUMMARY_CRUD6_ISSUES.md](./EXECUTIVE_SUMMARY_CRUD6_ISSUES.md) - High-level overview for stakeholders
@@ -13,10 +13,10 @@ This folder contains all repository-specific documentation for the sprinkle-c6ad
 - **Full Analysis:** [ROLE_PERMISSION_DETAIL_ERRORS.md](./ROLE_PERMISSION_DETAIL_ERRORS.md) - Complete technical analysis
 - **Root Cause:** [DETAIL_SCHEMA_COMPARISON.md](./DETAIL_SCHEMA_COMPARISON.md) - Why some pages work and others fail
 
-**Status:** Analysis complete, waiting for CRUD6 implementation  
+**Status:** ✅ **RESOLVED** - Implemented in [sprinkle-crud6 PR #187](https://github.com/ssnukala/sprinkle-crud6/pull/187)  
 **Affected Endpoints:** `/api/crud6/roles/{id}`, `/api/crud6/permissions/{id}`  
 **Root Cause:** CRUD6 missing `details` section support for loading relationship data  
-**ETA for Fix:** 7-11 days (estimated) once CRUD6 team starts implementation
+**Resolution Date:** 2025-11-19
 
 ---
 

@@ -1,8 +1,16 @@
 # CRUD6 Requirements Summary for C6Admin Detail Pages
 
 **Date:** 2025-11-19  
+**Resolution Date:** 2025-11-19  
+**Status:** ✅ **RESOLVED** - Implemented in [sprinkle-crud6 PR #187](https://github.com/ssnukala/sprinkle-crud6/pull/187)  
 **Related Issue:** Role and Permission detail pages returning 500 errors  
 **Full Analysis:** See [ROLE_PERMISSION_DETAIL_ERRORS.md](./ROLE_PERMISSION_DETAIL_ERRORS.md)
+
+---
+
+## Resolution
+
+The requirements documented below have been successfully implemented in sprinkle-crud6 PR #187. Role and permission detail pages now properly support the `details` section feature for loading relationship data.
 
 ---
 
