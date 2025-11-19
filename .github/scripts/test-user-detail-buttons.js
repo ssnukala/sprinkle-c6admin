@@ -334,11 +334,27 @@ async function testEditButton(page, elementType, index, buttonText, userId) {
 
         console.log(`   🖱️  Clicking Edit button...`);
         await button.click();
-        await page.waitForTimeout(2000);
+        
+        // Wait for modal to appear with proper selector waiting
+        console.log(`   ⏳ Waiting for modal to appear...`);
+        let modalAppeared = false;
+        try {
+            await page.waitForSelector('[role="dialog"], .uk-modal, .modal', { 
+                state: 'visible',
+                timeout: 5000 
+            });
+            modalAppeared = true;
+            console.log(`   ✅ Modal appeared`);
+        } catch (e) {
+            console.log(`   ⚠️  Modal did not appear within 5 seconds`);
+        }
+        
+        // Additional wait for modal animations to complete
+        await page.waitForTimeout(1000);
 
         // Check for modal/dialog
         const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
-        if (modals.length > 0) {
+        if (modals.length > 0 || modalAppeared) {
             console.log(`   ℹ️  Edit form modal detected`);
             
             // Take screenshot of modal
@@ -488,11 +504,27 @@ async function testPasswordButton(page, elementType, index, buttonText, userId, 
 
         console.log(`   🖱️  Clicking Password Reset button...`);
         await button.click();
-        await page.waitForTimeout(2000);
+        
+        // Wait for modal to appear with proper selector waiting
+        console.log(`   ⏳ Waiting for modal to appear...`);
+        let modalAppeared = false;
+        try {
+            await page.waitForSelector('[role="dialog"], .uk-modal, .modal', { 
+                state: 'visible',
+                timeout: 5000 
+            });
+            modalAppeared = true;
+            console.log(`   ✅ Modal appeared`);
+        } catch (e) {
+            console.log(`   ⚠️  Modal did not appear within 5 seconds`);
+        }
+        
+        // Additional wait for modal animations to complete
+        await page.waitForTimeout(1000);
 
         // Check for modal/dialog
         const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
-        if (modals.length > 0) {
+        if (modals.length > 0 || modalAppeared) {
             console.log(`   ℹ️  Password reset form modal detected`);
             
             // Take screenshot of modal
@@ -735,11 +767,27 @@ async function testDisableEnableButton(page, elementType, index, buttonText, use
 
         console.log(`   🖱️  Clicking ${buttonText} button...`);
         await button.click();
-        await page.waitForTimeout(2000);
+        
+        // Wait for modal to appear with proper selector waiting
+        console.log(`   ⏳ Waiting for modal to appear...`);
+        let modalAppeared = false;
+        try {
+            await page.waitForSelector('[role="dialog"], .uk-modal, .modal', { 
+                state: 'visible',
+                timeout: 5000 
+            });
+            modalAppeared = true;
+            console.log(`   ✅ Modal appeared`);
+        } catch (e) {
+            console.log(`   ⚠️  Modal did not appear within 5 seconds`);
+        }
+        
+        // Additional wait for modal animations to complete
+        await page.waitForTimeout(1000);
 
         // Check for confirmation modal
         const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
-        if (modals.length > 0) {
+        if (modals.length > 0 || modalAppeared) {
             console.log(`   ℹ️  Confirmation modal detected`);
             
             // Take screenshot of modal
@@ -865,12 +913,26 @@ async function testButton(page, elementType, index, buttonText, userId, cancelAc
         console.log(`   🖱️  Clicking button...`);
         await button.click();
         
-        // Wait for any response (modal, navigation, etc.)
-        await page.waitForTimeout(2000);
+        // Wait for modal to appear with proper selector waiting
+        console.log(`   ⏳ Waiting for modal to appear...`);
+        let modalAppeared = false;
+        try {
+            await page.waitForSelector('[role="dialog"], .uk-modal, .modal', { 
+                state: 'visible',
+                timeout: 5000 
+            });
+            modalAppeared = true;
+            console.log(`   ✅ Modal appeared`);
+        } catch (e) {
+            console.log(`   ⚠️  Modal did not appear within 5 seconds`);
+        }
+        
+        // Additional wait for modal animations to complete
+        await page.waitForTimeout(1000);
 
         // Check for modals, dialogs, or alerts
         const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
-        if (modals.length > 0) {
+        if (modals.length > 0 || modalAppeared) {
             console.log(`   ℹ️  Modal/dialog detected after click`);
             
             // Take screenshot of modal
