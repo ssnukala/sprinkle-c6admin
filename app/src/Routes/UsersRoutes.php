@@ -18,7 +18,6 @@ use UserFrosting\Routes\RouteDefinitionInterface;
 use UserFrosting\Sprinkle\Account\Authenticate\AuthGuard;
 use UserFrosting\Sprinkle\Core\Middlewares\NoCache;
 use UserFrosting\Sprinkle\C6Admin\Controller\User\UserPasswordResetAction;
-use UserFrosting\Sprinkle\C6Admin\Controller\User\UserUpdateFieldAction;
 use UserFrosting\Sprinkle\CRUD6\Middlewares\CRUD6Injector;
 
 /**
@@ -30,17 +29,6 @@ class UsersRoutes implements RouteDefinitionInterface
 {
     public function register(App $app): void
     {
-        // Override CRUD6's UpdateFieldAction for users model to handle boolean toggles properly
-        // This route is registered for /api/crud6/users to override CRUD6's generic route
-        // C6Admin loads after CRUD6, so this route takes precedence
-        $app->group('/api/crud6/users', function (RouteCollectorProxy $group) {
-            // Update single field - handles boolean toggle fields properly
-            $group->put('/{id}/{field}', UserUpdateFieldAction::class)
-                  ->add(CRUD6Injector::class)
-                  ->setName('c6.api.crud6.users.update_field');
-        })->add(AuthGuard::class)->add(NoCache::class);
-        
-        // C6Admin-specific user routes (not CRUD6 overrides)
         $app->group('/api/c6/users', function (RouteCollectorProxy $group) {
             // Password reset - admin forces user to reset password on next login
             $group->post('/{id}/password-reset', UserPasswordResetAction::class)
