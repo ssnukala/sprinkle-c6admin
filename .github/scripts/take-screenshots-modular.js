@@ -15,6 +15,93 @@
 import { chromium } from 'playwright';
 import { readFileSync } from 'fs';
 
+/**
+ * Wait for Vue.js app to be fully mounted and ready
+ */
+async function waitForVueApp(page, timeout = 10000) {
+    console.log('   ⏳ Waiting for Vue.js app to mount...');
+    try {
+        await page.waitForFunction(() => {
+            // Check if Vue app is mounted
+            const app = document.querySelector('#app, [data-v-app], .v-application');
+            if (!app) return false;
+            
+            // Check if Vue instance exists (Vue 3)
+            if (window.__VUE_DEVTOOLS_GLOBAL_HOOK__) return true;
+            
+            // Check for Vue 2
+            if (window.Vue) return true;
+            
+            // Check if main content is rendered (not just loading state)
+            const hasContent = app.querySelector('.uk-card, .card, main, [role="main"]');
+            return hasContent !== null;
+        }, { timeout });
+        console.log('   ✅ Vue.js app mounted');
+        return true;
+    } catch (error) {
+        console.warn(`   ⚠️  Vue.js app mount timeout: ${error.message}`);
+        return false;
+    }
+}
+
+/**
+ * Check for JavaScript errors and blockers
+ */
+async function checkJavaScriptStatus(page) {
+    console.log('   🔍 Checking JavaScript status...');
+    
+    const jsStatus = await page.evaluate(() => {
+        const errors = [];
+        const warnings = [];
+        
+        // Check if JavaScript is enabled
+        const jsEnabled = typeof window !== 'undefined';
+        
+        // Check for common blocking issues
+        const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+        if (cspMeta) {
+            warnings.push(`CSP meta tag found: ${cspMeta.content?.substring(0, 100)}`);
+        }
+        
+        // Check for Vue
+        const hasVue = !!(window.Vue || window.__VUE_DEVTOOLS_GLOBAL_HOOK__);
+        
+        // Check for Vue Router
+        const hasVueRouter = !!(window.VueRouter || (window.__VUE_DEVTOOLS_GLOBAL_HOOK__?.apps?.[0]?.appContext?.config));
+        
+        // Check for app element
+        const appElement = document.querySelector('#app, [data-v-app]');
+        const appMounted = appElement && appElement.children.length > 0;
+        
+        return {
+            jsEnabled,
+            hasVue,
+            hasVueRouter,
+            appMounted,
+            errors,
+            warnings,
+            appElementFound: !!appElement,
+            appChildrenCount: appElement?.children.length || 0
+        };
+    });
+    
+    console.log(`      JavaScript enabled: ${jsStatus.jsEnabled ? '✅' : '❌'}`);
+    console.log(`      Vue.js detected: ${jsStatus.hasVue ? '✅' : '❌'}`);
+    console.log(`      Vue Router detected: ${jsStatus.hasVueRouter ? '✅' : '❌'}`);
+    console.log(`      App element found: ${jsStatus.appElementFound ? '✅' : '❌'}`);
+    console.log(`      App mounted: ${jsStatus.appMounted ? '✅' : '❌'} (${jsStatus.appChildrenCount} children)`);
+    
+    if (jsStatus.warnings.length > 0) {
+        console.warn(`      Warnings: ${jsStatus.warnings.join(', ')}`);
+    }
+    
+    if (jsStatus.errors.length > 0) {
+        console.error(`      Errors: ${jsStatus.errors.join(', ')}`);
+    }
+    
+    return jsStatus;
+}
+
 async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOverride, passwordOverride) {
     console.log('========================================');
     console.log('Taking Screenshots from Configuration');
@@ -67,13 +154,20 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
     // Launch browser
     const browser = await chromium.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-web-security',  // Allow cross-origin requests
+            '--disable-features=IsolateOrigins,site-per-process'  // Disable site isolation
+        ]
     });
 
     try {
         const context = await browser.newContext({
             viewport: { width: 1280, height: 720 },
-            ignoreHTTPSErrors: true
+            ignoreHTTPSErrors: true,
+            javaScriptEnabled: true,  // Explicitly enable JavaScript
+            bypassCSP: true  // Bypass Content Security Policy that might block scripts
         });
 
         const page = await context.newPage();
@@ -82,17 +176,20 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
         console.log('📍 Navigating to login page...');
         console.log(`   URL: ${baseUrl}/account/sign-in`);
         
-        // Enable console logging from the page for debugging
+        // Enable console logging from the page for debugging - LOG ALL MESSAGES
         page.on('console', msg => {
             const type = msg.type();
-            if (type === 'error' || type === 'warning') {
-                console.log(`   [Browser ${type.toUpperCase()}]:`, msg.text());
-            }
+            console.log(`   [Browser ${type.toUpperCase()}]:`, msg.text());
         });
         
         // Log page errors
         page.on('pageerror', error => {
             console.error(`   [Browser Error]:`, error.message);
+        });
+        
+        // Log failed requests
+        page.on('requestfailed', request => {
+            console.error(`   [Request Failed]: ${request.url()} - ${request.failure()?.errorText || 'Unknown error'}`);
         });
         
         await page.goto(`${baseUrl}/account/sign-in`, { waitUntil: 'networkidle', timeout: 30000 });
@@ -126,6 +223,10 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
         
         // Give session a moment to stabilize
         await page.waitForTimeout(2000);
+        
+        // Check JavaScript and Vue status after login
+        await checkJavaScriptStatus(page);
+        await waitForVueApp(page);
 
         // Step 2: Take screenshots from configuration
         let successCount = 0;
@@ -144,6 +245,12 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
                 // Wait for page content to load
                 console.log('   Waiting for page to stabilize...');
                 await page.waitForTimeout(2000);
+                
+                // Wait for Vue app to be ready
+                await waitForVueApp(page);
+                
+                // Check JavaScript status on this page
+                const jsStatus = await checkJavaScriptStatus(page);
                 
                 // Check if we're still on login page (would indicate auth failure)
                 const currentUrl = page.url();
@@ -211,8 +318,34 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
                         console.log('   ✅ No alerts found');
                     }
                     
-                    // Check for UFModal components
+                    // Check for UFModal components and wait for content to render
                     console.log('   🔍 Checking for UFModal components...');
+                    
+                    // First check if modal is opening (backdrop visible)
+                    const modalBackdrop = await page.evaluate(() => {
+                        const backdrop = document.querySelector('.uk-modal-page, .modal-backdrop, [class*="modal-backdrop"]');
+                        return backdrop !== null;
+                    });
+                    
+                    if (modalBackdrop) {
+                        console.log('   ⏳ Modal backdrop detected - waiting for modal content to render...');
+                        
+                        // Wait for modal dialog content to actually render
+                        try {
+                            await page.waitForSelector(
+                                '[role="dialog"] .uk-modal-dialog, .uk-modal.uk-open .uk-modal-dialog, .modal.show .modal-dialog',
+                                { state: 'visible', timeout: 5000 }
+                            );
+                            console.log('   ✅ Modal dialog content appeared');
+                            
+                            // Additional wait for Vue to render modal content
+                            await page.waitForTimeout(2000);
+                        } catch (e) {
+                            console.warn('   ⚠️  Modal dialog content did not appear within 5 seconds');
+                            console.warn('   ⚠️  This may explain "navbar in middle" symptom - backdrop visible but no dialog');
+                        }
+                    }
+                    
                     const modals = await page.evaluate(() => {
                         // Check for various modal selectors
                         const modalSelectors = [
@@ -226,11 +359,21 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
                         modalSelectors.forEach(selector => {
                             const elements = document.querySelectorAll(selector);
                             elements.forEach(el => {
-                                if (el.offsetParent !== null || getComputedStyle(el).display !== 'none') {
+                                const computedStyle = getComputedStyle(el);
+                                const isVisible = el.offsetParent !== null || computedStyle.display !== 'none';
+                                
+                                // Check if modal has actual content
+                                const dialog = el.querySelector('.uk-modal-dialog, .modal-dialog, .modal-content');
+                                const hasContent = dialog && dialog.children.length > 0;
+                                
+                                if (isVisible) {
                                     foundModals.push({
                                         selector,
                                         visible: true,
-                                        title: el.querySelector('[data-modal-title], .modal-title, .uk-modal-title')?.textContent?.trim() || ''
+                                        hasContent,
+                                        title: el.querySelector('[data-modal-title], .modal-title, .uk-modal-title')?.textContent?.trim() || '',
+                                        dialogFound: !!dialog,
+                                        contentChildCount: dialog?.children.length || 0
                                     });
                                 }
                             });
@@ -242,8 +385,17 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
                     if (modals.length > 0) {
                         console.log(`   ℹ️  Found ${modals.length} open modal(s):`);
                         modals.forEach((modal, idx) => {
-                            console.log(`      ${idx + 1}. ${modal.selector} - "${modal.title}"`);
+                            const status = modal.hasContent ? '✅ HAS CONTENT' : '⚠️  NO CONTENT';
+                            console.log(`      ${idx + 1}. ${modal.selector} - "${modal.title}" [${status}]`);
+                            console.log(`         Dialog found: ${modal.dialogFound ? 'Yes' : 'No'}, Children: ${modal.contentChildCount}`);
                         });
+                        
+                        // Check if any modals have content
+                        const modalsWithContent = modals.filter(m => m.hasContent);
+                        if (modalsWithContent.length === 0) {
+                            console.warn('   ⚠️  Modal detected but NO CONTENT rendered!');
+                            console.warn('   ⚠️  This explains "navbar in middle" - backdrop visible, dialog empty');
+                        }
                         
                         // Take modal screenshot with suffix
                         const modalPath = `/tmp/screenshot_${screenshot.screenshot_name}_with_modal.png`;

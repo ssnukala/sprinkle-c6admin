@@ -2,11 +2,152 @@
 
 ## Overview
 
-Enhanced integration testing scripts to detect UFAlert components and UFModal dialogs, following the approach used in sprinkle-crud6 PR #197.
+Enhanced integration testing scripts to detect UFAlert components and UFModal dialogs, following the approach used in sprinkle-crud6 PR #197. Additionally addresses the "navbar in middle" symptom when modals fail to render content.
+
+## The "Navbar in Middle" Issue
+
+### Symptom
+Screenshots show the navbar moved to the middle of the screen instead of showing the expected modal dialog.
+
+### Root Cause
+This occurs when:
+1. A modal is triggered (backdrop appears, pushing content down)
+2. The modal dialog element exists in DOM
+3. **But the modal content fails to render** (Vue component doesn't mount)
+
+The backdrop shifts the page layout (moving navbar to middle), but without the dialog content, users see a broken state.
+
+### Detection
+The enhanced scripts now:
+- Wait for modal **dialog content** to render, not just the modal element
+- Check if modal dialog has child elements (actual content)
+- Log warnings when backdrop is visible but content is missing
+- Distinguish between "modal exists" and "modal has content"
 
 ## Changes Made
 
-### 1. Screenshot Script (`take-screenshots-modular.js`)
+### 1. Browser Configuration Enhancements
+
+**Disabled Security Features for Testing:**
+```javascript
+const browser = await chromium.launch({
+    headless: true,
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-web-security',  // Allow cross-origin requests
+        '--disable-features=IsolateOrigins,site-per-process'
+    ]
+});
+
+const context = await browser.newContext({
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
+    javaScriptEnabled: true,  // Explicitly enable
+    bypassCSP: true  // Bypass Content Security Policy
+});
+```
+
+**Why:** Some security policies can block Vue.js from loading or executing properly in test environments.
+
+### 2. Vue.js App Detection
+
+Added helper function to verify Vue.js is actually mounted:
+
+```javascript
+async function waitForVueApp(page, timeout = 10000) {
+    await page.waitForFunction(() => {
+        const app = document.querySelector('#app, [data-v-app]');
+        if (!app) return false;
+        
+        // Check for Vue 3
+        if (window.__VUE_DEVTOOLS_GLOBAL_HOOK__) return true;
+        
+        // Check for Vue 2
+        if (window.Vue) return true;
+        
+        // Check if content is rendered
+        const hasContent = app.querySelector('.uk-card, .card, main');
+        return hasContent !== null;
+    }, { timeout });
+}
+```
+
+### 3. JavaScript Status Checking
+
+Added comprehensive JavaScript environment check:
+
+```javascript
+async function checkJavaScriptStatus(page) {
+    const status = await page.evaluate(() => ({
+        jsEnabled: typeof window !== 'undefined',
+        hasVue: !!(window.Vue || window.__VUE_DEVTOOLS_GLOBAL_HOOK__),
+        hasVueRouter: !!(window.VueRouter || ...),
+        appMounted: appElement && appElement.children.length > 0,
+        appChildrenCount: appElement?.children.length || 0
+    }));
+    
+    console.log(`JavaScript enabled: ${status.jsEnabled ? '✅' : '❌'}`);
+    console.log(`Vue.js detected: ${status.hasVue ? '✅' : '❌'}`);
+    // ... more logging
+}
+```
+
+### 4. Enhanced Modal Content Detection
+
+**Before (Insufficient):**
+```javascript
+// Only checked if modal element exists
+const modals = document.querySelectorAll('.uk-modal.uk-open');
+```
+
+**After (Content Verification):**
+```javascript
+// Wait for modal backdrop
+const modalBackdrop = await page.evaluate(() => {
+    return document.querySelector('.uk-modal-page, .modal-backdrop') !== null;
+});
+
+if (modalBackdrop) {
+    // Wait for actual dialog content to render
+    await page.waitForSelector(
+        '[role="dialog"] .uk-modal-dialog',
+        { state: 'visible', timeout: 5000 }
+    );
+    
+    // Additional wait for Vue to populate content
+    await page.waitForTimeout(2000);
+}
+
+// Verify modal has content
+const modals = await page.evaluate(() => {
+    const dialog = el.querySelector('.uk-modal-dialog, .modal-dialog');
+    const hasContent = dialog && dialog.children.length > 0;
+    
+    return {
+        visible: true,
+        hasContent,  // ← Key addition
+        contentChildCount: dialog?.children.length || 0
+    };
+});
+```
+
+### 5. Console Logging Enhancements
+
+**All browser console messages now logged:**
+```javascript
+page.on('console', msg => {
+    console.log(`[Browser ${msg.type().toUpperCase()}]:`, msg.text());
+});
+
+page.on('requestfailed', request => {
+    console.error(`[Request Failed]: ${request.url()}`);
+});
+```
+
+This helps identify JavaScript loading errors, network failures, and Vue mounting issues.
+
+## Screenshot Script Enhancements
 
 **UFAlert Detection:**
 - Automatically detects alert components on every page
@@ -93,8 +234,11 @@ const modals = await page.evaluate(() => {
 **Example Output:**
 ```
 🔍 Checking for UFModal components...
+⏳ Modal backdrop detected - waiting for modal content to render...
+✅ Modal dialog content appeared
 ℹ️  Found 1 open modal(s):
-   1. [role="dialog"] - "Edit User"
+   1. [role="dialog"] - "Edit User" [✅ HAS CONTENT]
+      Dialog found: Yes, Children: 3
 📸 Modal screenshot: /tmp/screenshot_edit_button_modal.png
 
 ✏️  Filling edit form...
@@ -104,6 +248,45 @@ const modals = await page.evaluate(() => {
 ℹ️  Found 1 alert(s):
    1. [SUCCESS] User updated successfully
 ✅ Edit form submitted successfully
+```
+
+## Diagnostic Output
+
+### Normal Modal (Working)
+```
+🔍 Checking for UFModal components...
+⏳ Modal backdrop detected - waiting for modal content to render...
+✅ Modal dialog content appeared
+ℹ️  Found 1 open modal(s):
+   1. [role="dialog"] - "Edit Role" [✅ HAS CONTENT]
+      Dialog found: Yes, Children: 5
+📸 Modal screenshot saved: screenshot_roles_detail_with_modal.png
+```
+
+### "Navbar in Middle" Issue (Broken)
+```
+🔍 Checking for UFModal components...
+⏳ Modal backdrop detected - waiting for modal content to render...
+⚠️  Modal dialog content did not appear within 5 seconds
+⚠️  This may explain "navbar in middle" symptom - backdrop visible but no dialog
+ℹ️  Found 1 open modal(s):
+   1. .uk-modal.uk-open - "" [⚠️  NO CONTENT]
+      Dialog found: Yes, Children: 0
+⚠️  Modal detected but NO CONTENT rendered!
+⚠️  This explains "navbar in middle" - backdrop visible, dialog empty
+📸 Modal screenshot saved: screenshot_roles_detail_with_modal.png
+```
+
+### Vue.js Not Loaded (Critical)
+```
+🔍 Checking JavaScript status...
+   JavaScript enabled: ✅
+   Vue.js detected: ❌  <-- Problem!
+   Vue Router detected: ❌
+   App element found: ✅
+   App mounted: ❌ (0 children)
+⏳ Waiting for Vue.js app to mount...
+⚠️  Vue.js app mount timeout: Waiting for function failed
 ```
 
 ## Test Failure Scenarios
