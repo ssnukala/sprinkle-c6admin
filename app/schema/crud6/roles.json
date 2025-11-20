@@ -111,6 +111,7 @@
             "type": "multiselect",
             "label": "Permissions",
             "description": "Role permissions (used for sync on update)",
+            "computed": true,
             "lookup": {
                 "model": "permissions",
                 "id": "id",
