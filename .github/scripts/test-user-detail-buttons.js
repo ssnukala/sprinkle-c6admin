@@ -352,10 +352,40 @@ async function testEditButton(page, elementType, index, buttonText, userId) {
         // Additional wait for modal animations to complete
         await page.waitForTimeout(1000);
 
-        // Check for modal/dialog
+        // Check for modal/dialog with enhanced detection
         const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
-        if (modals.length > 0 || modalAppeared) {
-            console.log(`   ℹ️  Edit form modal detected`);
+        
+        // Verify modal visibility
+        const modalInfo = await page.evaluate(() => {
+            const modalSelectors = [
+                '[role="dialog"]',
+                '.uk-modal.uk-open',
+                '.modal.show',
+                '.uf-modal'
+            ];
+            
+            const foundModals = [];
+            modalSelectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    if (el.offsetParent !== null || getComputedStyle(el).display !== 'none') {
+                        foundModals.push({
+                            selector,
+                            visible: true,
+                            title: el.querySelector('[data-modal-title], .modal-title, .uk-modal-title')?.textContent?.trim() || ''
+                        });
+                    }
+                });
+            });
+            
+            return foundModals;
+        });
+        
+        if ((modals.length > 0 || modalAppeared) && modalInfo.length > 0) {
+            console.log(`   ℹ️  Edit form modal detected and verified visible`);
+            modalInfo.forEach((modal, idx) => {
+                console.log(`      ${idx + 1}. ${modal.selector}${modal.title ? ` - "${modal.title}"` : ''}`);
+            });
             
             // Take screenshot of modal
             const modalScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_modal.png`;
@@ -409,9 +439,46 @@ async function testEditButton(page, elementType, index, buttonText, userId) {
             }
 
             if (submitted) {
-                result.message = 'Edit form submitted successfully';
-                result.success = true;
-                console.log(`   ✅ ${result.message}`);
+                // Check for UFAlert components after submission
+                console.log('   🔍 Checking for alerts after submission...');
+                const alerts = await page.evaluate(() => {
+                    const alertElements = document.querySelectorAll('[data-alert], .uf-alert, .alert');
+                    return Array.from(alertElements).map(el => ({
+                        text: el.textContent?.trim() || '',
+                        className: el.className || '',
+                        isError: el.classList.contains('alert-danger') || 
+                                el.classList.contains('uk-alert-danger') ||
+                                el.getAttribute('data-alert-type') === 'error' ||
+                                el.getAttribute('data-alert-type') === 'danger',
+                        isSuccess: el.classList.contains('alert-success') || 
+                                  el.classList.contains('uk-alert-success') ||
+                                  el.getAttribute('data-alert-type') === 'success'
+                    }));
+                });
+                
+                if (alerts.length > 0) {
+                    console.log(`   ℹ️  Found ${alerts.length} alert(s):`);
+                    alerts.forEach((alert, idx) => {
+                        const type = alert.isError ? 'ERROR' : (alert.isSuccess ? 'SUCCESS' : 'INFO');
+                        console.log(`      ${idx + 1}. [${type}] ${alert.text.substring(0, 100)}`);
+                    });
+                    
+                    // Mark as failure if there are error alerts
+                    const errorAlerts = alerts.filter(a => a.isError);
+                    if (errorAlerts.length > 0) {
+                        result.message = `Edit form submitted but got ${errorAlerts.length} error alert(s)`;
+                        result.success = false;
+                        console.log(`   ❌ ${result.message}`);
+                    } else {
+                        result.message = 'Edit form submitted successfully';
+                        result.success = true;
+                        console.log(`   ✅ ${result.message}`);
+                    }
+                } else {
+                    result.message = 'Edit form submitted successfully';
+                    result.success = true;
+                    console.log(`   ✅ ${result.message}`);
+                }
             } else {
                 // If no submit button found, close the modal
                 console.log(`   ⚠️  Submit button not found, closing modal`);

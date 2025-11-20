@@ -165,6 +165,98 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
                 } else {
                     console.log(`   ✅ Page loaded successfully`);
                     
+                    // Check for UFAlert components (error alerts should fail the test)
+                    console.log('   🔍 Checking for UFAlert components...');
+                    const alerts = await page.evaluate(() => {
+                        const alertElements = document.querySelectorAll('[data-alert], .uf-alert, .alert');
+                        return Array.from(alertElements).map(el => ({
+                            text: el.textContent?.trim() || '',
+                            className: el.className || '',
+                            isError: el.classList.contains('alert-danger') || 
+                                    el.classList.contains('uk-alert-danger') ||
+                                    el.getAttribute('data-alert-type') === 'error' ||
+                                    el.getAttribute('data-alert-type') === 'danger',
+                            isWarning: el.classList.contains('alert-warning') || 
+                                      el.classList.contains('uk-alert-warning') ||
+                                      el.getAttribute('data-alert-type') === 'warning'
+                        }));
+                    });
+                    
+                    if (alerts.length > 0) {
+                        console.log(`   ℹ️  Found ${alerts.length} alert(s):`);
+                        alerts.forEach((alert, idx) => {
+                            const type = alert.isError ? 'ERROR' : (alert.isWarning ? 'WARNING' : 'INFO');
+                            console.log(`      ${idx + 1}. [${type}] ${alert.text.substring(0, 100)}`);
+                        });
+                        
+                        // Fail the test if there are error alerts
+                        const errorAlerts = alerts.filter(a => a.isError);
+                        if (errorAlerts.length > 0) {
+                            console.error(`   ❌ FAIL: Found ${errorAlerts.length} error alert(s) on page!`);
+                            errorAlerts.forEach((alert, idx) => {
+                                console.error(`      ${idx + 1}. ${alert.text}`);
+                            });
+                            
+                            // Take error screenshot
+                            const errorPath = `/tmp/screenshot_${screenshot.screenshot_name}_error.png`;
+                            await page.screenshot({ 
+                                path: errorPath, 
+                                fullPage: true 
+                            });
+                            console.error(`   📸 Error screenshot saved: ${errorPath}`);
+                            failCount++;
+                            continue; // Skip to next screenshot
+                        }
+                    } else {
+                        console.log('   ✅ No alerts found');
+                    }
+                    
+                    // Check for UFModal components
+                    console.log('   🔍 Checking for UFModal components...');
+                    const modals = await page.evaluate(() => {
+                        // Check for various modal selectors
+                        const modalSelectors = [
+                            '[role="dialog"]',
+                            '.uk-modal.uk-open',
+                            '.modal.show',
+                            '.uf-modal'
+                        ];
+                        
+                        const foundModals = [];
+                        modalSelectors.forEach(selector => {
+                            const elements = document.querySelectorAll(selector);
+                            elements.forEach(el => {
+                                if (el.offsetParent !== null || getComputedStyle(el).display !== 'none') {
+                                    foundModals.push({
+                                        selector,
+                                        visible: true,
+                                        title: el.querySelector('[data-modal-title], .modal-title, .uk-modal-title')?.textContent?.trim() || ''
+                                    });
+                                }
+                            });
+                        });
+                        
+                        return foundModals;
+                    });
+                    
+                    if (modals.length > 0) {
+                        console.log(`   ℹ️  Found ${modals.length} open modal(s):`);
+                        modals.forEach((modal, idx) => {
+                            console.log(`      ${idx + 1}. ${modal.selector} - "${modal.title}"`);
+                        });
+                        
+                        // Take modal screenshot with suffix
+                        const modalPath = `/tmp/screenshot_${screenshot.screenshot_name}_with_modal.png`;
+                        await page.screenshot({ 
+                            path: modalPath, 
+                            fullPage: true 
+                        });
+                        console.log(`   📸 Modal screenshot saved: ${modalPath}`);
+                    } else {
+                        console.log('   ✅ No modals detected');
+                    }
+                    
+                    // Take regular screenshot
                     const screenshotPath = `/tmp/screenshot_${screenshot.screenshot_name}.png`;
                     await page.screenshot({ 
                         path: screenshotPath, 
