@@ -20,6 +20,28 @@
 import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
 
+/**
+ * Wait for Vue.js app to be fully mounted and ready
+ */
+async function waitForVueApp(page, timeout = 10000) {
+    console.log('   ⏳ Waiting for Vue.js app to mount...');
+    try {
+        await page.waitForFunction(() => {
+            const app = document.querySelector('#app, [data-v-app], .v-application');
+            if (!app) return false;
+            if (window.__VUE_DEVTOOLS_GLOBAL_HOOK__) return true;
+            if (window.Vue) return true;
+            const hasContent = app.querySelector('.uk-card, .card, main, [role="main"]');
+            return hasContent !== null;
+        }, { timeout });
+        console.log('   ✅ Vue.js app mounted');
+        return true;
+    } catch (error) {
+        console.warn(`   ⚠️  Vue.js app mount timeout: ${error.message}`);
+        return false;
+    }
+}
+
 async function testUserDetailButtons(baseUrl, username, password, userId = '1') {
     console.log('========================================');
     console.log('Testing User Detail Page Buttons');
@@ -31,7 +53,12 @@ async function testUserDetailButtons(baseUrl, username, password, userId = '1') 
 
     const browser = await chromium.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins,site-per-process'
+        ]
     });
 
     const testResults = {
@@ -349,13 +376,77 @@ async function testEditButton(page, elementType, index, buttonText, userId) {
             console.log(`   ⚠️  Modal did not appear within 5 seconds`);
         }
         
-        // Additional wait for modal animations to complete
+        // Additional wait for modal animations and content to render
         await page.waitForTimeout(1000);
+        
+        // Wait for modal dialog content specifically
+        if (modalAppeared) {
+            console.log('   ⏳ Waiting for modal dialog content to render...');
+            try {
+                await page.waitForSelector(
+                    '[role="dialog"] .uk-modal-dialog, .uk-modal.uk-open .uk-modal-dialog, .modal.show .modal-dialog',
+                    { state: 'visible', timeout: 5000 }
+                );
+                console.log('   ✅ Modal dialog content rendered');
+                await page.waitForTimeout(1000); // Extra wait for Vue to populate content
+            } catch (e) {
+                console.warn('   ⚠️  Modal dialog content did not render');
+            }
+        }
 
-        // Check for modal/dialog
+        // Check for modal/dialog with enhanced detection
         const modals = await page.$$('[role="dialog"], .uk-modal, .modal');
-        if (modals.length > 0 || modalAppeared) {
-            console.log(`   ℹ️  Edit form modal detected`);
+        
+        // Verify modal visibility and content
+        const modalInfo = await page.evaluate(() => {
+            const modalSelectors = [
+                '[role="dialog"]',
+                '.uk-modal.uk-open',
+                '.modal.show',
+                '.uf-modal'
+            ];
+            
+            const foundModals = [];
+            modalSelectors.forEach(selector => {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    const computedStyle = getComputedStyle(el);
+                    const isVisible = el.offsetParent !== null || computedStyle.display !== 'none';
+                    
+                    if (isVisible) {
+                        // Check if modal has actual content
+                        const dialog = el.querySelector('.uk-modal-dialog, .modal-dialog, .modal-content');
+                        const hasContent = dialog && dialog.children.length > 0;
+                        
+                        foundModals.push({
+                            selector,
+                            visible: true,
+                            hasContent,
+                            title: el.querySelector('[data-modal-title], .modal-title, .uk-modal-title')?.textContent?.trim() || '',
+                            dialogFound: !!dialog,
+                            contentChildCount: dialog?.children.length || 0
+                        });
+                    }
+                });
+            });
+            
+            return foundModals;
+        });
+        
+        if ((modals.length > 0 || modalAppeared) && modalInfo.length > 0) {
+            console.log(`   ℹ️  Edit form modal detected and verified visible`);
+            modalInfo.forEach((modal, idx) => {
+                const status = modal.hasContent ? '✅ HAS CONTENT' : '⚠️  NO CONTENT';
+                console.log(`      ${idx + 1}. ${modal.selector}${modal.title ? ` - "${modal.title}"` : ''} [${status}]`);
+                console.log(`         Dialog found: ${modal.dialogFound ? 'Yes' : 'No'}, Children: ${modal.contentChildCount}`);
+            });
+            
+            // Check if modal has content
+            const modalsWithContent = modalInfo.filter(m => m.hasContent);
+            if (modalsWithContent.length === 0) {
+                console.warn('   ⚠️  Modal detected but NO CONTENT rendered!');
+                console.warn('   ⚠️  This is the "navbar in middle" issue - backdrop visible, dialog empty');
+            }
             
             // Take screenshot of modal
             const modalScreenshotPath = `/tmp/screenshot_button_${buttonText.replace(/[^a-z0-9]/gi, '_')}_modal.png`;
@@ -409,9 +500,46 @@ async function testEditButton(page, elementType, index, buttonText, userId) {
             }
 
             if (submitted) {
-                result.message = 'Edit form submitted successfully';
-                result.success = true;
-                console.log(`   ✅ ${result.message}`);
+                // Check for UFAlert components after submission
+                console.log('   🔍 Checking for alerts after submission...');
+                const alerts = await page.evaluate(() => {
+                    const alertElements = document.querySelectorAll('[data-alert], .uf-alert, .alert');
+                    return Array.from(alertElements).map(el => ({
+                        text: el.textContent?.trim() || '',
+                        className: el.className || '',
+                        isError: el.classList.contains('alert-danger') || 
+                                el.classList.contains('uk-alert-danger') ||
+                                el.getAttribute('data-alert-type') === 'error' ||
+                                el.getAttribute('data-alert-type') === 'danger',
+                        isSuccess: el.classList.contains('alert-success') || 
+                                  el.classList.contains('uk-alert-success') ||
+                                  el.getAttribute('data-alert-type') === 'success'
+                    }));
+                });
+                
+                if (alerts.length > 0) {
+                    console.log(`   ℹ️  Found ${alerts.length} alert(s):`);
+                    alerts.forEach((alert, idx) => {
+                        const type = alert.isError ? 'ERROR' : (alert.isSuccess ? 'SUCCESS' : 'INFO');
+                        console.log(`      ${idx + 1}. [${type}] ${alert.text.substring(0, 100)}`);
+                    });
+                    
+                    // Mark as failure if there are error alerts
+                    const errorAlerts = alerts.filter(a => a.isError);
+                    if (errorAlerts.length > 0) {
+                        result.message = `Edit form submitted but got ${errorAlerts.length} error alert(s)`;
+                        result.success = false;
+                        console.log(`   ❌ ${result.message}`);
+                    } else {
+                        result.message = 'Edit form submitted successfully';
+                        result.success = true;
+                        console.log(`   ✅ ${result.message}`);
+                    }
+                } else {
+                    result.message = 'Edit form submitted successfully';
+                    result.success = true;
+                    console.log(`   ✅ ${result.message}`);
+                }
             } else {
                 // If no submit button found, close the modal
                 console.log(`   ⚠️  Submit button not found, closing modal`);
