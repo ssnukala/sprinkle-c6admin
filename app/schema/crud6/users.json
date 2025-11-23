@@ -237,6 +237,24 @@
             "required": false,
             "show_in": ["form", "detail"]
         },
+        "theme": {
+            "type": "string",
+            "label": "Theme",
+            "required": false,
+            "show_in": ["form", "detail"],
+            "validation": {
+                "length": {
+                    "max": 100
+                }
+            }
+        },
+        "last_activity_id": {
+            "type": "integer",
+            "label": "Last Activity ID",
+            "required": false,
+            "show_in": [],
+            "readonly": true
+        },
         "flag_verified": {
             "type": "boolean",
             "ui": "toggle",
@@ -277,7 +295,8 @@
             "show_in": ["create", "edit"],
             "validation": {
                 "length": {
-                    "min": 8
+                    "min": 8,
+                    "max": 255
                 },
                 "match": true
             }
