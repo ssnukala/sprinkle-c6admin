@@ -95,6 +95,7 @@
             "type": "field_update",
             "field": "flag_enabled",
             "toggle": true,
+            "label": "USER.ADMIN.TOGGLE_ENABLED",
             "permission": "update_user_field"
         },
         {
@@ -102,18 +103,21 @@
             "type": "field_update",
             "field": "flag_verified",
             "toggle": true,
+            "label": "USER.ADMIN.TOGGLE_VERIFIED",
             "permission": "update_user_field"
         },
         {
             "key": "reset_password",
             "type": "api_call",
             "method": "POST",
+            "label": "USER.ADMIN.PASSWORD_RESET",
             "permission": "update_user_field",
             "confirm": "USER.ADMIN.PASSWORD_RESET_CONFIRM"
         },
         {
             "key": "password_action",
             "type": "field_update",
+            "label": "USER.ADMIN.CHANGE_PASSWORD",
             "permission": "update_user_field",
             "confirm": "USER.ADMIN.PASSWORD_CHANGE_CONFIRM"
         },
@@ -122,6 +126,7 @@
             "type": "field_update",
             "field": "flag_enabled",
             "value": false,
+            "label": "USER.DISABLE",
             "permission": "update_user_field",
             "confirm": "USER.DISABLE_CONFIRM"
         },
@@ -130,6 +135,7 @@
             "type": "field_update",
             "field": "flag_enabled",
             "value": true,
+            "label": "USER.ENABLE",
             "permission": "update_user_field",
             "confirm": "USER.ENABLE_CONFIRM"
         }
