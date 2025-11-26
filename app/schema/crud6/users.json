@@ -95,7 +95,7 @@
             "type": "field_update",
             "field": "flag_enabled",
             "toggle": true,
-            "label": "USER.ADMIN.TOGGLE_ENABLED",
+            "label": "Toggle Enabled",
             "permission": "update_user_field"
         },
         {
@@ -103,7 +103,7 @@
             "type": "field_update",
             "field": "flag_verified",
             "toggle": true,
-            "label": "USER.ADMIN.TOGGLE_VERIFIED",
+            "label": "Toggle Verified",
             "permission": "update_user_field"
         },
         {
@@ -119,7 +119,7 @@
             "type": "field_update",
             "label": "USER.ADMIN.CHANGE_PASSWORD",
             "permission": "update_user_field",
-            "confirm": "USER.ADMIN.PASSWORD_CHANGE_CONFIRM"
+            "confirm": "USER.ADMIN.PASSWORD_RESET_CONFIRM"
         },
         {
             "key": "disable_user",
