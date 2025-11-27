@@ -1,8 +1,8 @@
 {
     "model": "roles",
-    "title": "ROLE.PAGE",
-    "singular_title": "ROLE.1",
-    "description": "ROLE.PAGE_DESCRIPTION",
+    "title": "CRUD6.ROLE.PAGE",
+    "singular_title": "CRUD6.ROLE.1",
+    "description": "CRUD6.ROLE.PAGE_DESCRIPTION",
     "table": "roles",
     "primary_key": "id",
     "permissions": {
@@ -21,7 +21,7 @@
             "pivot_table": "permission_roles",
             "foreign_key": "role_id",
             "related_key": "permission_id",
-            "title": "ROLE.PERMISSIONS",
+            "title": "CRUD6.ROLE.PERMISSIONS",
             "actions": {
                 "on_update": {
                     "sync": "permission_ids",
@@ -39,7 +39,7 @@
             "pivot_table": "role_users",
             "foreign_key": "role_id",
             "related_key": "user_id",
-            "title": "ROLE.USERS",
+            "title": "CRUD6.ROLE.USERS",
             "actions": {
                 "on_delete": {
                     "detach": "all",
@@ -51,28 +51,43 @@
     "details": [
         {
             "model": "users",
-            "list_fields": ["user_name", "first_name", "last_name", "email", "flag_enabled"],
-            "title": "ROLE.USERS"
+            "list_fields": [
+                "user_name",
+                "first_name",
+                "last_name",
+                "email",
+                "flag_enabled"
+            ],
+            "title": "CRUD6.ROLE.USERS"
         },
         {
             "model": "permissions",
-            "list_fields": ["slug", "name", "description"],
-            "title": "ROLE.PERMISSIONS"
+            "list_fields": [
+                "slug",
+                "name",
+                "description"
+            ],
+            "title": "CRUD6.ROLE.PERMISSIONS"
         }
     ],
     "fields": {
         "id": {
             "type": "integer",
-            "label": "ID",
+            "label": "CRUD6.ROLE.ID",
             "auto_increment": true,
             "readonly": true,
-            "show_in": ["detail"]
+            "show_in": [
+                "detail"
+            ]
         },
         "slug": {
             "type": "string",
-            "label": "Slug",
+            "label": "CRUD6.ROLE.SLUG",
             "required": true,
-            "show_in": ["form", "detail"],
+            "show_in": [
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "unique": true,
@@ -84,11 +99,15 @@
         },
         "name": {
             "type": "string",
-            "label": "Name",
+            "label": "CRUD6.ROLE.NAME",
             "required": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"],
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "length": {
@@ -101,37 +120,46 @@
         },
         "description": {
             "type": "text",
-            "label": "Description",
+            "label": "CRUD6.ROLE.DESCRIPTION",
             "required": false,
             "sortable": false,
             "filterable": false,
-            "show_in": ["list", "form", "detail"]
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ]
         },
         "permission_ids": {
             "type": "multiselect",
-            "label": "Permissions",
+            "label": "CRUD6.ROLE.PERMISSIONS",
             "description": "Role permissions (used for sync on update)",
-            "computed": true,
             "lookup": {
                 "model": "permissions",
                 "id": "id",
                 "desc": "name"
             },
             "required": false,
-            "show_in": ["form"]
+            "show_in": [
+                "form"
+            ]
         },
         "created_at": {
             "type": "datetime",
-            "label": "Created At",
+            "label": "CRUD6.ROLE.CREATED_AT",
             "readonly": true,
-            "show_in": ["detail"],
+            "show_in": [
+                "detail"
+            ],
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
-            "label": "Updated At",
+            "label": "CRUD6.ROLE.UPDATED_AT",
             "readonly": true,
-            "show_in": ["detail"],
+            "show_in": [
+                "detail"
+            ],
             "date_format": "Y-m-d H:i:s"
         }
     }

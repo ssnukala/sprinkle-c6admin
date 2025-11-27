@@ -1,8 +1,8 @@
 {
     "model": "users",
-    "title": "USER.PAGE",
-    "singular_title": "USER.1",
-    "description": "USER.PAGE_DESCRIPTION",
+    "title": "CRUD6.USER.PAGE",
+    "singular_title": "CRUD6.USER.1",
+    "description": "CRUD6.USER.PAGE_DESCRIPTION",
     "table": "users",
     "primary_key": "id",
     "permissions": {
@@ -21,7 +21,7 @@
             "pivot_table": "role_users",
             "foreign_key": "user_id",
             "related_key": "role_id",
-            "title": "ROLE.2",
+            "title": "CRUD6.ROLE.2",
             "actions": {
                 "on_create": {
                     "attach": [
@@ -55,7 +55,7 @@
             "second_pivot_table": "permission_roles",
             "second_foreign_key": "role_id",
             "second_related_key": "permission_id",
-            "title": "PERMISSION.2"
+            "title": "CRUD6.PERMISSION.2"
         }
     ],
     "details": [
@@ -68,7 +68,7 @@
                 "description",
                 "ip_address"
             ],
-            "title": "ACTIVITY.2"
+            "title": "CRUD6.ACTIVITY.2"
         },
         {
             "model": "roles",
@@ -77,7 +77,7 @@
                 "slug",
                 "description"
             ],
-            "title": "ROLE.2"
+            "title": "CRUD6.ROLE.2"
         },
         {
             "model": "permissions",
@@ -86,75 +86,107 @@
                 "name",
                 "description"
             ],
-            "title": "PERMISSION.2"
+            "title": "CRUD6.PERMISSION.2"
         }
     ],
     "actions": [
         {
             "key": "toggle_enabled",
+            "label": "CRUD6.USER.TOGGLE_ENABLED",
+            "icon": "toggle-on",
             "type": "field_update",
             "field": "flag_enabled",
             "toggle": true,
-            "label": "USER.ADMIN.TOGGLE_ENABLED",
             "permission": "update_user_field"
         },
         {
             "key": "toggle_verified",
+            "label": "CRUD6.USER.TOGGLE_VERIFIED",
+            "icon": "check-circle",
             "type": "field_update",
             "field": "flag_verified",
             "toggle": true,
-            "label": "USER.ADMIN.TOGGLE_VERIFIED",
             "permission": "update_user_field"
         },
         {
             "key": "reset_password",
+            "label": "CRUD6.USER.RESET_PASSWORD",
+            "icon": "envelope",
             "type": "api_call",
             "method": "POST",
-            "label": "USER.ADMIN.PASSWORD_RESET",
+            "style": "secondary",
             "permission": "update_user_field",
-            "confirm": "USER.ADMIN.PASSWORD_RESET_CONFIRM"
+            "confirm": "CRUD6.USER.ADMIN.PASSWORD_RESET_CONFIRM",
+            "modal_config": {
+                "type": "confirm"
+            }
         },
         {
             "key": "password_action",
+            "label": "CRUD6.USER.CHANGE_PASSWORD",
+            "icon": "key",
             "type": "field_update",
-            "label": "USER.ADMIN.CHANGE_PASSWORD",
+            "field": "password",
+            "style": "warning",
             "permission": "update_user_field",
-            "confirm": "USER.ADMIN.PASSWORD_CHANGE_CONFIRM"
+            "confirm": "CRUD6.USER.ADMIN.PASSWORD_RESET_CONFIRM",
+            "modal_config": {
+                "type": "input",
+                "fields": [
+                    "password"
+                ]
+            }
         },
         {
             "key": "disable_user",
+            "label": "CRUD6.USER.DISABLE_USER",
+            "icon": "user-slash",
             "type": "field_update",
             "field": "flag_enabled",
             "value": false,
-            "label": "USER.DISABLE",
+            "style": "danger",
             "permission": "update_user_field",
-            "confirm": "USER.DISABLE_CONFIRM"
+            "confirm": "CRUD6.USER.DISABLE_CONFIRM",
+            "modal_config": {
+                "type": "confirm"
+            }
         },
         {
             "key": "enable_user",
+            "label": "CRUD6.USER.ENABLE_USER",
+            "icon": "user-check",
             "type": "field_update",
             "field": "flag_enabled",
             "value": true,
-            "label": "USER.ENABLE",
+            "style": "primary",
             "permission": "update_user_field",
-            "confirm": "USER.ENABLE_CONFIRM"
+            "confirm": "CRUD6.USER.ENABLE_CONFIRM",
+            "modal_config": {
+                "type": "confirm"
+            }
         }
     ],
     "fields": {
         "id": {
             "type": "integer",
-            "label": "ID",
+            "label": "CRUD6.USER.ID",
             "auto_increment": true,
             "readonly": true,
-            "show_in": ["detail"]
+            "show_in": [
+                "detail"
+            ]
         },
         "user_name": {
             "type": "string",
-            "label": "Username",
+            "label": "CRUD6.USER.USERNAME",
             "required": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"],
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "unique": true,
@@ -169,11 +201,15 @@
         },
         "first_name": {
             "type": "string",
-            "label": "First Name",
+            "label": "CRUD6.USER.FIRST_NAME",
             "required": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"],
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "length": {
@@ -186,11 +222,15 @@
         },
         "last_name": {
             "type": "string",
-            "label": "Last Name",
+            "label": "CRUD6.USER.LAST_NAME",
             "required": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"],
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "length": {
@@ -203,11 +243,15 @@
         },
         "email": {
             "type": "email",
-            "label": "Email",
+            "label": "CRUD6.USER.EMAIL",
             "required": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"],
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "email": true,
@@ -221,9 +265,12 @@
         },
         "locale": {
             "type": "string",
-            "label": "Locale",
+            "label": "CRUD6.USER.LOCALE",
             "required": false,
-            "show_in": ["form", "detail"],
+            "show_in": [
+                "form",
+                "detail"
+            ],
             "default": "en_US",
             "validation": {
                 "length": {
@@ -233,51 +280,44 @@
         },
         "group_id": {
             "type": "integer",
-            "label": "Group",
+            "label": "CRUD6.USER.GROUP",
             "required": false,
-            "show_in": ["form", "detail"]
-        },
-        "theme": {
-            "type": "string",
-            "label": "Theme",
-            "required": false,
-            "show_in": ["form", "detail"],
-            "validation": {
-                "length": {
-                    "max": 100
-                }
-            }
-        },
-        "last_activity_id": {
-            "type": "integer",
-            "label": "Last Activity ID",
-            "required": false,
-            "show_in": [],
-            "readonly": true
+            "show_in": [
+                "form",
+                "detail"
+            ]
         },
         "flag_verified": {
             "type": "boolean",
             "ui": "toggle",
-            "label": "Verified",
+            "label": "CRUD6.USER.VERIFIED",
             "description": "Email verification status",
             "default": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"]
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ]
         },
         "flag_enabled": {
             "type": "boolean",
             "ui": "toggle",
-            "label": "Enabled",
+            "label": "CRUD6.USER.ENABLED",
             "description": "Account enabled status",
             "default": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"]
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ]
         },
         "role_ids": {
             "type": "multiselect",
-            "label": "Roles",
+            "label": "CRUD6.USER.ROLES",
             "description": "User roles (used for sync on update)",
             "computed": true,
             "lookup": {
@@ -286,40 +326,48 @@
                 "desc": "name"
             },
             "required": false,
-            "show_in": ["form"]
+            "show_in": [
+                "form"
+            ]
         },
         "password": {
             "type": "password",
-            "label": "Password",
+            "label": "CRUD6.USER.PASSWORD",
             "required": false,
-            "show_in": ["create", "edit"],
+            "show_in": [
+                "create",
+                "edit"
+            ],
             "validation": {
                 "length": {
-                    "min": 8,
-                    "max": 255
+                    "min": 8
                 },
                 "match": true
             }
         },
         "deleted_at": {
             "type": "datetime",
-            "label": "Deleted At",
+            "label": "CRUD6.USER.DELETED_AT",
             "readonly": true,
             "show_in": [],
             "date_format": "Y-m-d H:i:s"
         },
         "created_at": {
             "type": "datetime",
-            "label": "Created At",
+            "label": "CRUD6.USER.CREATED_AT",
             "readonly": true,
-            "show_in": ["detail"],
+            "show_in": [
+                "detail"
+            ],
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
-            "label": "Updated At",
+            "label": "CRUD6.USER.UPDATED_AT",
             "readonly": true,
-            "show_in": ["detail"],
+            "show_in": [
+                "detail"
+            ],
             "date_format": "Y-m-d H:i:s"
         }
     }

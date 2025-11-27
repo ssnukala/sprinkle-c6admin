@@ -1,8 +1,8 @@
 {
     "model": "groups",
-    "title": "GROUP.PAGE",
-    "singular_title": "GROUP.1",
-    "description": "GROUP.PAGE_DESCRIPTION",
+    "title": "CRUD6.GROUP.PAGE",
+    "singular_title": "CRUD6.GROUP.1",
+    "description": "CRUD6.GROUP.PAGE_DESCRIPTION",
     "table": "groups",
     "primary_key": "id",
     "permissions": {
@@ -18,23 +18,34 @@
         {
             "model": "users",
             "foreign_key": "group_id",
-            "list_fields": ["user_name", "first_name", "last_name", "email", "flag_enabled"],
-            "title": "GROUP.USERS"
+            "list_fields": [
+                "user_name",
+                "first_name",
+                "last_name",
+                "email",
+                "flag_enabled"
+            ],
+            "title": "CRUD6.GROUP.USERS"
         }
     ],
     "fields": {
         "id": {
             "type": "integer",
-            "label": "ID",
+            "label": "CRUD6.GROUP.ID",
             "auto_increment": true,
             "readonly": true,
-            "show_in": ["detail"]
+            "show_in": [
+                "detail"
+            ]
         },
         "slug": {
             "type": "string",
-            "label": "Slug",
+            "label": "CRUD6.GROUP.SLUG",
             "required": true,
-            "show_in": ["form", "detail"],
+            "show_in": [
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "unique": true,
@@ -46,11 +57,15 @@
         },
         "name": {
             "type": "string",
-            "label": "Name",
+            "label": "CRUD6.GROUP.NAME",
             "required": true,
             "sortable": true,
             "filterable": true,
-            "show_in": ["list", "form", "detail"],
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ],
             "validation": {
                 "required": true,
                 "length": {
@@ -63,17 +78,24 @@
         },
         "description": {
             "type": "text",
-            "label": "Description",
+            "label": "CRUD6.GROUP.DESCRIPTION",
             "required": false,
             "sortable": false,
             "filterable": false,
-            "show_in": ["list", "form", "detail"]
+            "show_in": [
+                "list",
+                "form",
+                "detail"
+            ]
         },
         "icon": {
             "type": "string",
-            "label": "Icon",
+            "label": "CRUD6.GROUP.ICON",
             "required": false,
-            "show_in": ["form", "detail"],
+            "show_in": [
+                "form",
+                "detail"
+            ],
             "validation": {
                 "length": {
                     "max": 100
@@ -82,16 +104,20 @@
         },
         "created_at": {
             "type": "datetime",
-            "label": "Created At",
+            "label": "CRUD6.GROUP.CREATED_AT",
             "readonly": true,
-            "show_in": ["detail"],
+            "show_in": [
+                "detail"
+            ],
             "date_format": "Y-m-d H:i:s"
         },
         "updated_at": {
             "type": "datetime",
-            "label": "Updated At",
+            "label": "CRUD6.GROUP.UPDATED_AT",
             "readonly": true,
-            "show_in": ["detail"],
+            "show_in": [
+                "detail"
+            ],
             "date_format": "Y-m-d H:i:s"
         }
     }
