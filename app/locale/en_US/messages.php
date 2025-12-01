@@ -16,6 +16,40 @@
 
 return [
     'CRUD6' => [
+
+        'ADMIN_PANEL'          => 'Admin Panel',
+        'DASHBOARD'            => 'Dashboard',
+        'DELETE_MASTER'        => 'You cannot delete the master account',
+        'DELETION_SUCCESSFUL'  => 'User <strong>{{user_name}}</strong> has been successfully deleted.',
+        'DETAILS_UPDATED'      => 'Account details updated for user <strong>{{user_name}}</strong>',
+        'DISABLE_MASTER'       => 'You cannot disable the master account',
+        'DISABLE_SELF'         => 'You cannot disable your own account',
+        'DISABLE_SUCCESSFUL'   => 'Account for user <strong>{{user_name}}</strong> has been successfully disabled.',
+        'ENABLE_SUCCESSFUL'    => 'Account for user <strong>{{user_name}}</strong> has been successfully enabled.',
+        'MANUALLY_ACTIVATED'   => "{{user_name}}'s account has been manually activated",
+
+        'SITE_CONFIG' => [
+            '@TRANSLATION'      => 'Site configuration',
+            'CACHE'             => [
+                '@TRANSLATION'      => 'Cache Management',
+                'CLEAR'             => 'Clear cache',
+                'CLEAR_CONFIRM'     => 'Are you sure you want to clear the site cache?',
+                'CLEAR_CONFIRM_YES' => 'Yes, clear cache',
+                'CLEARED'           => 'Cache cleared successfully !',
+            ],
+            'PAGE_DESCRIPTION'  => 'Use the forms below to update your site configuration settings.',
+            'SYSTEM_INFO'       => [
+                '@TRANSLATION'  => 'System information',
+                'DB_NAME'       => 'Database Name',
+                'DB_CONNECTION' => 'Database Connection',
+                'DB_VERSION'    => 'Database Version',
+                'DIRECTORY'     => 'Project Directory',
+                'PHP_VERSION'   => 'PHP Version',
+                'SERVER'        => 'Webserver Software',
+                'SPRINKLES'     => 'Loaded Sprinkles',
+                'UF_VERSION'    => 'Framework Version',
+            ],
+        ],
         'ACTIVITY' => [
             1 => 'Activity',
             2 => 'Activities',
@@ -34,17 +68,7 @@ return [
             'DESCRIPTION' => 'Description',
         ],
 
-        'ADMIN_PANEL'          => 'Admin Panel',
-        'DASHBOARD'            => 'Dashboard',
-        'DELETE_MASTER'        => 'You cannot delete the master account',
-        'DELETION_SUCCESSFUL'  => 'User <strong>{{user_name}}</strong> has been successfully deleted.',
-        'DETAILS_UPDATED'      => 'Account details updated for user <strong>{{user_name}}</strong>',
-        'DISABLE_MASTER'       => 'You cannot disable the master account',
-        'DISABLE_SELF'         => 'You cannot disable your own account',
-        'DISABLE_SUCCESSFUL'   => 'Account for user <strong>{{user_name}}</strong> has been successfully disabled.',
-        'ENABLE_SUCCESSFUL'    => 'Account for user <strong>{{user_name}}</strong> has been successfully enabled.',
-        'MANUALLY_ACTIVATED'   => "{{user_name}}'s account has been manually activated",
-
+        // Group model translations
         'GROUP' => [
             1 => 'Group',
             2 => 'Groups',
@@ -81,6 +105,7 @@ return [
             'UPDATED_AT'  => 'Updated At',
         ],
 
+        // Permission model translations
         'PERMISSION' => [
             1 => 'Permission',
             2 => 'Permissions',
@@ -104,11 +129,13 @@ return [
             'NAME'        => 'Permission Name',
             'CONDITIONS'  => 'Conditions',
             'DESCRIPTION' => 'Description',
+            'ROLES'       => 'Roles',
             'ROLE_IDS'    => 'Roles',
             'CREATED_AT'  => 'Created At',
             'UPDATED_AT'  => 'Updated At',
         ],
 
+        // Role model translations
         'ROLE' => [
             1 => 'Role',
             2 => 'Roles',
@@ -137,55 +164,55 @@ return [
             'UPDATE'              => 'Update Roles',
             'UPDATED'             => 'Details updated for role <strong>{{name}}</strong>',
             'USERS'               => 'Users with this role',
+
+            // Field labels from roles.json
+            'ID'              => 'Role ID',
+            'SLUG'            => 'Role Slug',
+            'DESCRIPTION'     => 'Description',
+            'PERMISSION_IDS'  => 'Permissions',
+            'CREATED_AT'      => 'Created At',
+            'UPDATED_AT'      => 'Updated At',
         ],
 
-        'SITE_CONFIG' => [
-            '@TRANSLATION'      => 'Site configuration',
-            'CACHE'             => [
-                '@TRANSLATION'      => 'Cache Management',
-                'CLEAR'             => 'Clear cache',
-                'CLEAR_CONFIRM'     => 'Are you sure you want to clear the site cache?',
-                'CLEAR_CONFIRM_YES' => 'Yes, clear cache',
-                'CLEARED'           => 'Cache cleared successfully !',
-            ],
-            'PAGE_DESCRIPTION'  => 'Use the forms below to update your site configuration settings.',
-            'SYSTEM_INFO'       => [
-                '@TRANSLATION'  => 'System information',
-                'DB_NAME'       => 'Database Name',
-                'DB_CONNECTION' => 'Database Connection',
-                'DB_VERSION'    => 'Database Version',
-                'DIRECTORY'     => 'Project Directory',
-                'PHP_VERSION'   => 'PHP Version',
-                'SERVER'        => 'Webserver Software',
-                'SPRINKLES'     => 'Loaded Sprinkles',
-                'UF_VERSION'    => 'Framework Version',
-            ],
-        ],
-
+        // User model translations
         'USER' => [
             1 => 'User',
             2 => 'Users',
 
-            'CHANGE_PASSWORD'          => "Change User's Password",
-            'PASSWORD_RESET_SUCCESS'   => "<strong>{{full_name}}</strong>'s password has been reset.",
-            'PASSWORD_RESET'           => "Reset user's password",
-            'PASSWORD_RESET_CONFIRM'   => 'Are you sure you want to force reset <strong>{{full_name}} ({{user_name}})</strong>\'s password?',
+            // Action button labels - these match the schema action label keys
             'TOGGLE_ENABLED'           => 'Toggle Enabled',
-            'TOGGLE_ENABLED_SUCCESS'   => 'User status updated successfully',
             'TOGGLE_VERIFIED'          => 'Toggle Verified',
+            'RESET_PASSWORD'           => 'Send Password Reset',
+            'CHANGE_PASSWORD'          => "Change User's Password",
+            'DISABLE_USER'             => 'Disable User',
+            'ENABLE_USER'              => 'Enable User',
+
+            // Confirmation messages - these match the schema action confirm keys
+            'DISABLE_CONFIRM'          => 'Are you sure you want to disable <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
+            'ENABLE_CONFIRM'           => 'Are you sure you want to enable <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
+
+            // Success messages
+            'PASSWORD_RESET_SUCCESS'   => "<strong>{{first_name}} {{last_name}}</strong>'s password has been reset.",
+            'TOGGLE_ENABLED_SUCCESS'   => 'User status updated successfully',
             'TOGGLE_VERIFIED_SUCCESS'  => 'User verification status updated successfully',
+
+            // Admin-specific actions (nested under ADMIN for confirm messages in schema)
+            'ADMIN' => [
+                'PASSWORD_RESET_CONFIRM'   => 'Are you sure you want to send a password reset link to <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
+                'PASSWORD_CHANGE_CONFIRM'  => 'Are you sure you want to change the password for <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
+            ],
+
+            // Legacy action labels (deprecated - use direct keys above)
             'ACTIVATE'                 => 'Activate user',
-            'ACTIVATE_CONFIRM'         => 'Are you sure you want to activate <strong>{{full_name}} ({{user_name}})</strong>?',
+            'ACTIVATE_CONFIRM'         => 'Are you sure you want to activate <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
             'CREATE'                   => 'Create user',
             'CREATED'                  => 'User <strong>{{user_name}}</strong> has been successfully created',
             'DELETE'                   => 'Delete user',
-            'DELETE_CONFIRM'           => 'Are you sure you want to delete the user <strong>{{full_name}} ({{user_name}})</strong>?',
+            'DELETE_CONFIRM'           => 'Are you sure you want to delete the user <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
             'DELETED'                  => 'User deleted',
             'DISABLE'                  => 'Disable user',
-            'DISABLE_CONFIRM'          => 'Are you sure you want to disable <strong>{{full_name}} ({{user_name}})</strong>?',
             'EDIT'                     => 'Edit user',
             'ENABLE'                   => 'Enable user',
-            'ENABLE_CONFIRM'           => 'Are you sure you want to enable <strong>{{full_name}} ({{user_name}})</strong>?',
             'INFO_PAGE'                => 'View and edit user details.',
             'LATEST'                   => 'Latest Users',
             'PAGE'                     => 'Users',
@@ -209,5 +236,6 @@ return [
             'UPDATED_AT'  => 'Updated At',
             'ROLE_IDS'    => 'Roles',
         ],
+
     ],
 ];
