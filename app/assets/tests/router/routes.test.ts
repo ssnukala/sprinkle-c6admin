@@ -35,7 +35,7 @@ describe('routes.test.ts', () => {
             
             expect(routes.length).toBe(1)
             expect(routes[0].path).toBe('/c6/admin')
-            expect(routes[0].meta?.title).toBe('C6ADMIN_PANEL')
+            expect(routes[0].meta?.title).toBe('CRUD6.ADMIN_PANEL')
             expect(routes[0].meta?.auth).toEqual({}) // Auth required by default
             expect(routes[0].children).toBe(C6AdminChildRoutes)
         })

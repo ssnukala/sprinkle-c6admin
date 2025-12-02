@@ -42,8 +42,8 @@ export interface C6AdminRoutesOptions {
     basePath?: string
     
     /**
-     * Meta title for the admin panel
-     * @default 'C6ADMIN_PANEL'
+     * Meta title for the admin panel (translation key)
+     * @default 'CRUD6.ADMIN_PANEL'
      */
     title?: string
 }
@@ -92,7 +92,7 @@ export interface C6AdminRoutesOptions {
  *     path: '/c6/admin',
  *     component: () => import('./layouts/LayoutDashboard.vue'),
  *     children: C6AdminChildRoutes,
- *     meta: { title: 'C6ADMIN_PANEL' }
+ *     meta: { title: 'CRUD6.ADMIN_PANEL' }
  *   }
  * ]
  * ```
@@ -101,7 +101,7 @@ export function createC6AdminRoutes(options: C6AdminRoutesOptions = {}): RouteRe
     const {
         layoutComponent,
         basePath = '/c6/admin',
-        title = 'C6ADMIN_PANEL'
+        title = 'CRUD6.ADMIN_PANEL'
     } = options
 
     const route: RouteRecordRaw = {
@@ -139,7 +139,7 @@ export function createC6AdminRoutes(options: C6AdminRoutesOptions = {}): RouteRe
  *     path: '/c6/admin',
  *     component: () => import('./layouts/LayoutDashboard.vue'),
  *     children: C6AdminRoutes,  // <-- Use as children of layout route
- *     meta: { auth: {}, title: 'C6ADMIN_PANEL' }
+ *     meta: { auth: {}, title: 'CRUD6.ADMIN_PANEL' }
  *   }
  * ]
  * ```
