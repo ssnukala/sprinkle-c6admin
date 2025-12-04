@@ -95,7 +95,7 @@
             "type": "field_update",
             "field": "flag_enabled",
             "toggle": true,
-            "label": "Toggle Enabled",
+            "label": "USER.ADMIN.TOGGLE_ENABLED",
             "permission": "update_user_field"
         },
         {
@@ -103,7 +103,7 @@
             "type": "field_update",
             "field": "flag_verified",
             "toggle": true,
-            "label": "Toggle Verified",
+            "label": "USER.ADMIN.TOGGLE_VERIFIED",
             "permission": "update_user_field"
         },
         {
