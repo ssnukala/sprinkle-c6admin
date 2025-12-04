@@ -24,7 +24,6 @@
         "./components": "./app/assets/components/index.ts",
         "./composables": "./app/assets/composables/index.ts",
         "./interfaces": "./app/assets/interfaces/index.ts",
-        "./locale": "./app/assets/locale/index.ts",
         "./routes": "./app/assets/routes/index.ts",
         "./views": "./app/assets/views/index.ts"
     },
