@@ -17,6 +17,7 @@ return [
     'CRUD6' => [
 
         'ACTIVITY' => [
+            '@TRANSLATION' => 'Activité',
             1 => 'Activité',
             2 => 'Activités',
 
@@ -40,6 +41,7 @@ return [
         'ENABLE_SUCCESSFUL'   => 'Le compte de l\'utilisateur <strong>{{user_name}}</strong> a été activé avec succès.',
 
         'GROUP'               => [
+            '@TRANSLATION' => 'Groupe',
             1                     => 'Groupe',
             2                     => 'Groupes',
 
@@ -70,6 +72,7 @@ return [
         'MANUALLY_ACTIVATED'    => 'Le compte de {{user_name}} a été activé manuellement',
 
         'PERMISSION' => [
+            '@TRANSLATION' => 'Autorisation',
             1                  => 'Autorisation',
             2                  => 'Autorisations',
 
@@ -89,6 +92,7 @@ return [
         ],
 
         'ROLE' => [
+            '@TRANSLATION' => 'Rôle',
             1                     => 'Rôle',
             2                     => 'Rôles',
 
@@ -142,10 +146,12 @@ return [
         ],
 
         'USER'           => [
+            '@TRANSLATION' => 'Utilisateur',
             1       => 'Utilisateur',
             2       => 'Utilisateurs',
 
             'ADMIN' => [
+                '@TRANSLATION' => 'Admin',
                 'CHANGE_PASSWORD'           => 'Changer le mot de passe de l\'utilisateur',
                 'PASSWORD_RESET_SUCCESS'    => 'Le mot de passer de <strong>{{full_name}}</strong> a été réinitialisé.',
                 'PASSWORD_RESET'            => 'Réinitialiser le mot de passe de l\'utilisateur',
