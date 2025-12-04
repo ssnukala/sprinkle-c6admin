@@ -2,6 +2,7 @@
     "model": "permissions",
     "title": "CRUD6.PERMISSION.PAGE",
     "singular_title": "CRUD6.PERMISSION.1",
+    "title_field": "name",
     "description": "CRUD6.PERMISSION.PAGE_DESCRIPTION",
     "table": "permissions",
     "primary_key": "id",

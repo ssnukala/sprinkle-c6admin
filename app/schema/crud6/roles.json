@@ -2,6 +2,7 @@
     "model": "roles",
     "title": "CRUD6.ROLE.PAGE",
     "singular_title": "CRUD6.ROLE.1",
+    "title_field": "name",
     "description": "CRUD6.ROLE.PAGE_DESCRIPTION",
     "table": "roles",
     "primary_key": "id",

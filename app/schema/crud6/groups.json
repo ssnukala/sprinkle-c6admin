@@ -2,6 +2,7 @@
     "model": "groups",
     "title": "CRUD6.GROUP.PAGE",
     "singular_title": "CRUD6.GROUP.1",
+    "title_field": "name",
     "description": "CRUD6.GROUP.PAGE_DESCRIPTION",
     "table": "groups",
     "primary_key": "id",

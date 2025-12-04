@@ -18,6 +18,7 @@ return [
     'CRUD6' => [
 
         'ADMIN_PANEL'          => 'Admin Panel',
+        'ADMIN_TITLE'          => 'Admin',
         'DASHBOARD'            => 'Dashboard',
         'DELETE_MASTER'        => 'You cannot delete the master account',
         'DELETION_SUCCESSFUL'  => 'User <strong>{{user_name}}</strong> has been successfully deleted.',
