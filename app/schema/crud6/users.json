@@ -2,6 +2,7 @@
     "model": "users",
     "title": "CRUD6.USER.PAGE",
     "singular_title": "CRUD6.USER.1",
+    "title_field": "user_name",
     "description": "CRUD6.USER.PAGE_DESCRIPTION",
     "table": "users",
     "primary_key": "id",

@@ -2,6 +2,7 @@
     "model": "activities",
     "title": "CRUD6.ACTIVITY.PAGE",
     "singular_title": "CRUD6.ACTIVITY.1",
+    "title_field": "type",
     "description": "CRUD6.ACTIVITY.PAGE_DESCRIPTION",
     "table": "activities",
     "primary_key": "id",

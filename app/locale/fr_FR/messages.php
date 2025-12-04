@@ -27,6 +27,7 @@ return [
             'TIME'             => 'Date de l\'activité',
         ],
         'ADMIN_PANEL' => "Panneau d'admin",
+        'ADMIN_TITLE' => 'Admin',
 
         'DASHBOARD'           => 'Tableau de bord',
         'DELETE_MASTER'       => 'Vous ne pouvez pas supprimer le compte principal !',
