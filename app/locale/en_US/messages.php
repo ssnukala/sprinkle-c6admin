@@ -191,6 +191,7 @@ return [
             // Confirmation messages - these match the schema action confirm keys
             'DISABLE_CONFIRM'          => 'Are you sure you want to disable <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
             'ENABLE_CONFIRM'           => 'Are you sure you want to enable <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
+            'TOGGLE_VERIFIED_CONFIRM'   => "Are you sure you want to toggle the verified status for <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?",
 
             // Success messages
             'PASSWORD_RESET_SUCCESS'   => "<strong>{{first_name}} {{last_name}}</strong>'s password has been reset.",

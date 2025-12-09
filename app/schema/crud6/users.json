@@ -97,6 +97,7 @@
             "icon": "toggle-on",
             "type": "field_update",
             "field": "flag_enabled",
+            "style": "warning",
             "toggle": true,
             "permission": "update_user_field"
         },
@@ -105,7 +106,9 @@
             "label": "CRUD6.USER.TOGGLE_VERIFIED",
             "icon": "check-circle",
             "type": "field_update",
+            "style": "primary",
             "field": "flag_verified",
+            "confirm": "CRUD6.USER.TOGGLE_VERIFIED_CONFIRM",
             "toggle": true,
             "permission": "update_user_field"
         },
