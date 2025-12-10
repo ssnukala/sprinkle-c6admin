@@ -72,6 +72,7 @@ function testPath($name, $pathConfig, $baseUrl, $isAuth = false, $username = nul
     $method = $pathConfig['method'] ?? 'GET';
     $description = $pathConfig['description'] ?? $name;
     $expectedStatus = $pathConfig['expected_status'] ?? 200;
+    $alternativeStatuses = $pathConfig['alternative_statuses'] ?? [];
     
     echo "Testing: {$name}\n";
     echo "   Description: {$description}\n";
@@ -99,9 +100,27 @@ function testPath($name, $pathConfig, $baseUrl, $isAuth = false, $username = nul
     // Execute curl command
     $httpCode = trim(shell_exec($curlCmd));
     
-    // Validate status code
-    if ($httpCode == $expectedStatus) {
-        echo "   ✅ Status: {$httpCode} (expected {$expectedStatus})\n";
+    // Validate status code - check if it matches expected or any alternative status
+    $statusMatches = ($httpCode == $expectedStatus);
+    $matchedStatus = $expectedStatus;
+    
+    if (!$statusMatches && !empty($alternativeStatuses)) {
+        foreach ($alternativeStatuses as $altStatus) {
+            if ($httpCode == $altStatus) {
+                $statusMatches = true;
+                $matchedStatus = $altStatus;
+                break;
+            }
+        }
+    }
+    
+    if ($statusMatches) {
+        if (!empty($alternativeStatuses)) {
+            $allStatuses = array_merge([$expectedStatus], $alternativeStatuses);
+            echo "   ✅ Status: {$httpCode} (expected " . implode(' or ', $allStatuses) . ")\n";
+        } else {
+            echo "   ✅ Status: {$httpCode} (expected {$expectedStatus})\n";
+        }
         
         // Additional validation if specified
         if (isset($pathConfig['validation'])) {
@@ -151,7 +170,12 @@ function testPath($name, $pathConfig, $baseUrl, $isAuth = false, $username = nul
         echo "   ✅ PASSED\n\n";
         $passedTests++;
     } else {
-        echo "   ❌ Status: {$httpCode} (expected {$expectedStatus})\n";
+        if (!empty($alternativeStatuses)) {
+            $allStatuses = array_merge([$expectedStatus], $alternativeStatuses);
+            echo "   ❌ Status: {$httpCode} (expected " . implode(' or ', $allStatuses) . ")\n";
+        } else {
+            echo "   ❌ Status: {$httpCode} (expected {$expectedStatus})\n";
+        }
         echo "   ❌ FAILED\n\n";
         $failedTests++;
     }
