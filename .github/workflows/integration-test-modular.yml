@@ -366,49 +366,41 @@ jobs:
           # Test unauthenticated frontend paths (should redirect to login)
           php test-paths.php integration-test-paths.json unauth frontend
 
-      - name: Take screenshots of C6Admin pages (Modular)
+      - name: Take screenshots of C6Admin pages with network tracking
         run: |
           cd userfrosting
-          # Copy modular screenshot script
-          cp ../sprinkle-c6admin/.github/scripts/take-screenshots-modular.js .
+          # Copy screenshot script with network tracking (from CRUD6)
+          cp ../sprinkle-c6admin/.github/scripts/take-screenshots-with-tracking.js .
 
           echo "========================================="
-          echo "Taking screenshots with enhanced debugging"
+          echo "Taking screenshots with network tracking"
           echo "========================================="
 
-          # Take screenshots using modular configuration (reads from integration-test-paths.json)
-          # Run with verbose output
-          node take-screenshots-modular.js integration-test-paths.json 2>&1 | tee /tmp/screenshot.log
-
-          # Check exit code
-          SCREENSHOT_EXIT_CODE=${PIPESTATUS[0]}
-          echo ""
-          echo "Screenshot script exit code: $SCREENSHOT_EXIT_CODE"
+          # Take screenshots using configuration with network tracking
+          # This script tracks network requests made during page loads
+          # NOTE: This script now detects error notifications and fails if found
+          node take-screenshots-with-tracking.js integration-test-paths.json
 
           echo ""
           echo "========================================="
           echo "Screenshot summary"
           echo "========================================="
-          # List all screenshots
+          # List screenshots if they exist
           ls -lh /tmp/screenshot_*.png 2>/dev/null || echo "No screenshots generated"
 
-          # Count screenshots
-          SCREENSHOT_COUNT=$(ls -1 /tmp/screenshot_*.png 2>/dev/null | wc -l)
           echo ""
-          echo "Total screenshots captured: $SCREENSHOT_COUNT"
-
-          # If screenshot script failed, show Vite logs
-          if [ $SCREENSHOT_EXIT_CODE -ne 0 ]; then
+          echo "========================================="
+          echo "Network Request Summary"
+          echo "========================================="
+          # Check if network summary file exists and show basic info
+          if [ -f /tmp/network-requests-summary.txt ]; then
+            echo "✅ Network request summary generated"
+            ls -lh /tmp/network-requests-summary.txt
             echo ""
-            echo "========================================="
-            echo "⚠️ Screenshot script failed - showing server logs"
-            echo "========================================="
-            echo ""
-            echo "Vite server log:"
-            tail -50 /tmp/vite.log || echo "No Vite log available"
-            echo ""
-            echo "PHP server may have output (checking running processes):"
-            ps aux | grep -E "(php|vite|node)" | grep -v grep || echo "No relevant processes found"
+            echo "Preview of summary (first 30 lines):"
+            head -n 30 /tmp/network-requests-summary.txt
+          else
+            echo "⚠️  Network request summary not found"
           fi
 
       - name: Upload screenshots as artifacts
@@ -417,6 +409,24 @@ jobs:
         with:
           name: integration-test-screenshots-c6admin
           path: /tmp/screenshot_*.png
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload network request summary as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-requests-summary
+          path: /tmp/network-requests-summary.txt
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Upload browser console errors as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-console-errors
+          path: /tmp/browser-console-errors.txt
           if-no-files-found: ignore
           retention-days: 30
 
@@ -482,6 +492,29 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
+      - name: Capture and display PHP error logs
+        if: always()
+        run: |
+          cd userfrosting
+
+          # Copy PHP error log capture script from sprinkle
+          cp ../sprinkle-c6admin/.github/scripts/capture-php-error-logs.sh .
+          chmod +x capture-php-error-logs.sh
+
+          # Run the script to capture and display error logs
+          ./capture-php-error-logs.sh || echo "Error log capture script failed, but continuing..."
+
+      - name: Upload PHP error logs as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-error-logs
+          path: |
+            userfrosting/app/logs/*.log
+            userfrosting/app/storage/logs/*.log
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Stop servers
         if: always()
         run: |
@@ -517,10 +550,15 @@ jobs:
           echo "   - Path configuration: integration-test-paths.json"
           echo "   - Unauthenticated API paths tested"
           echo "   - Unauthenticated frontend paths tested"
-          echo "✅ Screenshots captured using modular script:"
-          echo "   - Screenshot script: take-screenshots-modular.js"
+          echo "✅ Screenshots captured using enhanced script with network tracking:"
+          echo "   - Screenshot script: take-screenshots-with-tracking.js (from CRUD6)"
           echo "   - Configuration-driven screenshot capture"
           echo "   - All C6Admin pages captured (dashboard, users, groups, roles, permissions, activities, config)"
+          echo "   - Network request tracking enabled for frontend pages"
+          echo "   - Tracks all network requests during page loads"
+          echo "   - Detects redundant API calls"
+          echo "   - Reports CRUD6 and schema API call statistics"
+          echo "   - Detailed network request summary saved to file"
           echo "✅ Button testing completed on user detail page:"
           echo "   - Script: test-user-detail-buttons.js"
           echo "   - Tested page: /c6/admin/users/2 (test user, not admin)"
@@ -538,12 +576,16 @@ jobs:
           echo "ℹ️  Note: Both CRUD6 and C6Admin sprinkles are active (CRUD6 is a dependency)"
           echo "ℹ️  Screenshots are taken after logging in with admin user credentials"
           echo "ℹ️  Both PHP and Vite servers were running during tests"
+          echo "ℹ️  Network tracking monitors all frontend API calls and flags redundant requests"
           echo ""
           echo "📸 **View Screenshots:**"
           echo "   Direct link: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "   Look for 'Artifacts' section at the bottom of the page"
           echo "   Download artifacts:"
           echo "   - 'integration-test-screenshots-c6admin' - All C6Admin page screenshots"
+          echo "   - 'network-requests-summary' - CRUD6 API network request summary"
+          echo "   - 'browser-console-errors' - Browser console errors and warnings"
+          echo "   - 'php-error-logs' - Complete PHP error logs"
           echo "   - 'user-detail-button-test-screenshots' - Button interaction screenshots"
           echo "   - 'user-detail-button-test-results' - Button test results (JSON)"
 
@@ -560,7 +602,8 @@ jobs:
           - ✅ Test groups creation (developers, managers, testers)
           - ✅ Schema loading (users, groups, roles, permissions, activities)
           - ✅ **Modular path testing** (API + frontend, auth + unauth)
-          - ✅ **Modular screenshot capture** (configuration-driven)
+          - ✅ **Modular screenshot capture with network tracking** (configuration-driven)
+          - ✅ **Network request tracking** - Monitors frontend API calls and detects redundant requests
           - ✅ **User detail button testing** (interactive button functionality)
 
           ### 🎯 Modular Testing Framework
@@ -576,8 +619,9 @@ jobs:
           - \`check-seeds-modular.php\` - Validates seed data based on JSON configuration
           - \`test-seed-idempotency-modular.php\` - Tests that seeds are idempotent
           - \`test-paths.php\` - Tests API and frontend paths based on JSON configuration
-          - \`take-screenshots-modular.js\` - Captures screenshots based on JSON configuration
+          - \`take-screenshots-with-tracking.js\` - Captures screenshots with network tracking (from CRUD6)
           - \`test-user-detail-buttons.js\` - Tests interactive button functionality on user detail page
+          - \`capture-php-error-logs.sh\` - Captures and displays PHP error logs
 
           **Benefits:**
           - ✅ Configuration-driven - Update JSON files, not workflow code
@@ -602,11 +646,18 @@ jobs:
 
           **Artifacts available:**
           1. **integration-test-screenshots-c6admin** - All C6Admin page screenshots
-          2. **user-detail-button-test-screenshots** - Interactive button testing screenshots
+          2. **network-requests-summary** - Detailed network request report focusing on CRUD6 API calls
+             - Per-page breakdown of CRUD6 requests
+             - CRUD6 and Schema API call identification
+             - Redundant call detection and analysis
+             - Chronological request timeline for CRUD6 calls
+          3. **browser-console-errors** - Browser console errors and warnings
+          4. **php-error-logs** - Complete PHP error logs from app/logs/ and app/storage/logs/
+          5. **user-detail-button-test-screenshots** - Interactive button testing screenshots
              - Before/after screenshots for each button action
              - Modal/dialog screenshots when buttons trigger popups
              - Buttons tested: Edit/View, Reset Password, Disable/Enable, Delete
-          3. **user-detail-button-test-results** - JSON file with detailed test results
+          6. **user-detail-button-test-results** - JSON file with detailed test results
 
           **To view screenshots:**
           1. Scroll to the bottom of the workflow run page (link above)
