@@ -26,11 +26,11 @@
             "actions": {
                 "on_update": {
                     "sync": "role_ids",
-                    "description": "CRUD6.PERMISSION.SYNC_ROLES_DESCRIPTION"
+                    "description": "Sync permission roles from form input"
                 },
                 "on_delete": {
                     "detach": "all",
-                    "description": "CRUD6.PERMISSION.DETACH_ROLES_DESCRIPTION"
+                    "description": "Remove all role associations when permission is deleted"
                 }
             }
         },
@@ -123,6 +123,7 @@
             "type": "text",
             "label": "CRUD6.PERMISSION.CONDITIONS",
             "required": false,
+            "default": "",
             "show_in": [
                 "form",
                 "detail"
@@ -143,7 +144,7 @@
         "role_ids": {
             "type": "multiselect",
             "label": "CRUD6.PERMISSION.ROLES",
-            "description": "CRUD6.PERMISSION.ROLE_IDS_DESCRIPTION",
+            "description": "Permission roles (used for sync on update)",
             "computed": true,
             "lookup": {
                 "model": "roles",
