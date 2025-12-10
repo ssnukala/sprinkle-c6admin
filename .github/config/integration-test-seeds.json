@@ -65,39 +65,28 @@
       ]
     },
     "c6admin": {
-      "description": "C6Admin sprinkle test seeds",
+      "description": "C6Admin sprinkle test data (SQL-based)",
       "order": 3,
-      "seeds": [
-        {
-          "class": "UserFrosting\\Sprinkle\\C6Admin\\Tests\\Database\\Seeds\\TestGroups",
-          "description": "Create test groups (developers, managers, testers)",
-          "required": false,
-          "validation": {
-            "type": "groups",
-            "slugs": [
-              "developers",
-              "managers",
-              "testers"
-            ],
-            "expected_count": 3
-          }
-        },
-        {
-          "class": "UserFrosting\\Sprinkle\\C6Admin\\Tests\\Database\\Seeds\\TestUsers",
-          "description": "Create test users with role and group assignments",
-          "required": false,
-          "validation": {
-            "type": "users",
-            "usernames": [
-              "testadmin",
-              "c6admin",
-              "testuser",
-              "testmoderator"
-            ],
-            "expected_count": 4
-          }
+      "note": "C6Admin test data is now seeded via SQL file (test-data.sql) instead of PHP seeds",
+      "sql_file": "vendor/ssnukala/sprinkle-c6admin/app/tests/test-data.sql",
+      "validation": {
+        "type": "groups",
+        "slugs": [
+          "developers",
+          "managers",
+          "testers"
+        ],
+        "expected_count": 3,
+        "users": {
+          "usernames": [
+            "testadmin",
+            "c6admin",
+            "testuser",
+            "testmoderator"
+          ],
+          "expected_count": 4
         }
-      ]
+      }
     }
   },
   "validation": {
