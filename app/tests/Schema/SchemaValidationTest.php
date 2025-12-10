@@ -216,4 +216,117 @@ class SchemaValidationTest extends C6AdminTestCase
             }
         }
     }
+
+    /**
+     * Test that all description fields in schemas use translation keys (not English text).
+     * All descriptions should start with "CRUD6." to ensure they are translatable.
+     */
+    public function testDescriptionsUseTranslationKeys(): void
+    {
+        foreach ($this->schemas as $schema) {
+            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $content = file_get_contents($path);
+            $decoded = json_decode($content, true);
+
+            // Check top-level description
+            if (isset($decoded['description'])) {
+                $this->assertStringStartsWith(
+                    'CRUD6.',
+                    $decoded['description'],
+                    "Schema {$schema}.json top-level description must use translation key starting with 'CRUD6.'"
+                );
+            }
+
+            // Check field descriptions
+            foreach ($decoded['fields'] as $fieldName => $field) {
+                if (isset($field['description'])) {
+                    $this->assertStringStartsWith(
+                        'CRUD6.',
+                        $field['description'],
+                        "Field '{$fieldName}' description in {$schema}.json must use translation key starting with 'CRUD6.'"
+                    );
+                }
+            }
+
+            // Check relationship action descriptions
+            if (isset($decoded['relationships'])) {
+                foreach ($decoded['relationships'] as $relIndex => $relationship) {
+                    if (isset($relationship['actions'])) {
+                        foreach ($relationship['actions'] as $actionType => $action) {
+                            if (isset($action['description'])) {
+                                $this->assertStringStartsWith(
+                                    'CRUD6.',
+                                    $action['description'],
+                                    "Relationship action '{$actionType}' description in {$schema}.json must use translation key starting with 'CRUD6.'"
+                                );
+                            }
+                            // Check nested attach actions
+                            if ($actionType === 'on_create' && isset($action['attach'])) {
+                                foreach ($action['attach'] as $attachIndex => $attachAction) {
+                                    if (isset($attachAction['description'])) {
+                                        $this->assertStringStartsWith(
+                                            'CRUD6.',
+                                            $attachAction['description'],
+                                            "Relationship attach action description in {$schema}.json must use translation key starting with 'CRUD6.'"
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Test that translation keys used in schemas exist in locale files.
+     */
+    public function testTranslationKeysExistInLocaleFiles(): void
+    {
+        $localeFiles = [
+            'en_US' => __DIR__ . '/../../../../locale/en_US/messages.php',
+            'fr_FR' => __DIR__ . '/../../../../locale/fr_FR/messages.php',
+        ];
+
+        // Keys that should exist based on the schemas
+        $expectedKeys = [
+            'CRUD6.USER.VERIFIED_DESCRIPTION',
+            'CRUD6.USER.ENABLED_DESCRIPTION',
+            'CRUD6.USER.ROLE_IDS_DESCRIPTION',
+            'CRUD6.USER.ASSIGN_DEFAULT_ROLE_DESCRIPTION',
+            'CRUD6.USER.SYNC_ROLES_DESCRIPTION',
+            'CRUD6.USER.DETACH_ROLES_DESCRIPTION',
+            'CRUD6.ROLE.PERMISSION_IDS_DESCRIPTION',
+            'CRUD6.ROLE.SYNC_PERMISSIONS_DESCRIPTION',
+            'CRUD6.ROLE.DETACH_PERMISSIONS_DESCRIPTION',
+            'CRUD6.ROLE.DETACH_USERS_DESCRIPTION',
+            'CRUD6.PERMISSION.ROLE_IDS_DESCRIPTION',
+            'CRUD6.PERMISSION.SYNC_ROLES_DESCRIPTION',
+            'CRUD6.PERMISSION.DETACH_ROLES_DESCRIPTION',
+        ];
+
+        foreach ($localeFiles as $locale => $path) {
+            $this->assertFileExists($path, "Locale file for {$locale} not found");
+            $messages = include $path;
+            
+            foreach ($expectedKeys as $key) {
+                $keyParts = explode('.', $key);
+                $current = $messages;
+                
+                foreach ($keyParts as $part) {
+                    $this->assertArrayHasKey(
+                        $part,
+                        $current,
+                        "Translation key '{$key}' not found in {$locale} locale"
+                    );
+                    $current = $current[$part];
+                }
+                
+                // Verify the final value is a non-empty string
+                $this->assertIsString($current, "Translation for '{$key}' in {$locale} must be a string");
+                $this->assertNotEmpty($current, "Translation for '{$key}' in {$locale} must not be empty");
+            }
+        }
+    }
 }
