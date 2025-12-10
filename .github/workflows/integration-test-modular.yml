@@ -327,34 +327,49 @@ jobs:
           
           echo "✅ Vite server started"
 
-      - name: Test API paths - Unauthenticated (Modular)
+      - name: Test Unauthenticated API paths
         run: |
           cd userfrosting
-          # Copy modular path testing configuration and script
+          # Copy path configuration from sprinkle
           cp ../sprinkle-c6admin/.github/config/integration-test-paths.json .
+          # Copy path testing script from sprinkle
           cp ../sprinkle-c6admin/.github/scripts/test-paths.php .
 
-          # Test unauthenticated API paths
-          php test-paths.php integration-test-paths.json unauth api
+          echo "========================================="
+          echo "Testing Unauthenticated Paths"
+          echo "========================================="
+          # Test unauthenticated paths (all API endpoints should return 401/403)
+          php test-paths.php integration-test-paths.json unauth
 
-      - name: Test frontend paths - Unauthenticated (Modular)
+          echo ""
+          echo "========================================="
+          echo "Note: Authenticated API and frontend paths tested via screenshots step"
+          echo "========================================="
+
+      - name: Test Unauthenticated frontend paths
         run: |
           cd userfrosting
           # Test unauthenticated frontend paths (should redirect to login)
           php test-paths.php integration-test-paths.json unauth frontend
 
-      - name: Take screenshots of C6Admin pages with network tracking
+      - name: Take screenshots and test authenticated API endpoints (with Network Tracking)
         run: |
           cd userfrosting
-          # Copy screenshot script with network tracking (from CRUD6)
+
+          # Copy the enhanced screenshot script with network tracking and API testing from sprinkle
           cp ../sprinkle-c6admin/.github/scripts/take-screenshots-with-tracking.js .
 
           echo "========================================="
           echo "Taking screenshots with network tracking"
+          echo "and testing authenticated API endpoints"
           echo "========================================="
 
-          # Take screenshots using configuration with network tracking
-          # This script tracks network requests made during page loads
+          # Run the script using configuration file (already copied earlier)
+          # The script will:
+          # 1. Log in once to establish authenticated session
+          # 2. Take screenshots of all frontend pages
+          # 3. Test all authenticated API endpoints
+          # 4. Track all network requests and detect redundant calls
           # NOTE: This script now detects error notifications and fails if found
           node take-screenshots-with-tracking.js integration-test-paths.json
 
@@ -505,7 +520,7 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "✅ Integration test completed (Modular Approach)"
+          echo "✅ Integration test completed (HTTP API Testing Approach)"
           echo "✅ PHP 8.1 with UserFrosting ^6.0-beta"
           echo "✅ sprinkle-crud6 v0.6.1 installed from GitHub (Composer VCS repository)"
           echo "✅ sprinkle-c6admin installed successfully"
@@ -526,12 +541,15 @@ jobs:
           echo "✅ Assets built with php bakery bake"
           echo "✅ PHP server started with php bakery serve"
           echo "✅ Vite development server started (20 second wait for full initialization)"
-          echo "✅ Path testing completed using modular configuration:"
-          echo "   - Path configuration: integration-test-paths.json"
-          echo "   - Unauthenticated API paths tested"
-          echo "   - Unauthenticated frontend paths tested"
+          echo "✅ API Testing completed (CRUD6 integration test approach):"
+          echo "   - Test configuration: integration-test-paths.json"
+          echo "   - Unauthenticated API paths tested (19 endpoints - all CRUD6 models)"
+          echo "   - Authenticated API paths tested via screenshot script"
+          echo "   - Unauthenticated frontend paths tested (redirect to login)"
+          echo "   - All tests use HTTP requests (no PHPUnit - CRUD6 has those)"
           echo "✅ Screenshots captured using enhanced script with network tracking:"
           echo "   - Screenshot script: take-screenshots-with-tracking.js (from CRUD6)"
+          echo "   - Logs in once and tests all authenticated API endpoints"
           echo "   - Configuration-driven screenshot capture"
           echo "   - All C6Admin pages captured (dashboard, users, groups, roles, permissions, activities, config)"
           echo "   - Network request tracking enabled for frontend pages"
@@ -546,7 +564,10 @@ jobs:
           echo "   - Screenshots captured for each button interaction (before, modal, after)"
           echo "   - Test results saved in JSON format"
           echo ""
-          echo "🎯 Modular Testing Benefits:"
+          echo "🎯 Testing Strategy (matching CRUD6):"
+          echo "   - HTTP-based API testing (not PHPUnit)"
+          echo "   - CRUD6 has comprehensive PHPUnit tests"
+          echo "   - C6Admin verifies APIs work via HTTP requests"
           echo "   - Configuration-driven (update JSON, not workflow code)"
           echo "   - Reusable scripts across all sprinkles"
           echo "   - Self-documenting JSON structure"
@@ -575,7 +596,7 @@ jobs:
 
           # Add to GitHub Actions Summary with direct link
           cat >> $GITHUB_STEP_SUMMARY << EOF
-          ## Integration Test Results ✅ (Modular Approach)
+          ## Integration Test Results ✅ (HTTP API Testing - CRUD6 Approach)
 
           ### Test Coverage
           - ✅ Database migrations
@@ -585,34 +606,43 @@ jobs:
           - ✅ Test users creation (admin + test users)
           - ✅ Test groups creation (developers, managers, testers)
           - ✅ Schema loading (users, groups, roles, permissions, activities)
-          - ✅ **Modular path testing** (API + frontend, auth + unauth)
-          - ✅ **Modular screenshot capture with network tracking** (configuration-driven)
+          - ✅ **Unauthenticated API testing** (19 endpoints - all CRUD6 models via HTTP)
+          - ✅ **Authenticated API testing** (all endpoints via screenshot script)
+          - ✅ **Frontend path testing** (redirect to login when unauthenticated)
+          - ✅ **Screenshot capture with network tracking** (configuration-driven)
           - ✅ **Network request tracking** - Monitors frontend API calls and detects redundant requests
           - ✅ **User detail button testing** (interactive button functionality)
 
-          ### 🎯 Modular Testing Framework
+          ### 🎯 HTTP API Testing Framework (CRUD6 Approach)
 
-          This integration test uses the **modular testing framework** from sprinkle-crud6:
+          This integration test uses the **HTTP-based testing framework** from sprinkle-crud6:
+
+          **Why HTTP Testing (not PHPUnit)?**
+          - CRUD6 sprinkle has comprehensive PHPUnit integration tests
+          - C6Admin verifies APIs work via HTTP requests (as frontend does)
+          - Tests the complete stack: routing, authentication, authorization, responses
+          - Matches how the Vue.js frontend actually uses the APIs
 
           **Configuration Files:**
           - \`integration-test-seeds.json\` - Defines what seeds to run and how to validate them
           - \`integration-test-paths.json\` - Defines API/frontend paths to test and screenshots to capture
 
-          **Reusable Scripts:**
+          **Reusable Scripts (copied from CRUD6):**
           - \`run-seeds.php\` - Runs seeds based on JSON configuration
           - \`check-seeds-modular.php\` - Validates seed data based on JSON configuration
           - \`test-seed-idempotency-modular.php\` - Tests that seeds are idempotent
           - \`test-paths.php\` - Tests API and frontend paths based on JSON configuration
-          - \`take-screenshots-with-tracking.js\` - Captures screenshots with network tracking (from CRUD6)
+          - \`take-screenshots-with-tracking.js\` - Captures screenshots + tests authenticated APIs
           - \`test-user-detail-buttons.js\` - Tests interactive button functionality on user detail page
           - \`capture-php-error-logs.sh\` - Captures and displays PHP error logs
 
           **Benefits:**
+          - ✅ HTTP-based testing (matches real-world usage)
           - ✅ Configuration-driven - Update JSON files, not workflow code
           - ✅ Reusable - Same scripts work for all UserFrosting 6 sprinkles
           - ✅ Self-documenting - JSON structure explains what's being tested
           - ✅ Template-based - Easy to customize for different sprinkles
-          - ✅ Consistent - Same testing approach across all sprinkles
+          - ✅ Consistent - Same testing approach as CRUD6
 
           ### Sprinkle Configuration
           **C6Admin automatically includes CRUD6 as a dependency**

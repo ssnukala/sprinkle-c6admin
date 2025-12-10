@@ -4,7 +4,7 @@
  * UserFrosting C6Admin Sprinkle - User Detail Button Testing Script with Full Form Automation
  * 
  * This script uses Playwright to test button functionality on the user detail page.
- * It logs in as admin, navigates to /c6/admin/users/1, and FULLY TESTS all available buttons:
+ * It logs in as admin, navigates to /c6/admin/users/2, and FULLY TESTS all available buttons:
  * - Edit: Fills and submits the edit form with test data
  * - Reset Password: Fills and submits the password reset form
  * - Disable/Enable: Toggles user status and verifies the change
@@ -14,7 +14,7 @@
  * This provides full automation of form testing, not just clicking buttons.
  * 
  * Usage: node test-user-detail-buttons.js <base_url> <username> <password> [user_id]
- * Example: node test-user-detail-buttons.js http://localhost:8080 admin admin123 1
+ * Example: node test-user-detail-buttons.js http://localhost:8080 admin admin123 2
  */
 
 import { chromium } from 'playwright';
@@ -42,7 +42,7 @@ async function waitForVueApp(page, timeout = 10000) {
     }
 }
 
-async function testUserDetailButtons(baseUrl, username, password, userId = '1') {
+async function testUserDetailButtons(baseUrl, username, password, userId = '2') {
     console.log('========================================');
     console.log('Testing User Detail Page Buttons');
     console.log('========================================');

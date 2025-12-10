@@ -69,7 +69,7 @@
       "order": 3,
       "seeds": [
         {
-          "class": "UserFrosting\\Sprinkle\\C6Admin\\Database\\Seeds\\TestGroups",
+          "class": "UserFrosting\\Sprinkle\\C6Admin\\Tests\\Database\\Seeds\\TestGroups",
           "description": "Create test groups (developers, managers, testers)",
           "required": false,
           "validation": {
@@ -83,7 +83,7 @@
           }
         },
         {
-          "class": "UserFrosting\\Sprinkle\\C6Admin\\Database\\Seeds\\TestUsers",
+          "class": "UserFrosting\\Sprinkle\\C6Admin\\Tests\\Database\\Seeds\\TestUsers",
           "description": "Create test users with role and group assignments",
           "required": false,
           "validation": {

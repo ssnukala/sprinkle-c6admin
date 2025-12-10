@@ -42,7 +42,8 @@ class UserPasswordResetActionTest extends C6AdminTestCase
     public function testPasswordResetForGuestUser(): void
     {
         // Create request with method and url and fetch response
-        $request = $this->createJsonRequest('POST', '/api/users/1/password-reset');
+        // Using user ID 2 (not 1, which is reserved for superadmin)
+        $request = $this->createJsonRequest('POST', '/api/users/2/password-reset');
         $response = $this->handleRequest($request);
 
         // Assert response status & body

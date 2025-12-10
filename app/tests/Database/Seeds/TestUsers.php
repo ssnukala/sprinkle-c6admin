@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license   https://github.com/ssnukala/sprinkle-c6admin/blob/master/LICENSE.md (MIT License)
  */
 
-namespace UserFrosting\Sprinkle\C6Admin\Database\Seeds;
+namespace UserFrosting\Sprinkle\C6Admin\Tests\Database\Seeds;
 
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
 use UserFrosting\Sprinkle\Account\Database\Models\Role;
