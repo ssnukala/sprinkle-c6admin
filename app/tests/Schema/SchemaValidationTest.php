@@ -21,6 +21,12 @@ use UserFrosting\Sprinkle\C6Admin\Tests\C6AdminTestCase;
  */
 class SchemaValidationTest extends C6AdminTestCase
 {
+    /** @var string Base path for schema files */
+    protected const SCHEMA_BASE_PATH = __DIR__ . '/../../../../schema/crud6';
+
+    /** @var string Base path for locale files */
+    protected const LOCALE_BASE_PATH = __DIR__ . '/../../../../locale';
+
     protected array $schemas = [
         'users',
         'roles',
@@ -29,10 +35,26 @@ class SchemaValidationTest extends C6AdminTestCase
         'activities',
     ];
 
+    /**
+     * Get the full path to a schema file.
+     */
+    protected function getSchemaPath(string $schema): string
+    {
+        return self::SCHEMA_BASE_PATH . "/{$schema}.json";
+    }
+
+    /**
+     * Get the full path to a locale file.
+     */
+    protected function getLocalePath(string $locale): string
+    {
+        return self::LOCALE_BASE_PATH . "/{$locale}/messages.php";
+    }
+
     public function testAllSchemasExist(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $this->assertFileExists($path, "Schema file {$schema}.json not found");
         }
     }
@@ -40,7 +62,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testAllSchemasAreValidJson(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $this->assertNotFalse($content, "Could not read {$schema}.json");
             
@@ -54,7 +76,7 @@ class SchemaValidationTest extends C6AdminTestCase
         $requiredFields = ['model', 'table', 'fields', 'primary_key'];
 
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -67,7 +89,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testSchemasHaveValidFields(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -82,7 +104,7 @@ class SchemaValidationTest extends C6AdminTestCase
 
     public function testUserSchemaHasIdField(): void
     {
-        $path = __DIR__ . '/../../../../schema/crud6/users.json';
+        $path = $this->getSchemaPath('users');
         $content = file_get_contents($path);
         $decoded = json_decode($content, true);
 
@@ -92,7 +114,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testSchemasUseIdAsPrimaryKey(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -112,7 +134,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testSchemasDoNotHaveSearchableAttribute(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -133,7 +155,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testSortableOnlyExistsWhenListable(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -157,7 +179,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testFilterableOnlyExistsWhenListable(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -182,7 +204,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testDefaultSortFieldsAreListableAndSortable(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -224,7 +246,7 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testDescriptionsUseTranslationKeys(): void
     {
         foreach ($this->schemas as $schema) {
-            $path = __DIR__ . "/../../../../schema/crud6/{$schema}.json";
+            $path = $this->getSchemaPath($schema);
             $content = file_get_contents($path);
             $decoded = json_decode($content, true);
 
@@ -285,8 +307,8 @@ class SchemaValidationTest extends C6AdminTestCase
     public function testTranslationKeysExistInLocaleFiles(): void
     {
         $localeFiles = [
-            'en_US' => __DIR__ . '/../../../../locale/en_US/messages.php',
-            'fr_FR' => __DIR__ . '/../../../../locale/fr_FR/messages.php',
+            'en_US' => $this->getLocalePath('en_US'),
+            'fr_FR' => $this->getLocalePath('fr_FR'),
         ];
 
         // Keys that should exist based on the schemas
