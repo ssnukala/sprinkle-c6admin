@@ -352,18 +352,24 @@ jobs:
           # Test unauthenticated frontend paths (should redirect to login)
           php test-paths.php integration-test-paths.json unauth frontend
 
-      - name: Take screenshots of C6Admin pages with network tracking
+      - name: Take screenshots and test authenticated API endpoints (with Network Tracking)
         run: |
           cd userfrosting
-          # Copy screenshot script with network tracking (from CRUD6)
+
+          # Copy the enhanced screenshot script with network tracking and API testing from sprinkle
           cp ../sprinkle-c6admin/.github/scripts/take-screenshots-with-tracking.js .
 
           echo "========================================="
           echo "Taking screenshots with network tracking"
+          echo "and testing authenticated API endpoints"
           echo "========================================="
 
-          # Take screenshots using configuration with network tracking
-          # This script tracks network requests made during page loads
+          # Run the script using configuration file (already copied earlier)
+          # The script will:
+          # 1. Log in once to establish authenticated session
+          # 2. Take screenshots of all frontend pages
+          # 3. Test all authenticated API endpoints
+          # 4. Track all network requests and detect redundant calls
           # NOTE: This script now detects error notifications and fails if found
           node take-screenshots-with-tracking.js integration-test-paths.json
 
