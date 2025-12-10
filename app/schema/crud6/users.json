@@ -28,7 +28,7 @@
                     "attach": [
                         {
                             "related_id": 1,
-                            "description": "CRUD6.USER.ASSIGN_DEFAULT_ROLE_DESCRIPTION",
+                            "description": "Assign default role to new users",
                             "pivot_data": {
                                 "created_at": "now",
                                 "updated_at": "now"
@@ -38,11 +38,11 @@
                 },
                 "on_update": {
                     "sync": "role_ids",
-                    "description": "CRUD6.USER.SYNC_ROLES_DESCRIPTION"
+                    "description": "Sync user roles from form input"
                 },
                 "on_delete": {
                     "detach": "all",
-                    "description": "CRUD6.USER.DETACH_ROLES_DESCRIPTION"
+                    "description": "Remove all role associations when user is deleted"
                 }
             }
         },
@@ -293,6 +293,7 @@
             "type": "integer",
             "label": "CRUD6.USER.GROUP",
             "required": false,
+            "default": 1,
             "show_in": [
                 "form",
                 "detail"
@@ -302,7 +303,7 @@
             "type": "boolean",
             "ui": "toggle",
             "label": "CRUD6.USER.VERIFIED",
-            "description": "CRUD6.USER.VERIFIED_DESCRIPTION",
+            "description": "Email verification status",
             "default": true,
             "sortable": true,
             "filterable": true,
@@ -316,7 +317,7 @@
             "type": "boolean",
             "ui": "toggle",
             "label": "CRUD6.USER.ENABLED",
-            "description": "CRUD6.USER.ENABLED_DESCRIPTION",
+            "description": "Account enabled status",
             "default": true,
             "sortable": true,
             "filterable": true,
@@ -329,7 +330,7 @@
         "role_ids": {
             "type": "multiselect",
             "label": "CRUD6.USER.ROLES",
-            "description": "CRUD6.USER.ROLE_IDS_DESCRIPTION",
+            "description": "User roles (used for sync on update)",
             "computed": true,
             "lookup": {
                 "model": "roles",
