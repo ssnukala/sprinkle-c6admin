@@ -8,6 +8,12 @@ import ViteYaml from '@modyfi/vite-plugin-yaml'
 // https://stackoverflow.com/a/74397545/445757
 export default defineConfig({
     plugins: [vue(), ViteYaml()],
+    optimizeDeps: {
+        // Pre-bundle limax and its dependencies for optimal performance
+        // This improves Vite cold-start time and ensures consistent behavior
+        // Note: C6Admin depends on CRUD6 which uses limax (CommonJS module)
+        include: ['limax', 'lodash.deburr']
+    },
     test: {
         coverage: {
             reportsDirectory: './_meta/_coverage',
