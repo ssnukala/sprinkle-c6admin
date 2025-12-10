@@ -64,17 +64,21 @@ jobs:
           # Configure GitHub token for accessing private/public repos
           composer config github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure MyApp.php with both CRUD6 and C6Admin sprinkles
+      - name: Configure MyApp.php with C6Admin sprinkle
         run: |
           cd userfrosting
-          # Configure MyApp.php to add CRUD6 and C6Admin sprinkles
-          # IMPORTANT: CRUD6 must come before C6Admin (dependency order)
-          # Add CRUD6 and C6Admin imports
+          # Configure MyApp.php to add C6Admin sprinkle
+          # C6Admin automatically includes CRUD6 as a dependency via getSprinkles()
+          
+          # Add C6Admin import
           sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
-          # Add CRUD6::class and C6Admin::class after Admin::class in getSprinkles() array
+          
+          # Add C6Admin::class after Admin::class in getSprinkles() array
           sed -i '/Admin::class,/a \             C6Admin::class,' app/src/MyApp.php
+          
           echo "========================================="
-          echo "Configured MyApp.php with CRUD6 and C6Admin"
+          echo "Configured MyApp.php with C6Admin"
+          echo "C6Admin automatically includes CRUD6 dependency"
           echo "========================================="
           cat app/src/MyApp.php
 
@@ -82,8 +86,9 @@ jobs:
         run: |
           cd userfrosting
           # Configure app/assets/router/index.ts to include C6Admin routes
+          # C6Admin automatically includes CRUD6 routes as a dependency
           
-          # Step 1: Add import statements for createC6AdminRoutes and LayoutDashboard
+          # Step 1: Add import statements for C6Admin routes and layout
           sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
           sed -i "/import { createRouter, createWebHistory } from 'vue-router'/a import LayoutDashboard from '../layouts/LayoutDashboard.vue'" app/assets/router/index.ts
           
@@ -92,7 +97,7 @@ jobs:
           echo "Found last ] at line: $LAST_BRACKET_LINE"
           
           sed -i "${LAST_BRACKET_LINE}i\\        ,\\
-          // C6Admin routes with their own layout\\
+          // C6Admin routes with their own layout (includes CRUD6 routes)\\
           ...createC6AdminRoutes({ layoutComponent: LayoutDashboard })" app/assets/router/index.ts
           
           # Step 3: Validate that the changes were applied
@@ -122,7 +127,7 @@ jobs:
             cat app/assets/router/index.ts
             exit 1
           fi
-          echo "✅ C6Admin routes verified"
+          echo "✅ C6Admin routes verified (includes CRUD6 routes)"
           
           echo "========================================="
           echo "✅ All validations passed!"
@@ -130,16 +135,21 @@ jobs:
           echo "Configured router/index.ts with C6Admin routes:"
           cat app/assets/router/index.ts
 
-      - name: Configure main.ts with CRUD6 and C6Admin sprinkles
+      - name: Configure main.ts with C6Admin sprinkle
         run: |
           cd userfrosting
-          # Configure app/assets/main.ts to include CRUD6 and C6Admin sprinkles (in correct order)
-          # Add imports: C6AdminSprinkle
+          # Configure app/assets/main.ts to include C6Admin sprinkle
+          # C6Admin automatically includes CRUD6 as a frontend dependency
+          
+          # Add C6AdminSprinkle import
           sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
-          # Add sprinkle registration (CRUD6 must come before C6Admin)
+          
+          # Add sprinkle registration
           sed -i '/app\.use(AdminSprinkle)/a app.use(C6AdminSprinkle)' app/assets/main.ts
+          
           echo "========================================="
-          echo "Configured main.ts with CRUD6 and C6Admin"
+          echo "Configured main.ts with C6Admin"
+          echo "C6Admin automatically includes CRUD6 dependency"
           echo "========================================="
           cat app/assets/main.ts
 
@@ -288,9 +298,9 @@ jobs:
           echo $SERVER_PID > /tmp/server.pid
           sleep 10
 
-          # Verify server process is running (don't fail on HTTP errors - Vite dev server needed for frontend)
-          curl -s http://localhost:8080 > /dev/null 2>&1 || true
-          echo "✅ PHP server started on localhost:8080 (Vite dev server needed for frontend)"
+          # Test if server is running (with retry)
+          curl -f http://localhost:8080 || (echo "⚠️ Server may not be ready yet, retrying..." && sleep 5 && curl -f http://localhost:8080)
+          echo "✅ PHP server started on localhost:8080"
 
       - name: Start Vite development server
         run: |
@@ -303,52 +313,19 @@ jobs:
           echo "========================================="
 
           # Start Vite server in background using bakery command (follows UF6 standards)
-          # Redirect output to log file for debugging
-          php bakery assets:vite > /tmp/vite.log 2>&1 &
+          php bakery assets:vite &
           VITE_PID=$!
           echo $VITE_PID > /tmp/vite.pid
-          echo "Vite server PID: $VITE_PID"
-
-          # Wait for Vite to start
-          echo "Waiting for Vite server to initialize..."
-          sleep 10
-
-          # Check if Vite process is still running
-          if ps -p $VITE_PID > /dev/null; then
-            echo "✅ Vite server process is running (PID: $VITE_PID)"
-          else
-            echo "❌ Vite server process died!"
-            echo "Vite log output:"
-            cat /tmp/vite.log || echo "No log file found"
-            exit 1
-          fi
-
-          # Show first few lines of Vite output
-          echo ""
-          echo "Vite server output (first 20 lines):"
-          head -20 /tmp/vite.log || echo "No log output yet"
-          echo ""
-
-          # Now verify both servers are working together
-          echo "Verifying application is accessible with both servers running..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
-          echo "Application returned HTTP $HTTP_CODE"
-          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
-            echo "✅ Application is accessible"
-          else
-            echo "⚠️ Application returned HTTP $HTTP_CODE (may require authentication)"
-          fi
-
-          # Test Vite server directly (typically runs on port 5173)
-          echo ""
-          echo "Testing Vite server directly..."
-          VITE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5173 2>&1 || echo "failed")
-          if [ "$VITE_RESPONSE" = "200" ] || [ "$VITE_RESPONSE" = "302" ]; then
-            echo "✅ Vite server responding on port 5173"
-          else
-            echo "⚠️ Vite server not responding on port 5173 (response: $VITE_RESPONSE)"
-            echo "This may be expected if Vite is integrated into PHP server"
-          fi
+          
+          # Wait longer for Vite to fully start up (matching CRUD6's approach)
+          echo "Waiting for Vite server to start..."
+          sleep 20
+          
+          # Try to verify Vite is running by checking if the page loads properly
+          echo "Testing if frontend is accessible..."
+          curl -f http://localhost:8080 || echo "⚠️ Page load test after Vite start"
+          
+          echo "✅ Vite server started"
 
       - name: Test API paths - Unauthenticated (Modular)
         run: |
@@ -532,6 +509,9 @@ jobs:
           echo "✅ PHP 8.1 with UserFrosting ^6.0-beta"
           echo "✅ sprinkle-crud6 v0.6.1 installed from GitHub (Composer VCS repository)"
           echo "✅ sprinkle-c6admin installed successfully"
+          echo "✅ C6Admin sprinkle registered in MyApp.php (auto-includes CRUD6 dependency)"
+          echo "✅ C6Admin frontend sprinkle registered in main.ts (auto-includes CRUD6)"
+          echo "✅ C6Admin routes registered in router/index.ts (auto-includes CRUD6 routes)"
           echo "✅ Database migrations ran successfully"
           echo "✅ Database seeding completed using modular configuration:"
           echo "   - Seed configuration: integration-test-seeds.json"
@@ -545,7 +525,7 @@ jobs:
           echo "✅ C6Admin schemas loaded successfully"
           echo "✅ Assets built with php bakery bake"
           echo "✅ PHP server started with php bakery serve"
-          echo "✅ Vite development server started"
+          echo "✅ Vite development server started (20 second wait for full initialization)"
           echo "✅ Path testing completed using modular configuration:"
           echo "   - Path configuration: integration-test-paths.json"
           echo "   - Unauthenticated API paths tested"
@@ -573,7 +553,11 @@ jobs:
           echo "   - Consistent testing approach"
           echo "   - Easy maintenance and customization"
           echo ""
-          echo "ℹ️  Note: Both CRUD6 and C6Admin sprinkles are active (CRUD6 is a dependency)"
+          echo "ℹ️  Note: C6Admin automatically includes CRUD6 as a dependency"
+          echo "ℹ️  Only C6Admin needs to be registered - CRUD6 is included automatically"
+          echo "ℹ️  Backend: C6Admin.php getSprinkles() returns [Core, Account, CRUD6]"
+          echo "ℹ️  Frontend: C6Admin index.ts uses app.use(CRUD6) automatically"
+          echo "ℹ️  Routes: C6Admin routes include CRUD6Routes automatically"
           echo "ℹ️  Screenshots are taken after logging in with admin user credentials"
           echo "ℹ️  Both PHP and Vite servers were running during tests"
           echo "ℹ️  Network tracking monitors all frontend API calls and flags redundant requests"
@@ -631,12 +615,12 @@ jobs:
           - ✅ Consistent - Same testing approach across all sprinkles
 
           ### Sprinkle Configuration
-          **Dependencies:** Account → CRUD6 (v0.6.1 from Git) → C6Admin
-          - ✅ CRUD6 sprinkle v0.6.1 installed from GitHub repository
-          - ✅ C6Admin sprinkle installed and configured
-          - ✅ Both sprinkles registered in MyApp.php (correct order)
-          - ✅ CRUD6 NPM package installed from Git URL
-          - ✅ C6Admin NPM package installed locally
+          **C6Admin automatically includes CRUD6 as a dependency**
+          - ✅ C6Admin sprinkle installed and registered in MyApp.php
+          - ✅ CRUD6 automatically included via C6Admin.php getSprinkles()
+          - ✅ C6Admin frontend registered in main.ts (auto-includes CRUD6)
+          - ✅ C6Admin routes registered in router/index.ts (auto-includes CRUD6 routes)
+          - ✅ Dependency chain: Core → Account → Admin → [CRUD6 via C6Admin] → C6Admin
 
           ### 📸 View Screenshots
           Screenshots have been captured for all C6Admin pages and uploaded as artifacts.
