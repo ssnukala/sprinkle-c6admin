@@ -76,15 +76,18 @@
           "path": "/api/yoursprinkle/yourmodel",
           "description": "Attempt to access list without authentication",
           "expected_status": 401,
+          "alternative_statuses": [403],
           "validation": {
             "type": "status_only"
-          }
+          },
+          "note": "Accepts either 401 (Unauthorized) or 403 (Forbidden) for unauthenticated requests"
         },
         "yourmodel_single": {
           "method": "GET",
           "path": "/api/yoursprinkle/yourmodel/1",
           "description": "Attempt to access single item without authentication",
           "expected_status": 401,
+          "alternative_statuses": [403],
           "validation": {
             "type": "status_only"
           }

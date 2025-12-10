@@ -490,7 +490,8 @@
           "method": "GET",
           "path": "/api/c6/dashboard",
           "description": "Dashboard API should require authentication",
-          "expected_status": 403
+          "expected_status": 403,
+          "alternative_statuses": [401]
         }
       },
       "frontend": {

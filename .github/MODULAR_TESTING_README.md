@@ -226,6 +226,7 @@ Defines API endpoints and frontend routes to test, plus screenshot configuration
 | `method` | string | HTTP method (GET, POST, PUT, DELETE) |
 | `path` | string | Route path (must start with /) |
 | `expected_status` | integer | Expected HTTP status code |
+| `alternative_statuses` | array | Alternative acceptable status codes (optional) |
 | `validation.type` | string | json, status_only, redirect_to_login |
 | `validation.contains` | array | Fields/strings that should be in response |
 | `screenshot` | boolean | Whether to capture screenshot |
@@ -241,6 +242,28 @@ The C6Admin configuration tests:
 - **CRUD6 APIs** (users, groups, roles, permissions, activities)
 - **All C6Admin Pages** (12 pages with screenshots)
 - **Authentication** (tests with and without login)
+
+**Alternative Status Codes:**
+
+For authentication tests, you can specify multiple acceptable status codes using `alternative_statuses`:
+
+```json
+{
+  "login_required": {
+    "method": "GET",
+    "path": "/api/c6/dashboard",
+    "description": "Dashboard API should require authentication",
+    "expected_status": 403,
+    "alternative_statuses": [401]
+  }
+}
+```
+
+This is useful when an endpoint might return either:
+- `403 Forbidden` (user is authenticated but lacks permission)
+- `401 Unauthorized` (user is not authenticated)
+
+The test will pass if the response matches either the `expected_status` or any status in `alternative_statuses`.
 
 ## Testing Scripts
 
