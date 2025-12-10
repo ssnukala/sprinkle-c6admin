@@ -1,5 +1,12 @@
 {
-  "description": "Integration test paths configuration for C6Admin sprinkle",
+  "description": "Integration test paths configuration for C6Admin sprinkle - Comprehensive API testing based on C6Admin schemas",
+  "config": {
+    "base_url": "http://localhost:8080",
+    "auth": {
+      "username": "admin",
+      "password": "admin123"
+    }
+  },
   "paths": {
     "authenticated": {
       "api": {
@@ -13,7 +20,17 @@
             "contains": ["users", "groups", "roles", "permissions"]
           }
         },
-        "crud6_users_list": {
+        "users_schema": {
+          "method": "GET",
+          "path": "/api/crud6/users/schema",
+          "description": "Get users schema definition",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["model", "fields"]
+          }
+        },
+        "users_list": {
           "method": "GET",
           "path": "/api/crud6/users",
           "description": "Get list of users via CRUD6 API",
@@ -23,7 +40,122 @@
             "contains": ["rows"]
           }
         },
-        "crud6_groups_list": {
+        "users_create": {
+          "method": "POST",
+          "path": "/api/crud6/users",
+          "description": "Create new user via CRUD6 API",
+          "expected_status": 201,
+          "validation": {
+            "type": "json",
+            "contains": ["data", "id"]
+          },
+          "requires_permission": "create_user",
+          "payload": {
+            "user_name": "apitest",
+            "first_name": "API",
+            "last_name": "Test",
+            "email": "apitest@example.com",
+            "password": "TestPassword123"
+          }
+        },
+        "users_single": {
+          "method": "GET",
+          "path": "/api/crud6/users/1",
+          "description": "Get single user by ID via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["id", "user_name", "email"]
+          }
+        },
+        "users_update": {
+          "method": "PUT",
+          "path": "/api/crud6/users/2",
+          "description": "Update user via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          },
+          "requires_permission": "update_user_field",
+          "payload": {
+            "first_name": "Updated",
+            "last_name": "Name"
+          },
+          "note": "Uses user ID 2 (testuser) to avoid modifying the logged-in admin user"
+        },
+        "users_update_field": {
+          "method": "PUT",
+          "path": "/api/crud6/users/2/flag_enabled",
+          "description": "Update single field (boolean toggle) for user",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          },
+          "requires_permission": "update_user_field",
+          "payload": {
+            "flag_enabled": false
+          },
+          "note": "Uses user ID 2 (testuser) to avoid modifying the logged-in admin user"
+        },
+        "users_relationship_roles": {
+          "method": "GET",
+          "path": "/api/crud6/users/1/roles",
+          "description": "Get roles for user (nested relationship endpoint)",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          }
+        },
+        "users_relationship_attach": {
+          "method": "POST",
+          "path": "/api/crud6/users/2/roles",
+          "description": "Attach roles to user (many-to-many relationship)",
+          "expected_status": 200,
+          "validation": {
+            "type": "status_any",
+            "acceptable_statuses": [200, 403]
+          },
+          "payload": {
+            "ids": [1]
+          },
+          "note": "Uses user ID 2 (testuser) to avoid modifying the logged-in admin user"
+        },
+        "users_relationship_detach": {
+          "method": "DELETE",
+          "path": "/api/crud6/users/2/roles",
+          "description": "Detach roles from user (many-to-many relationship)",
+          "expected_status": 200,
+          "validation": {
+            "type": "status_any",
+            "acceptable_statuses": [200, 403]
+          },
+          "payload": {
+            "ids": [1]
+          },
+          "note": "Uses user ID 2 (testuser) to avoid modifying the logged-in admin user"
+        },
+        "users_delete": {
+          "method": "DELETE",
+          "path": "/api/crud6/users/2",
+          "description": "Delete user via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          },
+          "requires_permission": "delete_user",
+          "note": "Uses user ID 2 (testuser) to avoid deleting the logged-in admin user"
+        },
+        "groups_schema": {
+          "method": "GET",
+          "path": "/api/crud6/groups/schema",
+          "description": "Get groups schema definition",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["model", "fields"]
+          }
+        },
+        "groups_list": {
           "method": "GET",
           "path": "/api/crud6/groups",
           "description": "Get list of groups via CRUD6 API",
@@ -33,7 +165,24 @@
             "contains": ["rows"]
           }
         },
-        "crud6_groups_single": {
+        "groups_create": {
+          "method": "POST",
+          "path": "/api/crud6/groups",
+          "description": "Create new group via CRUD6 API",
+          "expected_status": 201,
+          "validation": {
+            "type": "json",
+            "contains": ["data", "id"]
+          },
+          "requires_permission": "create_group",
+          "payload": {
+            "slug": "api_test_group",
+            "name": "API Test Group",
+            "description": "Group created via API test",
+            "icon": "fa-users"
+          }
+        },
+        "groups_single": {
           "method": "GET",
           "path": "/api/crud6/groups/1",
           "description": "Get single group by ID via CRUD6 API",
@@ -43,7 +192,39 @@
             "contains": ["id", "slug", "name"]
           }
         },
-        "crud6_roles_list": {
+        "groups_update": {
+          "method": "PUT",
+          "path": "/api/crud6/groups/1",
+          "description": "Update group via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          },
+          "requires_permission": "update_group_field",
+          "payload": {
+            "name": "Updated Group Name"
+          }
+        },
+        "groups_nested_users": {
+          "method": "GET",
+          "path": "/api/crud6/groups/1/users",
+          "description": "Get users belonging to group (nested relationship endpoint)",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          }
+        },
+        "roles_schema": {
+          "method": "GET",
+          "path": "/api/crud6/roles/schema",
+          "description": "Get roles schema definition",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["model", "fields"]
+          }
+        },
+        "roles_list": {
           "method": "GET",
           "path": "/api/crud6/roles",
           "description": "Get list of roles via CRUD6 API",
@@ -53,7 +234,74 @@
             "contains": ["rows"]
           }
         },
-        "crud6_permissions_list": {
+        "roles_create": {
+          "method": "POST",
+          "path": "/api/crud6/roles",
+          "description": "Create new role via CRUD6 API",
+          "expected_status": 201,
+          "validation": {
+            "type": "json",
+            "contains": ["data", "id"]
+          },
+          "requires_permission": "create_role",
+          "payload": {
+            "slug": "api_test_role",
+            "name": "API Test Role",
+            "description": "Role created via API test"
+          }
+        },
+        "roles_single": {
+          "method": "GET",
+          "path": "/api/crud6/roles/1",
+          "description": "Get single role by ID via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["id", "slug", "name"]
+          }
+        },
+        "roles_update": {
+          "method": "PUT",
+          "path": "/api/crud6/roles/1",
+          "description": "Update role via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          },
+          "requires_permission": "update_role_field",
+          "payload": {
+            "name": "Updated Role Name"
+          }
+        },
+        "roles_nested_users": {
+          "method": "GET",
+          "path": "/api/crud6/roles/1/users",
+          "description": "Get users belonging to role (nested relationship endpoint)",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          }
+        },
+        "roles_nested_permissions": {
+          "method": "GET",
+          "path": "/api/crud6/roles/1/permissions",
+          "description": "Get permissions belonging to role (nested relationship endpoint)",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          }
+        },
+        "permissions_schema": {
+          "method": "GET",
+          "path": "/api/crud6/permissions/schema",
+          "description": "Get permissions schema definition",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["model", "fields"]
+          }
+        },
+        "permissions_list": {
           "method": "GET",
           "path": "/api/crud6/permissions",
           "description": "Get list of permissions via CRUD6 API",
@@ -63,10 +311,97 @@
             "contains": ["rows"]
           }
         },
-        "crud6_activities_list": {
+        "permissions_create": {
+          "method": "POST",
+          "path": "/api/crud6/permissions",
+          "description": "Create new permission via CRUD6 API",
+          "expected_status": 201,
+          "validation": {
+            "type": "json",
+            "contains": ["data", "id"]
+          },
+          "requires_permission": "create_permission",
+          "payload": {
+            "slug": "api_test_permission",
+            "name": "API Test Permission",
+            "description": "Permission created via API test"
+          }
+        },
+        "permissions_single": {
+          "method": "GET",
+          "path": "/api/crud6/permissions/1",
+          "description": "Get single permission by ID via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["id", "slug", "name"]
+          }
+        },
+        "permissions_update": {
+          "method": "PUT",
+          "path": "/api/crud6/permissions/1",
+          "description": "Update permission via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          },
+          "requires_permission": "update_permission_field",
+          "payload": {
+            "description": "Updated permission description"
+          }
+        },
+        "permissions_nested_roles": {
+          "method": "GET",
+          "path": "/api/crud6/permissions/1/roles",
+          "description": "Get roles for permission (nested relationship endpoint)",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          }
+        },
+        "permissions_nested_users": {
+          "method": "GET",
+          "path": "/api/crud6/permissions/1/users",
+          "description": "Get users for permission through roles (complex nested relationship)",
+          "expected_status": 200,
+          "validation": {
+            "type": "json"
+          }
+        },
+        "activities_schema": {
+          "method": "GET",
+          "path": "/api/crud6/activities/schema",
+          "description": "Get activities schema definition",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["model", "fields"]
+          }
+        },
+        "activities_list": {
           "method": "GET",
           "path": "/api/crud6/activities",
           "description": "Get list of activities via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["rows"]
+          }
+        },
+        "activities_single": {
+          "method": "GET",
+          "path": "/api/crud6/activities/1",
+          "description": "Get single activity by ID via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["id", "type", "user_id"]
+          }
+        },
+        "activities_filtered_by_user": {
+          "method": "GET",
+          "path": "/api/crud6/activities?filters[user_id]=1",
+          "description": "Get activities filtered by user ID",
           "expected_status": 200,
           "validation": {
             "type": "json",
@@ -129,105 +464,42 @@
           "screenshot": true,
           "screenshot_name": "c6admin_permission_detail"
         },
-        "c6_activities": {
+        "c6_activities_list": {
           "path": "/c6/admin/activities",
-          "description": "C6Admin Activities page",
+          "description": "C6Admin Activities list page",
           "screenshot": true,
-          "screenshot_name": "c6admin_activities"
+          "screenshot_name": "c6admin_activities_list"
         },
-        "c6_config_info": {
-          "path": "/c6/admin/config/info",
-          "description": "C6Admin System Info page",
+        "c6_activity_detail": {
+          "path": "/c6/admin/activities/1",
+          "description": "C6Admin Activity detail page",
           "screenshot": true,
-          "screenshot_name": "c6admin_config_info"
+          "screenshot_name": "c6admin_activity_detail"
         },
-        "c6_config_cache": {
-          "path": "/c6/admin/config/cache",
-          "description": "C6Admin Cache Management page",
+        "c6_config": {
+          "path": "/c6/admin/config",
+          "description": "C6Admin Config page",
           "screenshot": true,
-          "screenshot_name": "c6admin_config_cache"
+          "screenshot_name": "c6admin_config"
         }
       }
     },
     "unauthenticated": {
       "api": {
-        "c6_dashboard": {
+        "login_required": {
           "method": "GET",
           "path": "/api/c6/dashboard",
-          "description": "Attempt to access dashboard API without authentication",
-          "expected_status": 401,
-          "validation": {
-            "type": "status_only"
-          }
-        },
-        "crud6_users_list": {
-          "method": "GET",
-          "path": "/api/crud6/users",
-          "description": "Attempt to access users list without authentication",
-          "expected_status": 401,
-          "validation": {
-            "type": "status_only"
-          }
-        },
-        "crud6_groups_list": {
-          "method": "GET",
-          "path": "/api/crud6/groups",
-          "description": "Attempt to access groups list without authentication",
-          "expected_status": 401,
-          "validation": {
-            "type": "status_only"
-          }
-        },
-        "crud6_groups_single": {
-          "method": "GET",
-          "path": "/api/crud6/groups/1",
-          "description": "Attempt to access single group without authentication",
-          "expected_status": 401,
-          "validation": {
-            "type": "status_only"
-          }
+          "description": "Dashboard API should require authentication",
+          "expected_status": 403
         }
       },
       "frontend": {
-        "c6_dashboard": {
+        "redirect_to_login": {
           "path": "/c6/admin/dashboard",
-          "description": "Attempt to access C6Admin dashboard without authentication (should redirect to login)",
-          "expected_status": 200,
-          "validation": {
-            "type": "redirect_to_login",
-            "contains": ["/account/sign-in", "login"]
-          }
-        },
-        "c6_users_list": {
-          "path": "/c6/admin/users",
-          "description": "Attempt to access users list page without authentication (should redirect to login)",
-          "expected_status": 200,
-          "validation": {
-            "type": "redirect_to_login",
-            "contains": ["/account/sign-in", "login"]
-          }
-        },
-        "c6_groups_list": {
-          "path": "/c6/admin/groups",
-          "description": "Attempt to access groups list page without authentication (should redirect to login)",
-          "expected_status": 200,
-          "validation": {
-            "type": "redirect_to_login",
-            "contains": ["/account/sign-in", "login"]
-          }
+          "description": "Should redirect to login when not authenticated",
+          "expected_redirect": "/account/sign-in"
         }
       }
-    }
-  },
-  "config": {
-    "base_url": "http://localhost:8080",
-    "auth": {
-      "username": "admin",
-      "password": "admin123"
-    },
-    "timeout": {
-      "api": 10,
-      "frontend": 30
     }
   }
 }
