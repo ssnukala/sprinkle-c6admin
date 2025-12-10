@@ -98,6 +98,7 @@
             "type": "field_update",
             "field": "flag_enabled",
             "style": "warning",
+            "confirm": "CRUD6.USER.TOGGLE_ENABLED_CONFIRM",
             "toggle": true,
             "permission": "update_user_field"
         },
