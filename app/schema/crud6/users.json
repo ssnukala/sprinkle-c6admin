@@ -97,19 +97,21 @@
             "icon": "toggle-on",
             "type": "field_update",
             "field": "flag_enabled",
+            "style": "warning",
+            "confirm": "CRUD6.USER.TOGGLE_ENABLED_CONFIRM",
             "toggle": true,
-            "permission": "update_user_field",
-            "style": "primary"
+            "permission": "update_user_field"
         },
         {
             "key": "toggle_verified",
             "label": "CRUD6.USER.TOGGLE_VERIFIED",
             "icon": "check-circle",
             "type": "field_update",
+            "style": "primary",
             "field": "flag_verified",
+            "confirm": "CRUD6.USER.TOGGLE_VERIFIED_CONFIRM",
             "toggle": true,
-            "permission": "update_user_field",
-            "style": "secondary"
+            "permission": "update_user_field"
         },
         {
             "key": "reset_password",
