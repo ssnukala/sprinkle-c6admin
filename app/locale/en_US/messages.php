@@ -52,6 +52,7 @@ return [
             ],
         ],
         'ACTIVITY' => [
+            '@TRANSLATION' => 'Activity',
             1 => 'Activity',
             2 => 'Activities',
             'LAST'             => 'Last Activity',
@@ -71,6 +72,7 @@ return [
 
         // Group model translations
         'GROUP' => [
+            '@TRANSLATION' => 'Group',
             1 => 'Group',
             2 => 'Groups',
 
@@ -108,6 +110,7 @@ return [
 
         // Permission model translations
         'PERMISSION' => [
+            '@TRANSLATION' => 'Permission',
             1 => 'Permission',
             2 => 'Permissions',
 
@@ -138,6 +141,7 @@ return [
 
         // Role model translations
         'ROLE' => [
+            '@TRANSLATION' => 'Role',
             1 => 'Role',
             2 => 'Roles',
 
@@ -177,6 +181,7 @@ return [
 
         // User model translations
         'USER' => [
+            '@TRANSLATION' => 'User',
             1 => 'User',
             2 => 'Users',
 
@@ -201,6 +206,7 @@ return [
 
             // Admin-specific actions (nested under ADMIN for confirm messages in schema)
             'ADMIN' => [
+                '@TRANSLATION' => 'Admin',
                 'PASSWORD_RESET_CONFIRM'   => 'Are you sure you want to send a password reset link to <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
                 'PASSWORD_CHANGE_CONFIRM'  => 'Are you sure you want to change the password for <strong>{{first_name}} {{last_name}} ({{user_name}})</strong>?',
             ],
