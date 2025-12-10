@@ -26,6 +26,14 @@ return [
             'PAGE'             => 'Activités',
             'PAGE_DESCRIPTION' => 'Une liste des activités des utilisateurs',
             'TIME'             => 'Date de l\'activité',
+
+            // Field labels from activities.json
+            'ID'          => 'ID de l\'activité',
+            'IP_ADDRESS'  => 'Adresse IP',
+            'USER_ID'     => 'ID de l\'utilisateur',
+            'TYPE'        => 'Type d\'activité',
+            'OCCURRED_AT' => 'Date de l\'activité',
+            'DESCRIPTION' => 'Description',
         ],
         'ADMIN_PANEL' => "Panneau d'admin",
         'ADMIN_TITLE' => 'Admin',
@@ -67,6 +75,14 @@ return [
             'PAGE_DESCRIPTION'    => 'Une liste des groupes pour votre site. Fournit des outils de gestion pour éditer et supprimer des groupes.',
             'UPDATE'              => 'Les détails du groupe <strong>{{name}}</strong> ont été enregistrés',
             'USERS'               => 'Utilisateurs dans ce groupe',
+
+            // Field labels from groups.json
+            'ID'          => 'ID du groupe',
+            'SLUG'        => 'Slug du groupe',
+            'DESCRIPTION' => 'Description',
+            'ICON_LABEL'  => 'Icône',
+            'CREATED_AT'  => 'Créé le',
+            'UPDATED_AT'  => 'Mis à jour le',
         ],
 
         'MANUALLY_ACTIVATED'    => 'Le compte de {{user_name}} a été activé manuellement',
@@ -89,6 +105,21 @@ return [
             'UPDATE'           => 'Mettre à jour les autorisations',
             'USERS'            => 'Utilisateurs avec cette autorisation',
             'VIA_ROLES'        => 'A la permission via les rôles',
+
+            // Field labels from permissions.json
+            'SLUG'        => 'Slug de l\'autorisation',
+            'NAME'        => 'Nom de l\'autorisation',
+            'CONDITIONS'  => 'Conditions',
+            'DESCRIPTION' => 'Description',
+            'ROLES'       => 'Rôles',
+            'ROLE_IDS'    => 'Rôles',
+            'ROLE_IDS_DESCRIPTION' => 'Rôles d\'autorisation (utilisés pour la synchronisation lors de la mise à jour)',
+            'CREATED_AT'  => 'Créé le',
+            'UPDATED_AT'  => 'Mis à jour le',
+
+            // Relationship action descriptions
+            'SYNC_ROLES_DESCRIPTION'   => 'Synchroniser les rôles d\'autorisation à partir de l\'entrée du formulaire',
+            'DETACH_ROLES_DESCRIPTION' => 'Supprimer toutes les associations de rôles lorsque l\'autorisation est supprimée',
         ],
 
         'ROLE' => [
@@ -120,6 +151,20 @@ return [
             'UPDATE'              => 'Mettre à jour les rôles',
             'UPDATED'             => 'Détails mis à jour pour le rôle <strong>{{name}}</strong>',
             'USERS'               => 'Utilisateurs avec ce rôle',
+
+            // Field labels from roles.json
+            'ID'              => 'ID du rôle',
+            'SLUG'            => 'Slug du rôle',
+            'DESCRIPTION'     => 'Description',
+            'PERMISSION_IDS'  => 'Autorisations',
+            'PERMISSION_IDS_DESCRIPTION' => 'Autorisations de rôle (utilisées pour la synchronisation lors de la mise à jour)',
+            'CREATED_AT'      => 'Créé le',
+            'UPDATED_AT'      => 'Mis à jour le',
+
+            // Relationship action descriptions
+            'SYNC_PERMISSIONS_DESCRIPTION'   => 'Synchroniser les autorisations de rôle à partir de l\'entrée du formulaire',
+            'DETACH_PERMISSIONS_DESCRIPTION' => 'Supprimer toutes les associations d\'autorisations lorsque le rôle est supprimé',
+            'DETACH_USERS_DESCRIPTION'       => 'Supprimer toutes les associations d\'utilisateurs lorsque le rôle est supprimé',
         ],
 
         'SITE_CONFIG' => [
@@ -178,6 +223,31 @@ return [
             'PAGE'             => 'Utilisateurs',
             'PAGE_DESCRIPTION' => 'Une liste des utilisateurs de votre site. Fournit des outils de gestion incluant la possibilité de modifier les détails de l\'utilisateur, d\'activer manuellement les utilisateurs, d\'activer / désactiver les utilisateurs et plus.',
             'VIEW_ALL'         => 'Voir tous les utilisateurs',
+
+            // Field labels from users.json
+            'ID'          => 'ID de l\'utilisateur',
+            'USERNAME'    => 'Nom d\'utilisateur',
+            'FIRST_NAME'  => 'Prénom',
+            'LAST_NAME'   => 'Nom de famille',
+            'EMAIL'       => 'Adresse e-mail',
+            'LOCALE'      => 'Langue',
+            'GROUP'       => 'Groupe',
+            'VERIFIED'    => 'Vérifié',
+            'VERIFIED_DESCRIPTION' => 'Statut de vérification de l\'e-mail',
+            'ENABLED'     => 'Activé',
+            'ENABLED_DESCRIPTION' => 'Statut d\'activation du compte',
+            'ROLES'       => 'Rôles',
+            'PASSWORD'    => 'Mot de passe',
+            'DELETED_AT'  => 'Supprimé le',
+            'CREATED_AT'  => 'Créé le',
+            'UPDATED_AT'  => 'Mis à jour le',
+            'ROLE_IDS'    => 'Rôles',
+            'ROLE_IDS_DESCRIPTION' => 'Rôles d\'utilisateur (utilisés pour la synchronisation lors de la mise à jour)',
+
+            // Relationship action descriptions
+            'ASSIGN_DEFAULT_ROLE_DESCRIPTION' => 'Attribuer le rôle par défaut aux nouveaux utilisateurs',
+            'SYNC_ROLES_DESCRIPTION'          => 'Synchroniser les rôles d\'utilisateur à partir de l\'entrée du formulaire',
+            'DETACH_ROLES_DESCRIPTION'        => 'Supprimer toutes les associations de rôles lorsque l\'utilisateur est supprimé',
         ],
 
     ],

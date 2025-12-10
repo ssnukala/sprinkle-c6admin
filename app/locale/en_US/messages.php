@@ -135,8 +135,13 @@ return [
             'DESCRIPTION' => 'Description',
             'ROLES'       => 'Roles',
             'ROLE_IDS'    => 'Roles',
+            'ROLE_IDS_DESCRIPTION' => 'Permission roles (used for sync on update)',
             'CREATED_AT'  => 'Created At',
             'UPDATED_AT'  => 'Updated At',
+
+            // Relationship action descriptions
+            'SYNC_ROLES_DESCRIPTION'   => 'Sync permission roles from form input',
+            'DETACH_ROLES_DESCRIPTION' => 'Remove all role associations when permission is deleted',
         ],
 
         // Role model translations
@@ -175,8 +180,14 @@ return [
             'SLUG'            => 'Role Slug',
             'DESCRIPTION'     => 'Description',
             'PERMISSION_IDS'  => 'Permissions',
+            'PERMISSION_IDS_DESCRIPTION' => 'Role permissions (used for sync on update)',
             'CREATED_AT'      => 'Created At',
             'UPDATED_AT'      => 'Updated At',
+
+            // Relationship action descriptions
+            'SYNC_PERMISSIONS_DESCRIPTION'   => 'Sync role permissions from form input',
+            'DETACH_PERMISSIONS_DESCRIPTION' => 'Remove all permission associations when role is deleted',
+            'DETACH_USERS_DESCRIPTION'       => 'Remove all user associations when role is deleted',
         ],
 
         // User model translations
@@ -237,14 +248,23 @@ return [
             'LOCALE'      => 'Locale',
             'GROUP'       => 'Group',
             'VERIFIED'    => 'Verified',
+            'VERIFIED_DESCRIPTION' => 'Email verification status',
             'ENABLED'     => 'Enabled',
+            'ENABLED_DESCRIPTION' => 'Account enabled status',
             'ROLES'       => 'Roles',
             'PASSWORD'    => 'Password',
             'DELETED_AT'  => 'Deleted At',
             'CREATED_AT'  => 'Created At',
             'UPDATED_AT'  => 'Updated At',
             'ROLE_IDS'    => 'Roles',
+            'ROLE_IDS_DESCRIPTION' => 'User roles (used for sync on update)',
+
+            // Relationship action descriptions
+            'ASSIGN_DEFAULT_ROLE_DESCRIPTION' => 'Assign default role to new users',
+            'SYNC_ROLES_DESCRIPTION'          => 'Sync user roles from form input',
+            'DETACH_ROLES_DESCRIPTION'        => 'Remove all role associations when user is deleted',
         ],
 
     ],
 ];
+
