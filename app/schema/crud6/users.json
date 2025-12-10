@@ -28,7 +28,7 @@
                     "attach": [
                         {
                             "related_id": 1,
-                            "description": "Assign default role to new users",
+                            "description": "CRUD6.USER.ASSIGN_DEFAULT_ROLE_DESCRIPTION",
                             "pivot_data": {
                                 "created_at": "now",
                                 "updated_at": "now"
@@ -38,11 +38,11 @@
                 },
                 "on_update": {
                     "sync": "role_ids",
-                    "description": "Sync user roles from form input"
+                    "description": "CRUD6.USER.SYNC_ROLES_DESCRIPTION"
                 },
                 "on_delete": {
                     "detach": "all",
-                    "description": "Remove all role associations when user is deleted"
+                    "description": "CRUD6.USER.DETACH_ROLES_DESCRIPTION"
                 }
             }
         },
@@ -302,7 +302,7 @@
             "type": "boolean",
             "ui": "toggle",
             "label": "CRUD6.USER.VERIFIED",
-            "description": "Email verification status",
+            "description": "CRUD6.USER.VERIFIED_DESCRIPTION",
             "default": true,
             "sortable": true,
             "filterable": true,
@@ -316,7 +316,7 @@
             "type": "boolean",
             "ui": "toggle",
             "label": "CRUD6.USER.ENABLED",
-            "description": "Account enabled status",
+            "description": "CRUD6.USER.ENABLED_DESCRIPTION",
             "default": true,
             "sortable": true,
             "filterable": true,
@@ -329,7 +329,7 @@
         "role_ids": {
             "type": "multiselect",
             "label": "CRUD6.USER.ROLES",
-            "description": "User roles (used for sync on update)",
+            "description": "CRUD6.USER.ROLE_IDS_DESCRIPTION",
             "computed": true,
             "lookup": {
                 "model": "roles",
