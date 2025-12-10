@@ -486,12 +486,176 @@
     },
     "unauthenticated": {
       "api": {
-        "login_required": {
+        "c6_dashboard": {
           "method": "GET",
           "path": "/api/c6/dashboard",
-          "description": "Dashboard API should require authentication",
-          "expected_status": 403,
-          "alternative_statuses": [401]
+          "description": "Attempt to access C6Admin dashboard without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "users_schema": {
+          "method": "GET",
+          "path": "/api/crud6/users/schema",
+          "description": "Attempt to access users schema without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "users_list": {
+          "method": "GET",
+          "path": "/api/crud6/users",
+          "description": "Attempt to access users list without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "users_single": {
+          "method": "GET",
+          "path": "/api/crud6/users/2",
+          "description": "Attempt to access single user without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "users_create": {
+          "method": "POST",
+          "path": "/api/crud6/users",
+          "description": "Attempt to create user without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "users_update": {
+          "method": "PUT",
+          "path": "/api/crud6/users/2",
+          "description": "Attempt to update user without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "users_delete": {
+          "method": "DELETE",
+          "path": "/api/crud6/users/2",
+          "description": "Attempt to delete user without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "groups_schema": {
+          "method": "GET",
+          "path": "/api/crud6/groups/schema",
+          "description": "Attempt to access groups schema without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "groups_list": {
+          "method": "GET",
+          "path": "/api/crud6/groups",
+          "description": "Attempt to access groups list without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "groups_single": {
+          "method": "GET",
+          "path": "/api/crud6/groups/1",
+          "description": "Attempt to access single group without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "roles_schema": {
+          "method": "GET",
+          "path": "/api/crud6/roles/schema",
+          "description": "Attempt to access roles schema without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "roles_list": {
+          "method": "GET",
+          "path": "/api/crud6/roles",
+          "description": "Attempt to access roles list without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "roles_single": {
+          "method": "GET",
+          "path": "/api/crud6/roles/1",
+          "description": "Attempt to access single role without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "permissions_schema": {
+          "method": "GET",
+          "path": "/api/crud6/permissions/schema",
+          "description": "Attempt to access permissions schema without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "permissions_list": {
+          "method": "GET",
+          "path": "/api/crud6/permissions",
+          "description": "Attempt to access permissions list without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "permissions_single": {
+          "method": "GET",
+          "path": "/api/crud6/permissions/1",
+          "description": "Attempt to access single permission without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "activities_schema": {
+          "method": "GET",
+          "path": "/api/crud6/activities/schema",
+          "description": "Attempt to access activities schema without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "activities_list": {
+          "method": "GET",
+          "path": "/api/crud6/activities",
+          "description": "Attempt to access activities list without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
+        },
+        "activities_single": {
+          "method": "GET",
+          "path": "/api/crud6/activities/1",
+          "description": "Attempt to access single activity without authentication",
+          "expected_status": 401,
+          "validation": {
+            "type": "status_only"
+          }
         }
       },
       "frontend": {

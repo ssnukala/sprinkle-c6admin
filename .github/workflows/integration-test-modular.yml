@@ -327,17 +327,26 @@ jobs:
           
           echo "✅ Vite server started"
 
-      - name: Test API paths - Unauthenticated (Modular)
+      - name: Test Unauthenticated API paths
         run: |
           cd userfrosting
-          # Copy modular path testing configuration and script
+          # Copy path configuration from sprinkle
           cp ../sprinkle-c6admin/.github/config/integration-test-paths.json .
+          # Copy path testing script from sprinkle
           cp ../sprinkle-c6admin/.github/scripts/test-paths.php .
 
-          # Test unauthenticated API paths
-          php test-paths.php integration-test-paths.json unauth api
+          echo "========================================="
+          echo "Testing Unauthenticated Paths"
+          echo "========================================="
+          # Test unauthenticated paths (all API endpoints should return 401/403)
+          php test-paths.php integration-test-paths.json unauth
 
-      - name: Test frontend paths - Unauthenticated (Modular)
+          echo ""
+          echo "========================================="
+          echo "Note: Authenticated API and frontend paths tested via screenshots step"
+          echo "========================================="
+
+      - name: Test Unauthenticated frontend paths
         run: |
           cd userfrosting
           # Test unauthenticated frontend paths (should redirect to login)
