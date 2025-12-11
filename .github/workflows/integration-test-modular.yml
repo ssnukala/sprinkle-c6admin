@@ -623,7 +623,7 @@ jobs:
           #  head -n 30 /tmp/network-requests-summary.txt
           #else
           #  echo "⚠️  Network request summary not found"
-          fi
+          #fi
       - name: Upload screenshots as artifacts
         if: always()
         uses: actions/upload-artifact@v4
