@@ -176,11 +176,10 @@ async function takeScreenshotsFromConfig(configFile, baseUrlOverride, usernameOv
         console.log('📍 Navigating to login page...');
         console.log(`   URL: ${baseUrl}/account/sign-in`);
         
-        // Enable console logging from the page for debugging - LOG ERRORS ONLY
+        // Enable console logging from the page - LOG ERRORS ONLY
         page.on('console', msg => {
             const type = msg.type();
             // Only log browser errors (not log/debug/warning messages)
-            // Other messages are still captured if error logging is enabled
             if (type === 'error') {
                 console.log(`   [Browser ${type.toUpperCase()}]:`, msg.text());
             }
