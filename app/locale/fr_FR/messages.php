@@ -231,7 +231,6 @@ return [
             'LAST_NAME'   => 'Nom de famille',
             'EMAIL'       => 'Adresse e-mail',
             'LOCALE'      => 'Langue',
-            'THEME'       => 'Thème',
             'GROUP'       => 'Groupe',
             'LAST_ACTIVITY_ID' => 'ID de la dernière activité',
             'VERIFIED'    => 'Vérifié',

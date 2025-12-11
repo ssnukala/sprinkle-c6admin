@@ -289,21 +289,6 @@
                 }
             }
         },
-        "theme": {
-            "type": "string",
-            "label": "CRUD6.USER.THEME",
-            "required": false,
-            "show_in": [
-                "form",
-                "detail"
-            ],
-            "default": null,
-            "validation": {
-                "length": {
-                    "max": 100
-                }
-            }
-        },
         "group_id": {
             "type": "integer",
             "label": "CRUD6.USER.GROUP",

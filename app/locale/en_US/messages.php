@@ -246,7 +246,6 @@ return [
             'LAST_NAME'   => 'Last Name',
             'EMAIL'       => 'Email Address',
             'LOCALE'      => 'Locale',
-            'THEME'       => 'Theme',
             'GROUP'       => 'Group',
             'LAST_ACTIVITY_ID' => 'Last Activity ID',
             'VERIFIED'    => 'Verified',
