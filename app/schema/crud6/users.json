@@ -354,14 +354,16 @@
         "password": {
             "type": "password",
             "label": "CRUD6.USER.PASSWORD",
-            "required": false,
+            "required": true,
             "show_in": [
                 "create",
                 "edit"
             ],
             "validation": {
+                "required": true,
                 "length": {
-                    "min": 8
+                    "min": 8,
+                    "max": 255
                 },
                 "match": true
             }

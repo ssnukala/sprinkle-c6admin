@@ -122,11 +122,15 @@
         "conditions": {
             "type": "text",
             "label": "CRUD6.PERMISSION.CONDITIONS",
-            "required": false,
+            "required": true,
+            "default": "always()",
             "show_in": [
                 "form",
                 "detail"
-            ]
+            ],
+            "validation": {
+                "required": true
+            }
         },
         "description": {
             "type": "text",
