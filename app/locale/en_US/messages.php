@@ -247,6 +247,7 @@ return [
             'EMAIL'       => 'Email Address',
             'LOCALE'      => 'Locale',
             'GROUP'       => 'Group',
+            'LAST_ACTIVITY_ID' => 'Last Activity ID',
             'VERIFIED'    => 'Verified',
             'VERIFIED_DESCRIPTION' => 'Email verification status',
             'ENABLED'     => 'Enabled',

@@ -299,6 +299,15 @@
                 "detail"
             ]
         },
+        "last_activity_id": {
+            "type": "integer",
+            "label": "CRUD6.USER.LAST_ACTIVITY_ID",
+            "required": false,
+            "default": null,
+            "show_in": [
+                "detail"
+            ]
+        },
         "flag_verified": {
             "type": "boolean",
             "ui": "toggle",
@@ -345,14 +354,16 @@
         "password": {
             "type": "password",
             "label": "CRUD6.USER.PASSWORD",
-            "required": false,
+            "required": true,
             "show_in": [
                 "create",
                 "edit"
             ],
             "validation": {
+                "required": true,
                 "length": {
-                    "min": 8
+                    "min": 8,
+                    "max": 255
                 },
                 "match": true
             }

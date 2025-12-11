@@ -232,6 +232,7 @@ return [
             'EMAIL'       => 'Adresse e-mail',
             'LOCALE'      => 'Langue',
             'GROUP'       => 'Groupe',
+            'LAST_ACTIVITY_ID' => 'ID de la dernière activité',
             'VERIFIED'    => 'Vérifié',
             'VERIFIED_DESCRIPTION' => 'Statut de vérification de l\'e-mail',
             'ENABLED'     => 'Activé',
