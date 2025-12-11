@@ -46,113 +46,44 @@ jobs:
       - name: Create UserFrosting project using composer create-project
         run: |
           composer create-project userfrosting/userfrosting userfrosting "^6.0-beta" --no-scripts --no-install --ignore-platform-reqs
+          # Create storage and app runtime directories immediately after project creation
+          # This ensures all required directories are available for subsequent steps
+          echo ""
+          echo "Creating runtime directories with 777 permissions..."
+          cd userfrosting/app
 
+          # Set ownership to current user
+          chown -R $USER: .
+
+          # Create required directories (UserFrosting 6 structure)
+          mkdir -p storage/sessions storage/cache storage/logs logs cache sessions
+          chmod -R 777 storage sessions logs cache
+
+          # Create log file
+          touch logs/userfrosting.log
+
+          echo "✅ Runtime directories created and permissions set to 777"
+          echo ""
+          echo "Storage directories:"
+          ls -ld storage storage/sessions storage/cache storage/logs
+          echo ""
+          echo "Other directories:"
+          ls -ld logs cache sessions
+          echo ""
+          echo "Log file:"
+          ls -la logs/userfrosting.log
       - name: Configure Composer for beta packages and local sprinkles
         run: |
           cd userfrosting
+          # Configure GitHub token for accessing private/public repos
+          composer config github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
           # Add local C6Admin sprinkle path
           composer config repositories.local-c6admin path ../sprinkle-c6admin
           # Add sprinkle-crud6 repository (required dependency of C6Admin)
           composer config repositories.sprinkle-crud6 git https://github.com/ssnukala/sprinkle-crud6.git
           composer require ssnukala/sprinkle-c6admin:@dev --no-update
-          composer config minimum-stability dev
+          composer config minimum-stability beta
           composer config prefer-stable true
-
-      - name: Configure Composer authentication for GitHub
-        run: |
-          cd userfrosting
-          # Configure GitHub token for accessing private/public repos
-          composer config github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure MyApp.php with C6Admin sprinkle
-        run: |
-          cd userfrosting
-          # Configure MyApp.php to add C6Admin sprinkle
-          # C6Admin automatically includes CRUD6 as a dependency via getSprinkles()
-          
-          # Add C6Admin import
-          sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
-          
-          # Add C6Admin::class after Admin::class in getSprinkles() array
-          sed -i '/Admin::class,/a \             C6Admin::class,' app/src/MyApp.php
-          
-          echo "========================================="
-          echo "Configured MyApp.php with C6Admin"
-          echo "C6Admin automatically includes CRUD6 dependency"
-          echo "========================================="
-          cat app/src/MyApp.php
-
-      - name: Configure router/index.ts
-        run: |
-          cd userfrosting
-          # Configure app/assets/router/index.ts to include C6Admin routes
-          # C6Admin automatically includes CRUD6 routes as a dependency
-          
-          # Step 1: Add import statements for C6Admin routes and layout
-          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
-          sed -i "/import { createRouter, createWebHistory } from 'vue-router'/a import LayoutDashboard from '../layouts/LayoutDashboard.vue'" app/assets/router/index.ts
-          
-          # Step 2: Find the last ] in the file and insert C6Admin routes before it
-          LAST_BRACKET_LINE=$(grep -n '\]' app/assets/router/index.ts | tail -1 | cut -d: -f1)
-          echo "Found last ] at line: $LAST_BRACKET_LINE"
-          
-          sed -i "${LAST_BRACKET_LINE}i\\        ,\\
-          // C6Admin routes with their own layout (includes CRUD6 routes)\\
-          ...createC6AdminRoutes({ layoutComponent: LayoutDashboard })" app/assets/router/index.ts
-          
-          # Step 3: Validate that the changes were applied
-          echo "========================================="
-          echo "Validating router/index.ts modifications"
-          echo "========================================="
-          
-          if ! grep -q "import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'" app/assets/router/index.ts; then
-            echo "❌ ERROR: createC6AdminRoutes import statement not found in router/index.ts"
-            echo "File content:"
-            cat app/assets/router/index.ts
-            exit 1
-          fi
-          echo "✅ createC6AdminRoutes import statement verified"
-          
-          if ! grep -q "import LayoutDashboard from '../layouts/LayoutDashboard.vue'" app/assets/router/index.ts; then
-            echo "❌ ERROR: LayoutDashboard import statement not found in router/index.ts"
-            echo "File content:"
-            cat app/assets/router/index.ts
-            exit 1
-          fi
-          echo "✅ LayoutDashboard import statement verified"
-          
-          if ! grep -q "createC6AdminRoutes({ layoutComponent: LayoutDashboard })" app/assets/router/index.ts; then
-            echo "❌ ERROR: C6Admin routes not found in router/index.ts"
-            echo "File content:"
-            cat app/assets/router/index.ts
-            exit 1
-          fi
-          echo "✅ C6Admin routes verified (includes CRUD6 routes)"
-          
-          echo "========================================="
-          echo "✅ All validations passed!"
-          echo "========================================="
-          echo "Configured router/index.ts with C6Admin routes:"
-          cat app/assets/router/index.ts
-
-      - name: Configure main.ts with C6Admin sprinkle
-        run: |
-          cd userfrosting
-          # Configure app/assets/main.ts to include C6Admin sprinkle
-          # C6Admin automatically includes CRUD6 as a frontend dependency
-          
-          # Add C6AdminSprinkle import
-          sed -i "/import AdminSprinkle from '@userfrosting\/sprinkle-admin'/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
-          
-          # Add sprinkle registration
-          sed -i '/app\.use(AdminSprinkle)/a app.use(C6AdminSprinkle)' app/assets/main.ts
-          
-          echo "========================================="
-          echo "Configured main.ts with C6Admin"
-          echo "C6Admin automatically includes CRUD6 dependency"
-          echo "========================================="
-          cat app/assets/main.ts
-
       - name: Install PHP dependencies
         run: |
           cd userfrosting
@@ -172,6 +103,95 @@ jobs:
           # Install C6Admin package (CRUD6 will be installed automatically from Git URL)
           npm install ./ssnukala-sprinkle-c6admin-*.tgz
 
+      - name: Configure MyApp.php with C6Admin sprinkle
+        run: |
+          cd userfrosting
+          # Configure MyApp.php to add C6Admin sprinkle
+          # C6Admin automatically includes CRUD6 as a dependency via getSprinkles()
+
+          # Add C6Admin import
+          sed -i '/use UserFrosting\\Sprinkle\\Admin\\Admin;/a use UserFrosting\\Sprinkle\\C6Admin\\C6Admin;' app/src/MyApp.php
+
+          # Add C6Admin::class after Admin::class in getSprinkles() array
+          sed -i '/Admin::class,/a \             C6Admin::class,' app/src/MyApp.php
+
+          echo "========================================="
+          echo "Configured MyApp.php with C6Admin"
+          echo "C6Admin automatically includes CRUD6 dependency"
+          echo "========================================="
+          cat app/src/MyApp.php
+
+      - name: Configure router/index.ts
+        run: |
+          cd userfrosting
+          # Configure app/assets/router/index.ts to include C6Admin routes
+          # C6Admin automatically includes CRUD6 routes as a dependency
+
+          # Step 1: Add import statements for C6Admin routes and layout
+          sed -i "/import AdminRoutes from '@userfrosting\/sprinkle-admin\/routes'/a import { createC6AdminRoutes } from '@ssnukala\/sprinkle-c6admin\/routes'" app/assets/router/index.ts
+          sed -i "/import { createRouter, createWebHistory } from 'vue-router'/a import LayoutDashboard from '../layouts/LayoutDashboard.vue'" app/assets/router/index.ts
+
+          # Step 2: Find the last ] in the file and insert C6Admin routes before it
+          LAST_BRACKET_LINE=$(grep -n '\]' app/assets/router/index.ts | tail -1 | cut -d: -f1)
+          echo "Found last ] at line: $LAST_BRACKET_LINE"
+
+          sed -i "${LAST_BRACKET_LINE}i\\        ,\\
+          // C6Admin routes with their own layout (includes CRUD6 routes)\\
+          ...createC6AdminRoutes({ layoutComponent: LayoutDashboard })" app/assets/router/index.ts
+
+          # Step 3: Validate that the changes were applied
+          echo "========================================="
+          echo "Validating router/index.ts modifications"
+          echo "========================================="
+
+          if ! grep -q "import { createC6AdminRoutes } from '@ssnukala/sprinkle-c6admin/routes'" app/assets/router/index.ts; then
+            echo "❌ ERROR: createC6AdminRoutes import statement not found in router/index.ts"
+            echo "File content:"
+            cat app/assets/router/index.ts
+            exit 1
+          fi
+          echo "✅ createC6AdminRoutes import statement verified"
+
+          if ! grep -q "import LayoutDashboard from '../layouts/LayoutDashboard.vue'" app/assets/router/index.ts; then
+            echo "❌ ERROR: LayoutDashboard import statement not found in router/index.ts"
+            echo "File content:"
+            cat app/assets/router/index.ts
+            exit 1
+          fi
+          echo "✅ LayoutDashboard import statement verified"
+
+          if ! grep -q "createC6AdminRoutes({ layoutComponent: LayoutDashboard })" app/assets/router/index.ts; then
+            echo "❌ ERROR: C6Admin routes not found in router/index.ts"
+            echo "File content:"
+            cat app/assets/router/index.ts
+            exit 1
+          fi
+          echo "✅ C6Admin routes verified (includes CRUD6 routes)"
+
+          echo "========================================="
+          echo "✅ All validations passed!"
+          echo "========================================="
+          echo "Configured router/index.ts with C6Admin routes:"
+          cat app/assets/router/index.ts
+
+      - name: Configure main.ts with C6Admin sprinkle
+        run: |
+          cd userfrosting
+          # Configure app/assets/main.ts to include C6Admin sprinkle
+          # C6Admin automatically includes CRUD6 as a frontend dependency
+
+          # Add C6AdminSprinkle import
+          sed -i '/app\.use(AdminSprinkle)/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
+
+          # Add sprinkle registration
+          sed -i "/import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'/a app.use(C6AdminSprinkle)' app/assets/main.ts
+
+          echo "========================================="
+          echo "Configured main.ts with C6Admin"
+          echo "C6Admin automatically includes CRUD6 dependency"
+          echo "========================================="
+          cat app/assets/main.ts
+
       - name: Verify NPM packages installation
         run: |
           cd userfrosting
@@ -183,7 +203,83 @@ jobs:
           echo "Checking C6Admin package..."
           npm list @ssnukala/sprinkle-c6admin || echo "⚠️  C6Admin package may not be listed"
           test -f node_modules/@ssnukala/sprinkle-c6admin/app/assets/index.ts && echo "✅ C6Admin NPM package files accessible" || echo "⚠️ C6Admin NPM package files not found"
+      - name: Configure vite.config.ts for CommonJS dependencies
+        run: |
+          cd userfrosting
+          # Configure vite.config.ts to handle CommonJS dependencies (limax and lodash.deburr)
+          # sprinkle-crud6 uses limax which depends on lodash.deburr (CommonJS modules)
+          # These need to be pre-bundled by Vite to work properly
 
+          # Check if already configured
+          if grep -q "'limax'" vite.config.ts || grep -q '"limax"' vite.config.ts; then
+            echo "limax already in vite.config.ts, skipping configuration"
+          elif grep -q "optimizeDeps:" vite.config.ts; then
+            echo "optimizeDeps section exists, checking for include array..."
+            if grep -q "include:" vite.config.ts; then
+              echo "include array exists, adding limax and lodash.deburr to it..."
+              # Add to existing include array using awk (handles both single-line and multi-line)
+              awk '
+                /include: \[/ {
+                  if (/\]/) {
+                    # Single-line array: include: [...]
+                    sub(/\]/, ", '\''limax'\'', '\''lodash.deburr'\'']");
+                    print;
+                    next;
+                  } else {
+                    # Multi-line array start
+                    print;
+                    in_array=1;
+                    next;
+                  }
+                }
+                in_array {
+                  if (/\]/) {
+                    # Multi-line array end - add items before closing bracket
+                    print "            '\''limax'\'',";
+                    print "            '\''lodash.deburr'\''";
+                    print $0;
+                    in_array=0;
+                    next;
+                  } else {
+                    # Inside array - ensure trailing comma
+                    if (!/,$/) {
+                      sub(/$/, ",");
+                    }
+                    print;
+                    next;
+                  }
+                }
+                {print}
+              ' vite.config.ts > vite.config.ts.tmp && mv vite.config.ts.tmp vite.config.ts
+            else
+              echo "include array doesn't exist, creating it..."
+              # Add include array to optimizeDeps
+              sed -i "/optimizeDeps: {/a \        include: ['limax', 'lodash.deburr']," vite.config.ts
+            fi
+          else
+            echo "optimizeDeps section doesn't exist, creating it..."
+            # Add optimizeDeps section after plugins block
+            # This handles both single-line (plugins: [...],) and multi-line plugins arrays
+            awk '
+              /plugins:/ {in_plugins=1} 
+              in_plugins && /\],/ {
+                print;
+                print "    optimizeDeps: {";
+                print "        // Include CommonJS dependencies for sprinkle-crud6";
+                print "        // limax uses lodash.deburr which is a CommonJS module";
+                print "        include: ['\''limax'\'', '\''lodash.deburr'\'']";
+                print "    },";
+                in_plugins=0;
+                next;
+              } 
+              {print}
+            ' vite.config.ts > vite.config.ts.tmp && mv vite.config.ts.tmp vite.config.ts
+          fi
+
+          echo ""
+          echo "✅ Vite configuration updated for CommonJS dependencies"
+          echo "Updated vite.config.ts:"
+          cat vite.config.ts
       - name: Setup environment
         run: |
           cd userfrosting
@@ -200,6 +296,31 @@ jobs:
           echo "" >> app/.env
           echo "# Bakery Configuration" >> app/.env
           echo "BAKERY_CONFIRM_SENSITIVE_COMMAND=false" >> app/.env
+          # Use database session handler for testing (avoids file session directory issues)
+          echo "" >> app/.env
+          echo "# Testing Configuration" >> app/.env
+          echo "TEST_SESSION_HANDLER=database" >> app/.env
+
+          # Create CRUD6 test configuration to enable debug mode
+          echo "Creating CRUD6 test configuration with debug mode enabled..."
+          mkdir -p app/config
+          cat > app/config/crud6-test.php << 'EOF'
+          <?php
+          declare(strict_types=1);
+
+          /**
+           * CRUD6 test configuration
+           * Enables debug mode for comprehensive backend logging during CI tests
+           */
+          return [
+              'crud6' => [
+                  'debug_mode' => true,
+              ],
+          ];
+          EOF
+
+          echo "✅ CRUD6 debug mode configuration created"
+          cat app/config/crud6-test.php
 
       - name: Run migrations
         run: |
@@ -235,22 +356,22 @@ jobs:
           echo "========================================="
           echo "Seeding C6Admin Test Data (SQL-based)"
           echo "========================================="
-          
+
           # Execute the dynamically generated SQL file
           mysql -h 127.0.0.1 -uroot -proot userfrosting_test < vendor/ssnukala/sprinkle-c6admin/app/tests/test-data.sql
-          
+
           echo "✅ C6Admin test data seeded successfully"
-          
+
           # Verify test groups were created
           echo ""
           echo "Test groups created:"
           mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT slug, name FROM \`groups\` WHERE slug IN ('developers', 'managers', 'testers');"
-          
+
           # Verify test users were created
           echo ""
           echo "Test users created:"
           mysql -h 127.0.0.1 -uroot -proot userfrosting_test -e "SELECT user_name, email, group_id FROM \`users\` WHERE user_name IN ('testadmin', 'c6admin', 'testuser', 'testmoderator');"
-          
+
           # Verify role assignments
           echo ""
           echo "Role assignments:"
@@ -273,7 +394,7 @@ jobs:
 
           # Run idempotency test using modular configuration
           php test-seed-idempotency-modular.php integration-test-seeds.json
-          
+
           # Also test SQL idempotency by running it again
           echo ""
           echo "========================================="
@@ -281,7 +402,6 @@ jobs:
           echo "========================================="
           mysql -h 127.0.0.1 -uroot -proot userfrosting_test < vendor/ssnukala/sprinkle-c6admin/app/tests/test-data.sql
           echo "✅ SQL idempotency test passed (no errors on re-run)"
-
 
       - name: Test schema loading
         run: |
@@ -352,17 +472,71 @@ jobs:
           php bakery assets:vite &
           VITE_PID=$!
           echo $VITE_PID > /tmp/vite.pid
-          
+
           # Wait longer for Vite to fully start up (matching CRUD6's approach)
           echo "Waiting for Vite server to start..."
           sleep 20
-          
+
           # Try to verify Vite is running by checking if the page loads properly
           echo "Testing if frontend is accessible..."
           curl -f http://localhost:8080 || echo "⚠️ Page load test after Vite start"
-          
+
           echo "✅ Vite server started"
 
+      - name: Verify Runtime Directories Before Tests
+        run: |
+          cd userfrosting
+
+          echo "========================================="
+          echo "Pre-Test Directory Verification"
+          echo "========================================="
+          echo ""
+          echo "Checking runtime directories before PHPUnit execution..."
+          echo ""
+
+          # Run a PHP script to check directory state
+          php -r "
+          \$dirs = ['app/storage/sessions', 'app/storage/cache', 'app/storage/logs'];
+          \$allGood = true;
+
+          foreach (\$dirs as \$dir) {
+              \$fullPath = __DIR__ . DIRECTORY_SEPARATOR . \$dir;
+              \$exists = is_dir(\$fullPath);
+              \$writable = is_writable(\$fullPath);
+              \$perms = \$exists ? substr(sprintf('%o', fileperms(\$fullPath)), -4) : 'N/A';
+              
+              echo \"\$dir:\n\";
+              echo \"  Path: \$fullPath\n\";
+              echo \"  Exists: \" . (\$exists ? 'YES' : 'NO') . \"\n\";
+              echo \"  Writable: \" . (\$writable ? 'YES' : 'NO') . \"\n\";
+              echo \"  Permissions: \$perms\n\";
+              
+              if (!\$exists || !\$writable) {
+                  \$allGood = false;
+                  echo \"  ⚠️  WARNING: Directory has issues!\n\";
+              } else {
+                  echo \"  ✅ Directory is ready\n\";
+              }
+              echo \"\n\";
+          }
+
+          if (!\$allGood) {
+              echo \"⚠️  WARNING: Some directories have issues. Tests may fail.\n\";
+              exit(1);
+          } else {
+              echo \"✅ All runtime directories are ready for testing.\n\";
+          }
+          "
+
+          echo ""
+          echo "Directory listing (ls -la storage/):"
+          ls -la storage/ || echo "storage/ directory does not exist"
+          echo ""
+          echo "Directory listing (ls -la app/storage/):"
+          ls -la app/storage/ || echo "app/storage/ directory does not exist"
+          echo ""
+          echo "Directory listing (ls -la app/storage/sessions/):"
+          ls -la app/storage/sessions/ || echo "app/storage/sessions/ directory does not exist"
       - name: Test Unauthenticated API paths
         run: |
           cd userfrosting
@@ -382,6 +556,25 @@ jobs:
           echo "Note: Authenticated API and frontend paths tested via screenshots step"
           echo "========================================="
 
+      - name: Generate Schema-Driven Tests
+        run: |
+          cd sprinkle-c6admin
+
+          echo "========================================="
+          echo "Generating Schema-Driven Tests"
+          echo "========================================="
+          echo ""
+          echo "Analyzing JSON schemas and generating comprehensive tests..."
+          echo ""
+
+          # Run schema test generator
+          node .github/scripts/generate-schema-tests.js app/schema/crud6 app/tests/Generated
+
+          echo ""
+          echo "========================================="
+          echo "Generated Test Summary"
+          echo "========================================="
+          ls -la app/tests/Generated/ || echo "No generated tests directory"
       - name: Test Unauthenticated frontend paths
         run: |
           cd userfrosting
@@ -430,7 +623,6 @@ jobs:
           else
             echo "⚠️  Network request summary not found"
           fi
-
       - name: Upload screenshots as artifacts
         if: always()
         uses: actions/upload-artifact@v4
