@@ -180,11 +180,11 @@ jobs:
           # Configure app/assets/main.ts to include C6Admin sprinkle
           # C6Admin automatically includes CRUD6 as a frontend dependency
 
-          # Add C6AdminSprinkle import
-          sed -i '/app\.use(AdminSprinkle)/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
+          # Add sprinkle registration after app.use(AdminSprinkle)
+          sed -i "/app.use(AdminSprinkle)/a app.use(C6AdminSprinkle)" app/assets/main.ts
 
-          # Add sprinkle registration
-          sed -i "/import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'/a app.use(C6AdminSprinkle)'" app/assets/main.ts
+          # Add C6AdminSprinkle import after AdminSprinkle import
+          sed -i "/app.use(AdminSprinkle)/a import C6AdminSprinkle from '@ssnukala\/sprinkle-c6admin'" app/assets/main.ts
 
           echo "========================================="
           echo "Configured main.ts with C6Admin"
