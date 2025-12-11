@@ -614,14 +614,15 @@ jobs:
           echo "Network Request Summary"
           echo "========================================="
           # Check if network summary file exists and show basic info
-          if [ -f /tmp/network-requests-summary.txt ]; then
-            echo "✅ Network request summary generated"
-            ls -lh /tmp/network-requests-summary.txt
-            echo ""
-            echo "Preview of summary (first 30 lines):"
-            head -n 30 /tmp/network-requests-summary.txt
-          else
-            echo "⚠️  Network request summary not found"
+          # SN Commented this out to reduce log noise - artifacts will have full details
+          #if [ -f /tmp/network-requests-summary.txt ]; then
+          #  echo "✅ Network request summary generated"
+          #  ls -lh /tmp/network-requests-summary.txt
+          #  echo ""
+          #  echo "Preview of summary (first 30 lines):"
+          #  head -n 30 /tmp/network-requests-summary.txt
+          #else
+          #  echo "⚠️  Network request summary not found"
           fi
       - name: Upload screenshots as artifacts
         if: always()
