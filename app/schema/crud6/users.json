@@ -289,6 +289,21 @@
                 }
             }
         },
+        "theme": {
+            "type": "string",
+            "label": "CRUD6.USER.THEME",
+            "required": false,
+            "show_in": [
+                "form",
+                "detail"
+            ],
+            "default": null,
+            "validation": {
+                "length": {
+                    "max": 100
+                }
+            }
+        },
         "group_id": {
             "type": "integer",
             "label": "CRUD6.USER.GROUP",
@@ -296,6 +311,15 @@
             "default": 1,
             "show_in": [
                 "form",
+                "detail"
+            ]
+        },
+        "last_activity_id": {
+            "type": "integer",
+            "label": "CRUD6.USER.LAST_ACTIVITY_ID",
+            "required": false,
+            "default": null,
+            "show_in": [
                 "detail"
             ]
         },
