@@ -16,4 +16,8 @@
             <directory suffix=".php">app/src</directory>
         </include>
     </source>
+    <php>
+        <!-- Configure test schema directories for CRUD6 integration tests -->
+        <env name="TEST_SCHEMA_DIRS" value="app/schema/crud6"/>
+    </php>
 </phpunit>

@@ -6,6 +6,51 @@ This directory contains integration tests for C6Admin that exercise the actual C
 
 The integration tests in this directory are based on the CRUD6 testing methodology and follow the same pass/fail/warn pattern. They test the actual HTTP endpoints that the frontend Vue.js components would call.
 
+## Schema Configuration
+
+C6Admin supports configurable schema directories for integration tests, aligned with sprinkle-crud6 PR #363.
+
+### Configuration Methods
+
+#### 1. Environment Variable (phpunit.xml)
+
+The default configuration is set in `phpunit.xml`:
+
+```xml
+<php>
+    <env name="TEST_SCHEMA_DIRS" value="app/schema/crud6"/>
+</php>
+```
+
+#### 2. Override in Test Class
+
+You can override the schema directories in a specific test class:
+
+```php
+protected function getTestSchemaDirs(): array
+{
+    return [
+        __DIR__ . '/../../schema/crud6',
+        __DIR__ . '/../../vendor/other-sprinkle/schema',
+    ];
+}
+```
+
+#### 3. Multiple Schema Directories
+
+For testing multiple sprinkles, specify comma-separated paths:
+
+```xml
+<env name="TEST_SCHEMA_DIRS" value="app/schema/crud6,vendor/my-sprinkle/schema"/>
+```
+
+### Default Behavior
+
+If no configuration is provided:
+- Falls back to `app/schema/crud6` directory
+- Only existing directories are used
+- Relative paths are resolved from project root
+
 ## Test Files
 
 ### SchemaBasedApiTest.php
@@ -24,6 +69,7 @@ The main integration test that dynamically tests all CRUD6 API endpoints based o
 2. **Pass/Fail/Warn Pattern**: Following CRUD6's testing approach
 3. **API Call Tracking**: Detects redundant API calls
 4. **C6Admin-Specific**: Accepts both 401 and 403 for unauthenticated requests
+5. **Configurable Schema Paths**: Supports multiple schema directories (PR #363)
 
 ## Running Tests
 
