@@ -1,0 +1,131 @@
+{
+  "description": "Integration test model configuration for C6Admin sprinkle",
+  "sprinkle": {
+    "name": "c6admin",
+    "namespace": "UserFrosting\\Sprinkle\\C6Admin",
+    "schema_directory": "app/schema/crud6",
+    "api_prefix": "/api/crud6",
+    "frontend_prefix": "/c6admin"
+  },
+  "models": [
+    {
+      "name": "users",
+      "schema_file": "users.json",
+      "test_id": 100,
+      "singular": "user",
+      "title": "Users"
+    },
+    {
+      "name": "roles",
+      "schema_file": "roles.json",
+      "test_id": 100,
+      "singular": "role",
+      "title": "Roles"
+    },
+    {
+      "name": "groups",
+      "schema_file": "groups.json",
+      "test_id": 100,
+      "singular": "group",
+      "title": "Groups"
+    },
+    {
+      "name": "permissions",
+      "schema_file": "permissions.json",
+      "test_id": 100,
+      "singular": "permission",
+      "title": "Permissions"
+    },
+    {
+      "name": "activities",
+      "schema_file": "activities.json",
+      "test_id": 100,
+      "singular": "activity",
+      "title": "Activities"
+    }
+  ],
+  "path_templates": {
+    "authenticated": {
+      "api": {
+        "schema": {
+          "method": "GET",
+          "path": "{api_prefix}/{model}/schema",
+          "description": "Get {model} schema definition",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["model", "fields"]
+          }
+        },
+        "list": {
+          "method": "GET",
+          "path": "{api_prefix}/{model}",
+          "description": "Get list of {model} via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["rows"]
+          }
+        },
+        "single": {
+          "method": "GET",
+          "path": "{api_prefix}/{model}/{test_id}",
+          "description": "Get single {singular} by ID via CRUD6 API",
+          "expected_status": 200,
+          "validation": {
+            "type": "json",
+            "contains": ["id"]
+          }
+        }
+      },
+      "frontend": {
+        "list": {
+          "path": "{frontend_prefix}/{model}",
+          "description": "{title} list page in C6Admin",
+          "screenshot": true,
+          "screenshot_name": "{model}_list"
+        },
+        "detail": {
+          "path": "{frontend_prefix}/{model}/{test_id}",
+          "description": "{singular} detail page in C6Admin",
+          "screenshot": true,
+          "screenshot_name": "{model}_detail"
+        }
+      }
+    },
+    "unauthenticated": {
+      "api": {
+        "list_redirect": {
+          "method": "GET",
+          "path": "{api_prefix}/{model}",
+          "description": "Verify {model} API requires authentication",
+          "expected_status": 302,
+          "validation": {
+            "type": "redirect_to_login"
+          }
+        }
+      },
+      "frontend": {
+        "list_redirect": {
+          "path": "{frontend_prefix}/{model}",
+          "description": "Verify {model} page requires authentication",
+          "validation": {
+            "type": "redirect_to_login",
+            "contains": ["/account/sign-in", "login"]
+          }
+        }
+      }
+    }
+  },
+  "config": {
+    "base_url": "http://localhost:8080",
+    "auth": {
+      "username": "admin",
+      "password": "admin123"
+    },
+    "timeout": {
+      "api": 10,
+      "frontend": 30
+    }
+  }
+}

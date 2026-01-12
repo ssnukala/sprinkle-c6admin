@@ -395,6 +395,39 @@ Tests include:
 composer test
 ```
 
+### Integration Testing Framework
+
+C6Admin leverages the **reusable testing framework from CRUD6** to automatically generate integration test paths from schema files. This provides:
+
+- **Schema-Driven Testing**: Test paths automatically generated from `app/schema/crud6/*.json`
+- **Zero Duplication**: Reuses CRUD6's proven testing infrastructure
+- **25 Test Paths**: Auto-generated from 5 schema files
+
+**Generate Test Paths**:
+```bash
+# Generate integration test paths from schemas
+.github/scripts/generate-c6admin-test-paths.sh
+```
+
+This creates:
+- 15 API test paths (schema, list, single endpoints)
+- 10 frontend test paths (list and detail pages)
+- All configured from schema definitions
+
+**Run Integration Tests**:
+```bash
+# Test all generated paths
+php .github/scripts/test-paths.php .github/config/integration-test-paths.json
+
+# Test only API paths
+php .github/scripts/test-paths.php .github/config/integration-test-paths.json auth api
+
+# Test only frontend paths
+php .github/scripts/test-paths.php .github/config/integration-test-paths.json auth frontend
+```
+
+See [docs/TESTING_FRAMEWORK_INTEGRATION.md](docs/TESTING_FRAMEWORK_INTEGRATION.md) for complete documentation.
+
 ## Contributing
 
 Contributions are welcome! This project follows the same coding standards as UserFrosting.
