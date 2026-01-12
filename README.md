@@ -395,6 +395,30 @@ Tests include:
 composer test
 ```
 
+### Integration Testing Framework
+
+C6Admin leverages **CRUD6's testing framework directly** without any script duplication. During CI runs, the workflow:
+
+1. Checks out CRUD6 repository for its testing scripts
+2. Points CRUD6's scripts at C6Admin's schema files
+3. Generates and runs tests automatically
+
+**No local setup needed** - testing happens automatically in CI!
+
+**What C6Admin maintains:**
+- Schema files: `app/schema/crud6/*.json`
+- Test configuration: `.github/config/integration-test-models.json`
+- Seed configuration: `.github/config/integration-test-seeds.json`
+
+**What CRUD6 provides (used directly in CI):**
+- Path generation scripts
+- Test execution scripts
+- Seed validation scripts
+
+**Result**: 5 schema files → 25 test paths auto-generated in CI!
+
+See [docs/TESTING_FRAMEWORK_INTEGRATION.md](docs/TESTING_FRAMEWORK_INTEGRATION.md) and [docs/CRUD6_TESTING_LEVERAGE.md](docs/CRUD6_TESTING_LEVERAGE.md) for complete documentation.
+
 ## Contributing
 
 Contributions are welcome! This project follows the same coding standards as UserFrosting.
