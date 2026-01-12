@@ -397,36 +397,27 @@ composer test
 
 ### Integration Testing Framework
 
-C6Admin leverages the **reusable testing framework from CRUD6** to automatically generate integration test paths from schema files. This provides:
+C6Admin leverages **CRUD6's testing framework directly** without any script duplication. During CI runs, the workflow:
 
-- **Schema-Driven Testing**: Test paths automatically generated from `app/schema/crud6/*.json`
-- **Zero Duplication**: Reuses CRUD6's proven testing infrastructure
-- **25 Test Paths**: Auto-generated from 5 schema files
+1. Checks out CRUD6 repository for its testing scripts
+2. Points CRUD6's scripts at C6Admin's schema files
+3. Generates and runs tests automatically
 
-**Generate Test Paths**:
-```bash
-# Generate integration test paths from schemas
-.github/scripts/generate-c6admin-test-paths.sh
-```
+**No local setup needed** - testing happens automatically in CI!
 
-This creates:
-- 15 API test paths (schema, list, single endpoints)
-- 10 frontend test paths (list and detail pages)
-- All configured from schema definitions
+**What C6Admin maintains:**
+- Schema files: `app/schema/crud6/*.json`
+- Test configuration: `.github/config/integration-test-models.json`
+- Seed configuration: `.github/config/integration-test-seeds.json`
 
-**Run Integration Tests**:
-```bash
-# Test all generated paths
-php .github/scripts/test-paths.php .github/config/integration-test-paths.json
+**What CRUD6 provides (used directly in CI):**
+- Path generation scripts
+- Test execution scripts
+- Seed validation scripts
 
-# Test only API paths
-php .github/scripts/test-paths.php .github/config/integration-test-paths.json auth api
+**Result**: 5 schema files → 25 test paths auto-generated in CI!
 
-# Test only frontend paths
-php .github/scripts/test-paths.php .github/config/integration-test-paths.json auth frontend
-```
-
-See [docs/TESTING_FRAMEWORK_INTEGRATION.md](docs/TESTING_FRAMEWORK_INTEGRATION.md) for complete documentation.
+See [docs/TESTING_FRAMEWORK_INTEGRATION.md](docs/TESTING_FRAMEWORK_INTEGRATION.md) and [docs/CRUD6_TESTING_LEVERAGE.md](docs/CRUD6_TESTING_LEVERAGE.md) for complete documentation.
 
 ## Contributing
 
