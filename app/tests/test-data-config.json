@@ -13,21 +13,24 @@
       "description": "Test Groups - Additional groups for testing (base groups already exist from Account seeds)",
       "records": [
         {
-          "_comment": "Developers group - for development team members",
+          "_comment": "Developers group - for development team members (ID 100 for testing)",
+          "id": 100,
           "slug": "developers",
           "name": "Developers",
           "description": "Development team members with elevated privileges",
           "icon": "fa fa-code"
         },
         {
-          "_comment": "Managers group - for management team",
+          "_comment": "Managers group - for management team (ID 101 for testing)",
+          "id": 101,
           "slug": "managers",
           "name": "Managers",
           "description": "Management team with administrative access",
           "icon": "fa fa-users"
         },
         {
-          "_comment": "Testers group - for QA team",
+          "_comment": "Testers group - for QA team (ID 102 for testing)",
+          "id": 102,
           "slug": "testers",
           "name": "Testers",
           "description": "Quality assurance and testing team",
@@ -40,7 +43,8 @@
       "description": "Test Users - Users with different roles and permissions for testing",
       "records": [
         {
-          "_comment": "testadmin - Test administrator with site-admin role, uses managers group (lookup)",
+          "_comment": "testadmin - Test administrator with site-admin role (ID 100 for testing)",
+          "id": 100,
           "user_name": "testadmin",
           "first_name": "Test",
           "last_name": "Administrator",
@@ -52,7 +56,8 @@
           "_roles": ["site-admin"]
         },
         {
-          "_comment": "c6admin - C6Admin test user with crud6-admin role, uses developers group (lookup)",
+          "_comment": "c6admin - C6Admin test user with crud6-admin role (ID 101 for testing)",
+          "id": 101,
           "user_name": "c6admin",
           "first_name": "C6",
           "last_name": "Administrator",
@@ -64,7 +69,8 @@
           "_roles": ["crud6-admin"]
         },
         {
-          "_comment": "testuser - Regular user with basic permissions, uses default terran group (id=1)",
+          "_comment": "testuser - Regular user with basic permissions (ID 102 for testing)",
+          "id": 102,
           "user_name": "testuser",
           "first_name": "Test",
           "last_name": "User",
@@ -76,7 +82,8 @@
           "_roles": ["user"]
         },
         {
-          "_comment": "testmoderator - Test moderator with multiple roles, uses testers group (lookup)",
+          "_comment": "testmoderator - Test moderator with multiple roles (ID 103 for testing)",
+          "id": 103,
           "user_name": "testmoderator",
           "first_name": "Test",
           "last_name": "Moderator",

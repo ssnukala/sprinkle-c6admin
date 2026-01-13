@@ -145,7 +145,8 @@ function generateInsert(string $model, array $data, array $schema): string
             continue;
         }
         
-        if (($fieldDef['readonly'] ?? false) && !in_array($field, ['created_at', 'updated_at'])) {
+        // Allow explicit ID values even if readonly
+        if (($fieldDef['readonly'] ?? false) && $field !== 'id' && !in_array($field, ['created_at', 'updated_at'])) {
             continue;
         }
         
