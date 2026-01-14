@@ -21,12 +21,24 @@ use UserFrosting\Sprinkle\C6Admin\Controller\User\UserPasswordResetAction;
 use UserFrosting\Sprinkle\CRUD6\Middlewares\CRUD6Injector;
 
 /**
- * User admin routes.
- *
- * These are admin-specific routes for user management that go beyond basic CRUD.
+ * User administration routes.
+ * 
+ * Registers admin-specific user management routes that extend beyond basic CRUD:
+ * - POST /api/c6/users/{id}/password-reset - Force user to reset password on next login
+ * 
+ * All routes require authentication via AuthGuard and have NoCache middleware applied.
+ * The CRUD6Injector middleware automatically loads the user model from the {id} parameter.
  */
 class UsersRoutes implements RouteDefinitionInterface
 {
+    /**
+     * Register user administration routes.
+     * 
+     * Registers admin-specific user management endpoints with authentication,
+     * CRUD6 model injection, and caching middleware.
+     * 
+     * @param App $app The Slim application instance
+     */
     public function register(App $app): void
     {
         $app->group('/api/c6/users', function (RouteCollectorProxy $group) {

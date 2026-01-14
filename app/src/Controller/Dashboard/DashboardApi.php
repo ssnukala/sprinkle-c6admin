@@ -22,12 +22,25 @@ use UserFrosting\Sprinkle\Account\Database\Models\Interfaces\UserInterface;
 use UserFrosting\Sprinkle\Account\Exceptions\ForbiddenException;
 
 /**
- * Api for /dashboard URL. Handles admin-related activities.
+ * Dashboard API action.
+ * 
+ * Provides dashboard statistics and data for the admin panel:
+ * - User, role, and group counts
+ * - Latest users (up to 8 most recently created)
+ * 
+ * This endpoint powers the main admin dashboard view with key metrics
+ * and recent activity. Requires 'uri_dashboard' permission.
  */
 class DashboardApi
 {
     /**
      * Inject dependencies.
+     *
+     * @param Authenticator  $authenticator The authenticator for access control
+     * @param Config         $config        The configuration service
+     * @param UserInterface  $userModel     The user model interface
+     * @param RoleInterface  $roleModel     The role model interface
+     * @param GroupInterface $groupModel    The group model interface
      */
     public function __construct(
         protected Authenticator $authenticator,
@@ -39,11 +52,16 @@ class DashboardApi
     }
 
     /**
-     * Receive the request, dispatch to the handler, and return the payload to
-     * the response.
+     * Get dashboard data.
+     * 
+     * Returns dashboard statistics including entity counts and recent users.
      *
-     * @param Request  $request
-     * @param Response $response
+     * @param Request  $request  The PSR-7 request
+     * @param Response $response The PSR-7 response
+     *
+     * @return Response JSON response with dashboard data
+     * 
+     * @throws ForbiddenException If user lacks 'uri_dashboard' permission
      */
     public function __invoke(Request $request, Response $response): Response
     {
@@ -58,9 +76,9 @@ class DashboardApi
     }
 
     /**
-     * Validate access to the page.
+     * Validate user has access to the dashboard.
      *
-     * @throws ForbiddenException
+     * @throws ForbiddenException If user lacks 'uri_dashboard' permission
      */
     protected function validateAccess(): void
     {
@@ -70,11 +88,15 @@ class DashboardApi
     }
 
     /**
-     * Handle the request and return the payload.
+     * Gather dashboard statistics and data.
+     * 
+     * Collects:
+     * - Total counts of users, roles, and groups
+     * - Latest users (most recently created)
      *
-     * @param Request $request
+     * @param Request $request The PSR-7 request (unused but required by interface)
      *
-     * @return mixed[]
+     * @return array{counter: array{users: int, roles: int, groups: int}, users: array} Dashboard data
      */
     protected function handle(Request $request): array
     {
@@ -89,9 +111,12 @@ class DashboardApi
     }
 
     /**
-     * Get the latest users.
+     * Get the most recently created users.
+     * 
+     * Returns up to 8 of the most recently created users, ordered by creation date descending.
+     * TODO: Make the number of users configurable via application config.
      *
-     * @return UserInterface[]
+     * @return array<int, array> Array of user data arrays
      */
     protected function getLatestUsers(): array
     {

@@ -19,11 +19,25 @@ use UserFrosting\Sprinkle\C6Admin\Controller\Config\CacheApiAction;
 use UserFrosting\Sprinkle\C6Admin\Controller\Config\SystemInfoApiAction;
 use UserFrosting\Sprinkle\Core\Middlewares\NoCache;
 
-/*
- * Routes for config/system management.
+/**
+ * Configuration and system management routes.
+ * 
+ * Registers API routes for system configuration and management:
+ * - GET /api/c6/config/info - Get system information
+ * - DELETE /api/c6/cache - Clear application caches
+ * 
+ * All routes require authentication via AuthGuard and have NoCache middleware applied.
  */
 class ConfigRoutes implements RouteDefinitionInterface
 {
+    /**
+     * Register configuration and system management routes.
+     * 
+     * Registers system information and cache management endpoints with
+     * authentication and caching middleware.
+     * 
+     * @param App $app The Slim application instance
+     */
     public function register(App $app): void
     {
         $app->get('/api/c6/config/info', SystemInfoApiAction::class)
