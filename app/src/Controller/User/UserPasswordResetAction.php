@@ -22,19 +22,27 @@ use UserFrosting\Sprinkle\Core\Util\ApiResponse;
 use UserFrosting\Sprinkle\CRUD6\Database\Models\Interfaces\CRUD6ModelInterface;
 
 /**
- * Processes an admin request to reset a user password.
- *
- * Handles an admin request to revoke a user's password. This action will require
- * the user to reset their password using the "reset password" feature upon their
- * next login. This route requires authentication.
- *
- * Route: /api/users/{id}/password-reset
- * Request type: POST
+ * User password reset action.
+ * 
+ * Processes an admin request to revoke a user's password, forcing them to reset
+ * it upon their next login attempt. This is done by setting the user's
+ * password_last_set attribute to null.
+ * 
+ * This is an administrative action that requires authentication and the
+ * 'update_user_field' permission. The user model is injected by CRUD6Injector
+ * middleware from the route parameter.
+ * 
+ * Route: POST /api/c6/users/{id}/password-reset
+ * 
+ * @see CRUD6Injector For how the user model is injected into the request
  */
 class UserPasswordResetAction
 {
     /**
      * Inject dependencies.
+     *
+     * @param Translator    $translator    The translator for internationalized messages
+     * @param Authenticator $authenticator The authenticator for access control
      */
     public function __construct(
         protected Translator $translator,
@@ -43,11 +51,18 @@ class UserPasswordResetAction
     }
 
     /**
-     * Receive the request, dispatch to the handler, and return the payload to
-     * the response.
+     * Handle password reset request.
+     * 
+     * Retrieves the user from the request (injected by CRUD6Injector middleware),
+     * expires their password, and returns a success message.
      *
-     * @param Request  $request
-     * @param Response $response
+     * @param Request  $request  The PSR-7 request with 'crudModel' attribute containing the user
+     * @param Response $response The PSR-7 response
+     *
+     * @return Response JSON response with success message
+     * 
+     * @throws \RuntimeException If user model is not found in request attributes
+     * @throws ForbiddenException If user lacks 'update_user_field' permission
      */
     public function __invoke(Request $request, Response $response): Response
     {
@@ -71,9 +86,13 @@ class UserPasswordResetAction
     }
 
     /**
-     * Handle the request.
+     * Process the password reset.
+     * 
+     * Validates access and expires the user's password.
      *
-     * @param UserInterface $user
+     * @param UserInterface $user The user whose password should be reset
+     * 
+     * @throws ForbiddenException If user lacks 'update_user_field' permission
      */
     protected function handle(UserInterface $user): void
     {
@@ -82,9 +101,11 @@ class UserPasswordResetAction
     }
 
     /**
-     * Validate access to the page.
+     * Validate admin has permission to reset user passwords.
      *
-     * @throws ForbiddenException
+     * @param UserInterface $user The user whose password will be reset (unused but available for future checks)
+     * 
+     * @throws ForbiddenException If user lacks 'update_user_field' permission
      */
     protected function validateAccess(UserInterface $user): void
     {
@@ -94,11 +115,13 @@ class UserPasswordResetAction
     }
 
     /**
-     * Invalidate the user's password by setting the password_last_set attribute
-     * to null. This forces the user to reset their password the next time they
-     * log in.
+     * Expire the user's password.
+     * 
+     * Sets the password_last_set attribute to null, which forces the user
+     * to reset their password the next time they attempt to log in.
+     * The password itself remains in the database but is marked as expired.
      *
-     * @param UserInterface $user The user to reset the password for
+     * @param UserInterface $user The user whose password should be expired
      */
     protected function expireUserPassword(UserInterface $user): void
     {

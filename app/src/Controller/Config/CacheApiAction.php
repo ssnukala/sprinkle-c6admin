@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 /*
- * UserFrosting Admin Sprinkle (http://www.userfrosting.com)
+ * UserFrosting C6Admin Sprinkle (http://www.userfrosting.com)
  *
- * @link      https://github.com/userfrosting/sprinkle-admin
- * @copyright Copyright (c) 2013-2024 Alexander Weissman & Louis Charette
- * @license   https://github.com/userfrosting/sprinkle-admin/blob/master/LICENSE.md (MIT License)
+ * @link      https://github.com/ssnukala/sprinkle-c6admin
+ * @copyright Copyright (c) 2024 Srinivas Nukala
+ * @license   https://github.com/ssnukala/sprinkle-c6admin/blob/master/LICENSE.md (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\C6Admin\Controller\Config;
@@ -22,12 +22,25 @@ use UserFrosting\Sprinkle\Core\Bakery\ClearCacheCommand;
 use UserFrosting\Sprinkle\Core\Util\ApiResponse;
 
 /**
- * Controller class for clear cache api.
+ * Cache management API action.
+ * 
+ * Handles cache clearing operations for the application, including:
+ * - Illuminate cache (application cache)
+ * - Twig template cache
+ * - Router cache
+ * 
+ * Requires 'clear_cache' permission.
+ * 
+ * @see ClearCacheCommand For the underlying cache clearing implementation
  */
 class CacheApiAction
 {
     /**
      * Inject dependencies.
+     *
+     * @param Translator         $translator         The translator for internationalized messages
+     * @param Authenticator      $authenticator      The authenticator for access control
+     * @param ClearCacheCommand  $clearCacheCommand  The cache clearing command
      */
     public function __construct(
         protected Translator $translator,
@@ -37,11 +50,19 @@ class CacheApiAction
     }
 
     /**
-     * Receive the request, dispatch to the handler, and return the payload to
-     * the response.
+     * Clear all application caches.
+     * 
+     * This method handles the HTTP request to clear all caches:
+     * - Illuminate cache (application data cache)
+     * - Twig template cache
+     * - Router cache
      *
-     * @param Request  $request
-     * @param Response $response
+     * @param Request  $request  The PSR-7 request
+     * @param Response $response The PSR-7 response
+     *
+     * @return Response JSON response with success message
+     * 
+     * @throws ForbiddenException If user lacks 'clear_cache' permission
      */
     public function __invoke(Request $request, Response $response): Response
     {

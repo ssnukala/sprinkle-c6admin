@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 /*
- * UserFrosting Admin Sprinkle (http://www.userfrosting.com)
+ * UserFrosting C6Admin Sprinkle (http://www.userfrosting.com)
  *
- * @link      https://github.com/userfrosting/sprinkle-c6admin
- * @copyright Copyright (c) 2013-2024 Alexander Weissman & Louis Charette
- * @license   https://github.com/userfrosting/sprinkle-c6admin/blob/master/LICENSE.md (MIT License)
+ * @link      https://github.com/ssnukala/sprinkle-c6admin
+ * @copyright Copyright (c) 2024 Srinivas Nukala
+ * @license   https://github.com/ssnukala/sprinkle-c6admin/blob/master/LICENSE.md (MIT License)
  */
 
 namespace UserFrosting\Sprinkle\C6Admin\Exceptions;
@@ -16,7 +16,10 @@ use UserFrosting\Sprinkle\Core\Exceptions\NotFoundException;
 use UserFrosting\Support\Message\UserMessage;
 
 /**
- * Group not found exception.
+ * Account not found exception.
+ * 
+ * Thrown when an account (user, group, role, or permission) cannot be found in the database.
+ * This is a generic exception for account-related "not found" scenarios.
  */
 final class AccountNotFoundException extends NotFoundException
 {
