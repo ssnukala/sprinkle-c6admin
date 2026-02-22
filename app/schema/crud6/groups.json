@@ -83,6 +83,7 @@
             "required": false,
             "sortable": false,
             "filterable": false,
+            "span": "full",
             "show_in": [
                 "list",
                 "form",

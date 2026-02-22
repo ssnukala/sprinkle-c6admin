@@ -31,10 +31,16 @@
         "app/assets",
         "app/schema/"
     ],
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "dev": "vite",
+        "build": "vite build"
+    },
     "dependencies": {
         "@userfrosting/sprinkle-account": "^6.0.0-beta",
-        "@userfrosting/sprinkle-core": "^6.0.0-beta",
-        "@ssnukala/sprinkle-crud6": "git+https://github.com/ssnukala/sprinkle-crud6.git#0.6.1"
+        "@userfrosting/sprinkle-core": "^6.0.0-beta"
     },
     "peerDependencies": {
         "axios": "^1.12.0",

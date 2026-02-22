@@ -25,8 +25,7 @@
         "php": "^8.1",
         "userfrosting/framework": "^6.0",
         "userfrosting/sprinkle-core": "^6.0",
-        "userfrosting/sprinkle-account": "^6.0",
-        "ssnukala/sprinkle-crud6": "^0.6.1"
+        "userfrosting/sprinkle-account": "^6.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
@@ -63,11 +62,5 @@
         "phpcs": "php-cs-fixer fix --dry-run --diff --verbose",
         "phpcs:fix": "php-cs-fixer fix --diff --verbose",
         "phpstan": "phpstan analyze app/src --level 8"
-    },
-    "repositories": {
-        "sprinkle-crud6": {
-            "type": "git",
-            "url": "https://github.com/ssnukala/sprinkle-crud6.git"
-        }
     }
 }

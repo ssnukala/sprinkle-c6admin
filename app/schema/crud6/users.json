@@ -177,6 +177,43 @@
             }
         }
     ],
+    "sections": [
+        {
+            "key": "identity",
+            "title": "CRUD6.USER.SECTION.IDENTITY",
+            "icon": "user",
+            "fields": ["user_name", "first_name", "last_name", "email"],
+            "columns": 2
+        },
+        {
+            "key": "settings",
+            "title": "CRUD6.USER.SECTION.SETTINGS",
+            "icon": "cog",
+            "fields": ["locale", "group_id"],
+            "columns": 2
+        },
+        {
+            "key": "status",
+            "title": "CRUD6.USER.SECTION.STATUS",
+            "icon": "shield-halved",
+            "fields": ["flag_verified", "flag_enabled"],
+            "columns": 2
+        },
+        {
+            "key": "roles",
+            "title": "CRUD6.USER.SECTION.ROLES",
+            "icon": "users",
+            "fields": ["role_ids"],
+            "columns": 1
+        },
+        {
+            "key": "security",
+            "title": "CRUD6.USER.SECTION.SECURITY",
+            "icon": "lock",
+            "fields": ["password"],
+            "columns": 1
+        }
+    ],
     "fields": {
         "id": {
             "type": "integer",
@@ -275,7 +312,7 @@
             }
         },
         "locale": {
-            "type": "string",
+            "type": "select",
             "label": "CRUD6.USER.LOCALE",
             "required": false,
             "show_in": [
@@ -283,6 +320,22 @@
                 "detail"
             ],
             "default": "en_US",
+            "options": [
+                { "value": "en_US", "label": "English (US)" },
+                { "value": "fr_FR", "label": "French" },
+                { "value": "de_DE", "label": "German" },
+                { "value": "es_ES", "label": "Spanish" },
+                { "value": "it_IT", "label": "Italian" },
+                { "value": "pt_BR", "label": "Portuguese (Brazil)" },
+                { "value": "zh_CN", "label": "Chinese (Simplified)" },
+                { "value": "ja_JP", "label": "Japanese" },
+                { "value": "ko_KR", "label": "Korean" },
+                { "value": "ru_RU", "label": "Russian" },
+                { "value": "ar_SA", "label": "Arabic" },
+                { "value": "hi_IN", "label": "Hindi" },
+                { "value": "th_TH", "label": "Thai" },
+                { "value": "tr_TR", "label": "Turkish" }
+            ],
             "validation": {
                 "length": {
                     "max": 10
@@ -320,7 +373,13 @@
                 "list",
                 "form",
                 "detail"
-            ]
+            ],
+            "display": {
+                "true_label": "Verified",
+                "false_label": "Unverified",
+                "true_style": "success",
+                "false_style": "warning"
+            }
         },
         "flag_enabled": {
             "type": "boolean",
@@ -334,7 +393,13 @@
                 "list",
                 "form",
                 "detail"
-            ]
+            ],
+            "display": {
+                "true_label": "Active",
+                "false_label": "Disabled",
+                "true_style": "success",
+                "false_style": "danger"
+            }
         },
         "role_ids": {
             "type": "multiselect",
